@@ -1,0 +1,316 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter, useParams } from 'next/navigation';
+import { 
+  ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, Wifi, 
+  HelpCircle, Award, RotateCcw, Clock, ShieldCheck
+} from 'lucide-react';
+import { useAppStore } from '@/data/store';
+import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
+
+export default function PostTestPage() {
+  const router = useRouter();
+  const params = useParams();
+  const lessonCode = (params.lessonCode as string) || 'RMUTI-003';
+  const { lessons, quizzes, progressMap, settings } = useAppStore();
+
+  const lesson = lessons.find((l) => l.code === lessonCode) || lessons[2];
+  const quiz = quizzes.find((q) => q.type === 'post_test' && q.lessonId === lesson.id) || quizzes[1];
+  const questions = quiz.versions[0].questions;
+
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [attemptCount, setAttemptCount] = useState(1);
+  const [maxAttempts] = useState(3);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const currentQ = questions[currentIdx] || questions[0];
+  const isSelected = !!selectedAnswers[currentQ.id];
+
+  const handleSelectOption = (optId: string) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [currentQ.id]: optId,
+    }));
+    setShowWarning(false);
+  };
+
+  const handleNext = () => {
+    if (!isSelected) {
+      setShowWarning(true);
+      return;
+    }
+    if (currentIdx < questions.length - 1) {
+      setCurrentIdx((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIdx > 0) {
+      setCurrentIdx((prev) => prev - 1);
+      setShowWarning(false);
+    }
+  };
+
+  const handleSubmitQuiz = () => {
+    if (Object.keys(selectedAnswers).length < questions.length) {
+      setShowWarning(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+
+      // คำนวณคะแนนฝั่ง Server (Simulated)
+      let correctCount = 0;
+      questions.forEach((q) => {
+        const correctOpt = q.options.find((o) => o.isCorrect);
+        if (correctOpt && selectedAnswers[q.id] === correctOpt.id) {
+          correctCount++;
+        }
+      });
+
+      const scorePercent = Math.round((correctCount / questions.length) * 100);
+      const isPassed = scorePercent >= 60;
+
+      // Navigate to Result Page (Page 12 or 13)
+      router.push(`/lessons/${lesson.code}/result?score=${scorePercent}&passed=${isPassed ? '1' : '0'}`);
+    }, 700);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      
+      {/* Top Breadcrumb */}
+      <div className="flex items-center justify-between">
+        <Link
+          href={`/lessons/${lesson.code}/learn`}
+          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          กลับไปยังบทเรียน
+        </Link>
+        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+          แบบทดสอบหลังเรียน (Post-test)
+        </span>
+      </div>
+
+      {/* Header Info Banner matching Page 11 */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900">
+          {lesson.title}
+        </h1>
+        <p className="text-xs text-slate-500 mt-0.5">แบบทดสอบหลังเรียน (Post-test)</p>
+      </div>
+
+      {/* Top 3 Info Cards matching Page 11 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        
+        {/* Card 1: Attempts */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-slate-800">ครั้งที่ {attemptCount} จาก {maxAttempts}</div>
+            <p className="text-[10px] text-slate-500">คุณยังมีสิทธิ์ทำแบบทดสอบอีก {maxAttempts - attemptCount} ครั้ง</p>
+          </div>
+        </div>
+
+        {/* Card 2: Pass Score */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold">
+            <Award className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-slate-800">เกณฑ์ผ่าน 60%</div>
+            <p className="text-[10px] text-slate-500">ต้องได้คะแนนอย่างน้อย 60% จึงจะถือว่าผ่าน</p>
+          </div>
+        </div>
+
+        {/* Card 3: Score Policy */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-slate-800">นโยบาย: ใช้คะแนนที่ดีที่สุด</div>
+            <p className="text-[10px] text-slate-500">ระบบจะบันทึกคะแนนที่ดีที่สุดจากทุกครั้งที่ทำ</p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Network Auto-Recovery Banner matching Page 11 */}
+      <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-between text-xs text-blue-900">
+        <div className="flex items-center gap-2.5">
+          <Wifi className="w-4 h-4 text-blue-600 shrink-0" />
+          <span>หากสัญญาณอินเทอร์เน็ตขัดข้อง ระบบจะบันทึกคำตอบให้อัตโนมัติ เมื่อกลับมาเชื่อมต่อใหม่จะทำต่อได้ทันที</span>
+        </div>
+        <button className="text-[10px] font-bold text-blue-700 bg-white px-2.5 py-1 rounded-lg border border-blue-200 hover:bg-blue-50 shrink-0">
+          ดูวิธีแก้ไขปัญหา
+        </button>
+      </div>
+
+      {/* Main Test & Question Navigator Layout matching Page 11 */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        
+        {/* Left: Active Question Box */}
+        <div className="md:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <span className="text-xs font-black text-blue-700">ข้อที่ {currentIdx + 1} จาก {questions.length}</span>
+            <span className="text-[10px] text-slate-400">แบบทดสอบหลังเรียน (Post-test)</span>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+            <h2 className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+              {currentQ.questionText}
+            </h2>
+          </div>
+
+          {/* Options */}
+          <div className="space-y-2.5">
+            {currentQ.options.map((opt) => {
+              const isChecked = selectedAnswers[currentQ.id] === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => handleSelectOption(opt.id)}
+                  className={`w-full p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition flex items-center justify-between cursor-pointer ${
+                    isChecked
+                      ? 'border-blue-600 bg-blue-50/70 text-blue-950 font-bold shadow-xs'
+                      : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  }`}
+                >
+                  <span>{opt.optionText}</span>
+                  <div
+                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                      isChecked ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    {isChecked && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {showWarning && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-red-500" />
+              <span>กรุณาเลือกคำตอบให้ครบทุกข้อก่อนส่งข้อสอบ</span>
+            </div>
+          )}
+
+          {/* Navigation Controls */}
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={handlePrev}
+              disabled={currentIdx === 0}
+              className={`px-4 py-2 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 ${
+                currentIdx === 0
+                  ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              ข้อก่อนหน้า
+            </button>
+
+            {currentIdx < questions.length - 1 ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-blue-200 cursor-pointer"
+              >
+                <span>ข้อถัดไป</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmitQuiz}
+                disabled={isSubmitting}
+                className="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-200 cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span>ส่งคำตอบแบบทดสอบ</span>
+                    <CheckCircle2 className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Question Grid Navigator matching Page 11 */}
+        <div className="md:col-span-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+          <h3 className="text-xs font-bold text-slate-800">ความคืบหน้าในการทำแบบทดสอบ</h3>
+
+          <div className="grid grid-cols-5 gap-2">
+            {questions.map((q, idx) => {
+              const isAnswered = !!selectedAnswers[q.id];
+              const isCurrent = idx === currentIdx;
+
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => setCurrentIdx(idx)}
+                  className={`h-10 rounded-xl font-bold text-xs transition flex items-center justify-center cursor-pointer ${
+                    isCurrent
+                      ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-300'
+                      : isAnswered
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 text-[10px] text-slate-500 space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+              <span>กำลังทำ</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span>ตอบแล้ว</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-200"></span>
+              <span>ยังไม่ได้ตอบ</span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] text-slate-600 space-y-1">
+            <p className="font-bold text-slate-700">เมื่อส่งคำตอบแล้ว:</p>
+            <p>✓ ระบบจะแสดงผลคะแนนทันที</p>
+            <p>✓ สามารถดูเฉลยได้หลังส่งข้อสอบ</p>
+            <p>✓ หากไม่ผ่าน สามารถทำใหม่ได้ตามจำนวนครั้งที่เหลือ</p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Loading Animation Modal matching Requirement 9 */}
+      <LoadingOverlay
+        isOpen={isSubmitting}
+        message="กำลังตรวจข้อสอบและคำนวณคะแนน..."
+        subMessage="ระบบกำลังเปรียบเทียบคะแนนกับเกณฑ์ผ่านเพื่อสรุปผลการเรียน"
+      />
+
+    </div>
+  );
+}
