@@ -32,6 +32,10 @@ import {
   dbUpsertUser,
   dbFetchAccessRules,
   dbFetchAnnouncements,
+  dbFetchSystemSettings,
+  dbUpsertSystemSettings,
+  dbFetchUserProgress,
+  dbUpsertUserProgress,
 } from '../lib/dbService';
 
 const STORAGE_KEYS = {
@@ -243,6 +247,7 @@ export function useAppStore() {
           dbFetchUsers(),
           dbFetchAccessRules(),
           dbFetchAnnouncements(),
+          dbFetchSystemSettings(),
         ]);
 
         if (!isMounted) return;
@@ -250,6 +255,7 @@ export function useAppStore() {
         const cloudUsers = results[0].status === 'fulfilled' ? results[0].value : null;
         const cloudRules = results[1].status === 'fulfilled' ? results[1].value : null;
         const cloudAnnouncements = results[2].status === 'fulfilled' ? results[2].value : null;
+        const cloudSettings = results[3].status === 'fulfilled' ? results[3].value : null;
 
         if (cloudUsers !== null && Array.isArray(cloudUsers)) {
           setUsersList(cloudUsers);
@@ -271,6 +277,13 @@ export function useAppStore() {
             localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(cloudAnnouncements));
           } catch (e) {}
         }
+
+        if (cloudSettings) {
+          setSettings(cloudSettings);
+          try {
+            localStorage.setItem(STORAGE_KEYS.SYSTEM_SETTINGS, JSON.stringify(cloudSettings));
+          } catch (e) {}
+        }
       } catch (err) {
         console.warn('[Supabase Sync Error]:', err);
       }
@@ -287,10 +300,11 @@ export function useAppStore() {
   const refreshFromCloud = async (): Promise<boolean> => {
     if (!isSupabaseConfigured()) return false;
     try {
-      const [cloudUsers, cloudRules, cloudAnnouncements] = await Promise.all([
+      const [cloudUsers, cloudRules, cloudAnnouncements, cloudSettings] = await Promise.all([
         dbFetchUsers(),
         dbFetchAccessRules(),
         dbFetchAnnouncements(),
+        dbFetchSystemSettings(),
       ]);
 
       if (cloudUsers !== null && Array.isArray(cloudUsers)) {
@@ -309,6 +323,12 @@ export function useAppStore() {
         setAnnouncements(cloudAnnouncements);
         try {
           localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(cloudAnnouncements));
+        } catch (e) {}
+      }
+      if (cloudSettings) {
+        setSettings(cloudSettings);
+        try {
+          localStorage.setItem(STORAGE_KEYS.SYSTEM_SETTINGS, JSON.stringify(cloudSettings));
         } catch (e) {}
       }
       return true;
@@ -433,6 +453,21 @@ export function useAppStore() {
       dbUpsertUser(newUser).catch((err) => {
         console.warn('[Supabase] Failed to upsert user on login:', err);
       });
+
+      // ดึงประวัติการเรียนของผู้ใช้จาก Supabase
+      if (newUser.id) {
+        dbFetchUserProgress(newUser.id).then((cloudProgress) => {
+          if (cloudProgress && Object.keys(cloudProgress).length > 0) {
+            setProgressMap((prev) => {
+              const merged = { ...prev, ...cloudProgress };
+              try {
+                localStorage.setItem(STORAGE_KEYS.LEARNER_PROGRESS, JSON.stringify(merged));
+              } catch (e) {}
+              return merged;
+            });
+          }
+        }).catch((err) => console.warn('[Supabase] Fetch user progress error:', err));
+      }
     }
 
     return { success: true, role, user: newUser };
@@ -570,8 +605,36 @@ export function useAppStore() {
         },
       };
 
-      localStorage.setItem(STORAGE_KEYS.LEARNER_PROGRESS, JSON.stringify(updatedProgress));
+      try {
+        localStorage.setItem(STORAGE_KEYS.LEARNER_PROGRESS, JSON.stringify(updatedProgress));
+      } catch (e) {}
+
+      // ซิงค์ความก้าวหน้าขึ้น Supabase Cloud DB
+      if (isSupabaseConfigured() && currentUser?.id) {
+        dbUpsertUserProgress(updatedProgress[lessonCode]).catch((err) => {
+          console.warn('[Supabase] Progress sync failed:', err);
+        });
+      }
+
       return updatedProgress;
+    });
+  };
+
+  // ฟังก์ชันบันทึกความก้าวหน้า/ผลสอบของผู้เรียนลงทั้ง LocalStorage และ Supabase
+  const saveUserLessonProgress = (lessonCode: string, progress: UserLessonProgress) => {
+    setProgressMap((prev) => {
+      const next = { ...prev, [lessonCode]: progress };
+      try {
+        localStorage.setItem(STORAGE_KEYS.LEARNER_PROGRESS, JSON.stringify(next));
+      } catch (e) {}
+
+      if (isSupabaseConfigured() && progress.userId) {
+        dbUpsertUserProgress(progress).catch((err) => {
+          console.warn('[Supabase] Failed to save user progress:', err);
+        });
+      }
+
+      return next;
     });
   };
 
@@ -600,5 +663,6 @@ export function useAppStore() {
     setSettings,
     isSupabaseLive: isSupabaseConfigured(),
     refreshFromCloud,
+    saveUserLessonProgress,
   };
 }

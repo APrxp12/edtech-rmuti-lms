@@ -10,9 +10,10 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { SystemSettings, initialSystemSettings } from '@/config/system-settings';
+import { dbUpsertSystemSettings } from '@/lib/dbService';
 
 export default function AdminSettingsPage() {
-  const { settings, setSettings } = useAppStore();
+  const { settings, setSettings, isSupabaseLive } = useAppStore();
 
   const [videoThreshold, setVideoThreshold] = useState<number>(settings.videoThresholdPercent);
   const [passScore, setPassScore] = useState<number>(settings.defaultPassScorePercent);
@@ -21,12 +22,26 @@ export default function AdminSettingsPage() {
   const [adminEmail, setAdminEmail] = useState<string>(settings.adminEmail);
   const [sessionTimeout, setSessionTimeout] = useState<number>(settings.sessionTimeoutMinutes);
 
+  const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  // Save Settings to Store and LocalStorage
-  const handleSave = (e: React.FormEvent) => {
+  // Sync state when settings are loaded from Cloud / Store
+  React.useEffect(() => {
+    if (settings) {
+      setVideoThreshold(settings.videoThresholdPercent);
+      setPassScore(settings.defaultPassScorePercent);
+      setMaxAttempts(settings.defaultMaxAttempts);
+      setAppName(settings.appName);
+      setAdminEmail(settings.adminEmail);
+      setSessionTimeout(settings.sessionTimeoutMinutes);
+    }
+  }, [settings]);
+
+  // Save Settings to Store, LocalStorage, and Supabase Cloud
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
     const newSettings: SystemSettings = {
       videoThresholdPercent: Math.max(10, Math.min(100, Number(videoThreshold) || 60)),
       defaultPassScorePercent: Math.max(0, Math.min(100, Number(passScore) || 60)),
@@ -43,17 +58,34 @@ export default function AdminSettingsPage() {
       console.error('Error saving settings to localStorage:', err);
     }
 
+    if (isSupabaseLive) {
+      try {
+        const ok = await dbUpsertSystemSettings(newSettings);
+        if (ok) {
+          setToastMsg('บันทึกการตั้งค่าระบบลงฐานข้อมูล Cloud สำเร็จแล้ว');
+        } else {
+          setToastMsg('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว');
+        }
+      } catch (err) {
+        console.warn('[Supabase] Error saving system settings:', err);
+        setToastMsg('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว');
+      }
+    } else {
+      setToastMsg('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว');
+    }
+
+    setIsSaving(false);
     setSavedSuccess(true);
-    setToastMsg('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว');
     setTimeout(() => {
       setSavedSuccess(false);
       setToastMsg(null);
-    }, 3000);
+    }, 3500);
   };
 
   // Reset to initial default settings
-  const handleResetDefaults = () => {
+  const handleResetDefaults = async () => {
     if (confirm('คุณต้องการคืนค่าการตั้งค่าระบบทั้งหมดเป็นค่าเริ่มต้นมาตรฐานใช่หรือไม่?')) {
+      setIsSaving(true);
       setVideoThreshold(initialSystemSettings.videoThresholdPercent);
       setPassScore(initialSystemSettings.defaultPassScorePercent);
       setMaxAttempts(initialSystemSettings.defaultMaxAttempts);
@@ -68,6 +100,15 @@ export default function AdminSettingsPage() {
         console.error('Error resetting settings to localStorage:', err);
       }
 
+      if (isSupabaseLive) {
+        try {
+          await dbUpsertSystemSettings(initialSystemSettings);
+        } catch (err) {
+          console.warn('[Supabase] Error resetting cloud settings:', err);
+        }
+      }
+
+      setIsSaving(false);
       setToastMsg('คืนค่าการตั้งค่าระบบเป็นค่าเริ่มต้นเรียบร้อยแล้ว');
       setTimeout(() => setToastMsg(null), 3000);
     }
@@ -119,10 +160,24 @@ export default function AdminSettingsPage() {
 
         {/* Global Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
           <button
             type="button"
+            disabled={isSaving}
             onClick={handleResetDefaults}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
             title="คืนค่าการตั้งค่าทั้งหมดเป็นค่าเริ่มต้น"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -131,11 +186,16 @@ export default function AdminSettingsPage() {
 
           <button
             type="button"
+            disabled={isSaving}
             onClick={handleSave}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-blue-200 flex items-center gap-1.5 transition cursor-pointer"
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-blue-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
           >
-            <Save className="w-4 h-4" />
-            <span>บันทึกการตั้งค่า</span>
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}</span>
           </button>
         </div>
       </div>

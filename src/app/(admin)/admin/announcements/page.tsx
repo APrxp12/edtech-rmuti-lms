@@ -5,14 +5,18 @@ import Link from 'next/link';
 import { 
   Megaphone, Plus, Trash2, Edit3, CheckCircle2, Calendar, AlertTriangle, 
   Image as ImageIcon, ArrowLeft, ExternalLink, Search, X, Eye, 
-  Sparkles, Building2, User, Filter, Clock, Check, Layers, AlertCircle
+  Sparkles, Building2, User, Filter, Clock, Check, Layers, AlertCircle,
+  Save, RefreshCw
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { Announcement } from '@/types';
 import { ImageUploadField } from '@/components/shared/FileUploadBox';
+import { dbSaveAllAnnouncements } from '@/lib/dbService';
 
 export default function AdminAnnouncementsPage() {
-  const { announcements, setAnnouncements } = useAppStore();
+  const { announcements, setAnnouncements, isSupabaseLive } = useAppStore();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,7 +51,7 @@ export default function AdminAnnouncementsPage() {
     department: 'สาขาวิชาครุศาสตร์อุตสาหกรรมอุตสาหการ คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น',
   };
 
-  // Sync to Store and LocalStorage
+  // Sync to Store, LocalStorage, and Supabase Cloud
   const saveAndSync = (updated: Announcement[], message?: string) => {
     setAnnouncements(updated);
     try {
@@ -55,9 +59,43 @@ export default function AdminAnnouncementsPage() {
     } catch (e) {
       console.error('Error saving announcements to localStorage:', e);
     }
+
+    if (isSupabaseLive) {
+      dbSaveAllAnnouncements(updated).catch((err) => {
+        console.warn('[Supabase] Auto-sync announcements failed:', err);
+      });
+    }
+
     if (message) {
       setToastMsg(message);
       setTimeout(() => setToastMsg(null), 3000);
+    }
+  };
+
+  // ปุ่มบันทึกข้อมูลหลัก (Manual Save Button)
+  const handleManualSave = async () => {
+    setIsSaving(true);
+    try {
+      try {
+        localStorage.setItem('edtech_announcements', JSON.stringify(announcements));
+      } catch (e) {}
+
+      if (isSupabaseLive) {
+        const ok = await dbSaveAllAnnouncements(announcements);
+        if (ok) {
+          setToastMsg('บันทึกข้อมูลข่าวประกาศลงฐานข้อมูล Cloud สำเร็จแล้ว');
+        } else {
+          setToastMsg('บันทึกข้อมูลลงในระบบเรียบร้อยแล้ว');
+        }
+      } else {
+        setToastMsg('บันทึกข้อมูลลงในระบบเรียบร้อยแล้ว');
+      }
+    } catch (err) {
+      console.error('Error saving announcements:', err);
+      setToastMsg('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -233,6 +271,35 @@ export default function AdminAnnouncementsPage() {
 
         {/* Global Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
+          {/* ปุ่มบันทึกการตั้งค่า (Save Changes Button) */}
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={handleManualSave}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+            title="บันทึกข้อมูลข่าวประกาศลงฐานข้อมูล"
+          >
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}</span>
+          </button>
+
           <Link
             href="/announcements"
             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"

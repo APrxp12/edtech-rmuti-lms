@@ -323,6 +323,40 @@ export async function dbDeleteAnnouncement(id: string): Promise<boolean> {
   }
 }
 
+export async function dbSaveAllAnnouncements(announcements: Announcement[]): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const { error: delErr } = await sb.from('announcements').delete().neq('id', '___never___');
+    if (delErr) console.warn('[Supabase] Error clearing announcements:', delErr.message);
+
+    if (announcements.length === 0) return true;
+
+    const rows = announcements.map((a) => ({
+      id: a.id,
+      title: a.title,
+      body: a.body,
+      category: a.category,
+      image_url: a.imageUrl || null,
+      status: a.status,
+      published_at: a.publishedAt,
+      expires_at: a.expiresAt ? a.expiresAt : null,
+      updated_at: a.updatedAt || new Date().toISOString(),
+    }));
+
+    const { error: insErr } = await sb.from('announcements').insert(rows);
+    if (insErr) {
+      console.warn('[Supabase] Error inserting announcements:', insErr.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception saving all announcements:', err);
+    return false;
+  }
+}
+
 // ==========================================
 // 4. USER LESSON PROGRESS TABLE
 // ==========================================
@@ -444,5 +478,56 @@ export function subscribeToUsersTable(onChange: (users: UserProfile[]) => void) 
   } catch (err) {
     console.warn('[Realtime] Failed to subscribe to users:', err);
     return () => {};
+  }
+}
+
+// ==========================================
+// 6. SYSTEM SETTINGS TABLE
+// ==========================================
+
+export async function dbFetchSystemSettings(): Promise<SystemSettings | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+
+  try {
+    const { data, error } = await sb
+      .from('system_settings')
+      .select('*')
+      .eq('id', 'global_settings')
+      .maybeSingle();
+
+    if (error) {
+      console.warn('[Supabase] Error fetching system_settings:', error.message);
+      return null;
+    }
+
+    if (!data || !data.data) return null;
+    return data.data as SystemSettings;
+  } catch (err) {
+    console.warn('[Supabase] Exception fetching system_settings:', err);
+    return null;
+  }
+}
+
+export async function dbUpsertSystemSettings(settings: SystemSettings): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const row = {
+      id: 'global_settings',
+      data: settings,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await sb.from('system_settings').upsert(row, { onConflict: 'id' });
+    if (error) {
+      console.warn('[Supabase] Error upserting system_settings:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception upserting system_settings:', err);
+    return false;
   }
 }
