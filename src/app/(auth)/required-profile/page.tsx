@@ -28,6 +28,25 @@ export default function RequiredProfilePage() {
     if (!isLoaded) return;
     if (!currentUser?.email || !currentUser?.id) {
       router.replace('/login');
+      return;
+    }
+    if (currentUser.role === 'admin') {
+      router.replace('/admin/lessons');
+      return;
+    }
+    const hasValidName = Boolean(
+      currentUser.fullName &&
+      currentUser.fullName.trim().length >= 3 &&
+      !currentUser.fullName.includes('@')
+    );
+    const hasValidStudentId = Boolean(
+      currentUser.studentId &&
+      currentUser.studentId.trim() !== '' &&
+      currentUser.studentId !== '-' &&
+      currentUser.studentId !== '65123456789'
+    );
+    if (currentUser.isProfileCompleted && hasValidName && hasValidStudentId) {
+      router.replace('/dashboard');
     }
   }, [isLoaded, currentUser, router]);
 

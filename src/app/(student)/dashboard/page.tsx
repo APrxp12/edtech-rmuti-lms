@@ -14,17 +14,25 @@ import { Announcement } from '@/types';
 
 export default function StudentDashboardPage() {
   const router = useRouter();
-  const { currentUser, lessons, announcements, progressMap } = useAppStore();
+  const { currentUser, isLoaded, lessons, announcements, progressMap } = useAppStore();
 
-  const isProfileIncomplete =
+  const hasValidName = Boolean(
+    currentUser.fullName &&
+    currentUser.fullName.trim().length >= 3 &&
+    !currentUser.fullName.includes('@')
+  );
+  const hasValidStudentId = Boolean(
+    currentUser.studentId &&
+    currentUser.studentId.trim() !== '' &&
+    currentUser.studentId !== '-' &&
+    currentUser.studentId !== '65123456789'
+  );
+  const isProfileIncomplete = Boolean(
+    isLoaded &&
+    currentUser.email &&
     currentUser.role === 'student' &&
-    (!currentUser.isProfileCompleted ||
-      !currentUser.studentId ||
-      currentUser.studentId.trim() === '' ||
-      currentUser.studentId === '-' ||
-      currentUser.studentId === '65123456789' ||
-      !currentUser.fullName ||
-      currentUser.fullName.trim() === '');
+    (!currentUser.isProfileCompleted || !hasValidName || !hasValidStudentId)
+  );
 
   const handleStartLesson = (destinationUrl: string, lessonTitle: string, isLocked?: boolean) => {
     if (isLocked) return;

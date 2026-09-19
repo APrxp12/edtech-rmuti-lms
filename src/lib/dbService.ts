@@ -47,7 +47,7 @@ export async function dbFetchUsers(): Promise<UserProfile[] | null> {
         email: row.email,
         fullName: row.full_name || '',
         displayName: row.display_name || row.full_name || '',
-        studentId: isAdmin ? '-' : (hasValidStudentId ? row.student_id : ''),
+        studentId: isAdmin ? (row.student_id || '-') : (hasValidStudentId ? row.student_id : ''),
         role: row.role || 'student',
         status: row.status || 'active',
         isProfileCompleted: isAdmin ? true : Boolean(row.is_profile_completed && hasValidStudentId && hasValidName),

@@ -397,9 +397,11 @@ export function useAppStore() {
 
     if (role === 'admin' || isMasterDev) {
       role = 'admin';
-      userFullName = cleanEmail === 'bugzonvazan@gmail.com' ? 'Lamut (ผู้พัฒนา)' : (existingUser?.fullName || 'ผู้ดูแลระบบ');
-      userDisplayName = cleanEmail === 'bugzonvazan@gmail.com' ? 'Lamut (ผู้พัฒนา)' : (existingUser?.displayName || 'ผู้ดูแลระบบ');
-      userStudentId = '-';
+      userFullName = (existingUser?.fullName && !existingUser.fullName.includes('@'))
+        ? existingUser.fullName
+        : (cleanEmail === 'bugzonvazan@gmail.com' ? 'Lamut (ผู้พัฒนา)' : (params.fullName || 'ผู้ดูแลระบบ'));
+      userDisplayName = existingUser?.displayName || userFullName;
+      userStudentId = existingUser?.studentId || '-';
       isProfileCompleted = true;
     } else {
       // สำหรับนักศึกษา:

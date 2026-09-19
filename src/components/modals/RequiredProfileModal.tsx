@@ -12,18 +12,31 @@ import { UserAvatar } from '@/components/ui/UserAvatar';
 export function RequiredProfileModal() {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, saveRequiredProfile } = useAppStore();
+  const { currentUser, isLoaded, saveRequiredProfile } = useAppStore();
 
   const isStudent = currentUser.role === 'student';
-  const isIncomplete =
+  const hasValidName = Boolean(
+    currentUser.fullName &&
+    currentUser.fullName.trim().length >= 3 &&
+    !currentUser.fullName.includes('@')
+  );
+  const hasValidStudentId = Boolean(
+    currentUser.studentId &&
+    currentUser.studentId.trim() !== '' &&
+    currentUser.studentId !== '-' &&
+    currentUser.studentId !== '65123456789'
+  );
+  const isProfileComplete = Boolean(
+    currentUser.isProfileCompleted && hasValidName && hasValidStudentId
+  );
+
+  // บังคับกรอกเฉพาะเมื่อโหลดเสร็จแล้ว เป็นนักศึกษา และยังกรอกข้อมูลไม่ครบ
+  const isIncomplete = Boolean(
+    isLoaded &&
+    currentUser.email &&
     isStudent &&
-    (!currentUser.isProfileCompleted ||
-      !currentUser.studentId ||
-      currentUser.studentId.trim() === '' ||
-      currentUser.studentId === '-' ||
-      currentUser.studentId === '65123456789' ||
-      !currentUser.fullName ||
-      currentUser.fullName.trim() === '');
+    !isProfileComplete
+  );
 
   const isLessonPage = pathname?.includes('/lessons/');
 
@@ -39,6 +52,20 @@ export function RequiredProfileModal() {
 
   // ตรวจจับสถานะข้อมูลโปรไฟล์เมื่อโหลดหน้าเว็บ
   useEffect(() => {
+    if (!isLoaded || !currentUser.email) {
+      setIsOpen(false);
+      return;
+    }
+
+    // แอดมิน หรือนักศึกษาที่กรอกครบแล้ว -> ปิด Modal ทันที และไม่เด้งขึ้นมา
+    if (!isStudent || isProfileComplete) {
+      setIsOpen(false);
+      setIsForced(false);
+      setForceReason(null);
+      return;
+    }
+
+    // สำหรับนักศึกษาที่ยังกรอกไม่ครบ
     if (isIncomplete) {
       setIsOpen(true);
       if (isLessonPage) {
@@ -46,9 +73,9 @@ export function RequiredProfileModal() {
         setForceReason('กรุณาระบุชื่อ-นามสกุล และรหัสนักศึกษาก่อนเริ่มเข้าเรียน');
       }
     }
-  }, [isIncomplete, isLessonPage]);
+  }, [isLoaded, currentUser.email, isStudent, isProfileComplete, isIncomplete, isLessonPage]);
 
-  // ซิงค์ค่าเริ่มต้นจาก currentUser (ถ้าเคยมีค่าที่ถูกต้อง)
+  // ซิงค์ค่าเริ่มต้นจาก currentUser
   useEffect(() => {
     if (currentUser.fullName && !currentUser.fullName.includes('@')) {
       setFullName(currentUser.fullName);
@@ -60,11 +87,14 @@ export function RequiredProfileModal() {
     ) {
       setStudentId(currentUser.studentId);
     }
-  }, [currentUser]);
+  }, [currentUser.fullName, currentUser.studentId]);
 
-  // ดักฟังสัญญาณสั่งเปิด Modal จากภายนอก (เช่น เมื่อคลิกเริ่มเรียนแล้วโดนบล็อก)
+  // ดักฟังสัญญาณสั่งเปิด Modal จากภายนอก (เช่น เมื่อคลิกเริ่มเรียนแล้วโดนบล็อก หรือคลิกแก้ไขจาก Navbar)
   useEffect(() => {
     const handleOpenModal = (event: any) => {
+      // แอดมินไม่ต้องเปิดป็อบอัพข้อมูลนักศึกษา
+      if (currentUser.role === 'admin') return;
+
       const detail = event?.detail || {};
       if (detail.reason === 'lesson_blocked' || detail.reason === 'lesson_guard') {
         setIsForced(true);
@@ -97,8 +127,11 @@ export function RequiredProfileModal() {
       window.removeEventListener('edtech_open_profile_modal', handleOpenModal);
       window.removeEventListener('edtech_profile_saved', handleSaved);
     };
-  }, []);
+  }, [currentUser.role]);
 
+  // ถ้ายังโหลดไม่เสร็จ หรือไม่ได้ล็อกอิน หรือเป็น Admin หรือ Modal ไม่ได้เปิด -> ไม่เรนเดอร์อะไรเลย
+  if (!isLoaded || !currentUser.email) return null;
+  if (currentUser.role === 'admin') return null;
   if (!isOpen) return null;
 
   const isValidName = fullName.trim().length >= 3;

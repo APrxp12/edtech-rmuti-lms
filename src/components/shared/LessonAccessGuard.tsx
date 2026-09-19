@@ -6,17 +6,33 @@ import { Lock, User, ArrowLeft, ShieldAlert, BookOpen } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 
 export function LessonAccessGuard({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useAppStore();
+  const { currentUser, isLoaded } = useAppStore();
 
-  const isProfileIncomplete =
-    currentUser.role === 'student' &&
-    (!currentUser.isProfileCompleted ||
-      !currentUser.studentId ||
-      currentUser.studentId.trim() === '' ||
-      currentUser.studentId === '-' ||
-      currentUser.studentId === '65123456789' ||
-      !currentUser.fullName ||
-      currentUser.fullName.trim() === '');
+  if (!isLoaded) {
+    return (
+      <div className="min-h-[300px] flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // แอดมินสามารถเข้าเรียนได้ทุกบทเรียนเสมอ
+  if (currentUser.role === 'admin') {
+    return <>{children}</>;
+  }
+
+  const hasValidName = Boolean(
+    currentUser.fullName &&
+    currentUser.fullName.trim().length >= 3 &&
+    !currentUser.fullName.includes('@')
+  );
+  const hasValidStudentId = Boolean(
+    currentUser.studentId &&
+    currentUser.studentId.trim() !== '' &&
+    currentUser.studentId !== '-' &&
+    currentUser.studentId !== '65123456789'
+  );
+  const isProfileIncomplete = !currentUser.isProfileCompleted || !hasValidName || !hasValidStudentId;
 
   if (isProfileIncomplete) {
     return (
