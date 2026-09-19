@@ -8,7 +8,7 @@ import {
   Clock, Lock, Megaphone, FileText, Calendar, RefreshCw, AlertTriangle, Eye
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
-import { ErrorRetryBanner, EmptyStateCard, SkeletonCard } from '@/components/shared/SharedDialogs';
+import { EmptyStateCard } from '@/components/shared/SharedDialogs';
 
 export default function StudentDashboardPage() {
   const router = useRouter();
@@ -17,9 +17,6 @@ export default function StudentDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState('order');
   
-  // State Simulation Switches (ตาม Visual Reference หน้า 4)
-  const [viewState, setViewState] = useState<'normal' | 'error' | 'empty' | 'loading'>('normal');
-
   // Filter lessons
   const filteredLessons = lessons.filter((lesson) => 
     lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,75 +25,8 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="space-y-6 w-full max-w-[1440px] mx-auto">
-
-      {/* Developer State Switcher (ทดสอบดูหน้าจอ Error / Empty / Loading ตามหน้า 4) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-white border border-slate-200 rounded-2xl text-xs">
-        <span className="font-bold text-slate-500 pl-2">ทดสอบสถานะหน้าจอ (Visual Reference หน้า 4):</span>
-        <div className="flex flex-wrap gap-1.5">
-          <button
-            onClick={() => setViewState('normal')}
-            className={`px-3 py-1 rounded-xl font-semibold transition ${
-              viewState === 'normal' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            ปกติ (Populated)
-          </button>
-          <button
-            onClick={() => setViewState('error')}
-            className={`px-3 py-1 rounded-xl font-semibold transition ${
-              viewState === 'error' ? 'bg-red-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            เกิดข้อผิดพลาด (Error State)
-          </button>
-          <button
-            onClick={() => setViewState('empty')}
-            className={`px-3 py-1 rounded-xl font-semibold transition ${
-              viewState === 'empty' ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            ข้อมูลว่างเปล่า (Empty State)
-          </button>
-          <button
-            onClick={() => setViewState('loading')}
-            className={`px-3 py-1 rounded-xl font-semibold transition ${
-              viewState === 'loading' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            กำลังโหลด (Skeleton Loading)
-          </button>
-        </div>
-      </div>
-
-      {/* Error Banner when in Error State (Page 4) */}
-      {viewState === 'error' && (
-        <ErrorRetryBanner
-          message="เกิดข้อผิดพลาดในการเชื่อมต่อกับระบบ กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ"
-          onRetry={() => setViewState('normal')}
-        />
-      )}
-
-      {/* Loading Skeleton State (Page 4) */}
-      {viewState === 'loading' && (
-        <div className="space-y-4">
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 flex items-center gap-2 text-xs font-bold text-slate-500">
-            <RefreshCw className="w-4 h-4 animate-spin text-blue-600" />
-            ตัวอย่างหน้าจอระหว่างโหลดข้อมูล (Skeleton Loading)
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-          <SkeletonCard />
-        </div>
-      )}
-
-      {/* Normal / Populated State (Page 3) */}
-      {viewState !== 'loading' && (
-        <>
-          {/* Top Banner & Overall Progress Card */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      {/* Top Banner & Overall Progress Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
             {/* Greeting Hero matching Page 3 */}
             <div className="lg:col-span-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg flex flex-col justify-between">
@@ -209,7 +139,7 @@ export default function StudentDashboardPage() {
               </a>
             </div>
 
-            {viewState === 'empty' ? (
+            {announcements.length === 0 ? (
               <EmptyStateCard
                 title="ขณะนี้ยังไม่มีข่าวประกาศ"
                 description="เมื่อมีข่าวประกาศใหม่จากอาจารย์ผู้สอน จะแสดงที่นี่ทันที"
@@ -281,7 +211,7 @@ export default function StudentDashboardPage() {
               </div>
             </div>
 
-            {viewState === 'empty' ? (
+            {filteredLessons.length === 0 ? (
               <EmptyStateCard
                 title="ยังไม่มีบทเรียนให้เรียนในขณะนี้"
                 description="เมื่อมีบทเรียนที่เปิดให้เรียน จะแสดงที่นี่ทันที"
@@ -465,9 +395,6 @@ export default function StudentDashboardPage() {
               </div>
             )}
           </section>
-        </>
-      )}
-
-    </div>
+        </div>
   );
 }

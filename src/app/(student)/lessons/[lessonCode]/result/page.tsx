@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 
-export default function LessonResultPage() {
+function LessonResultContent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -18,42 +18,24 @@ export default function LessonResultPage() {
 
   const lesson = lessons.find((l) => l.code === lessonCode) || lessons[2];
 
-  // Read URL query or default to test simulation
+  const progress = progressMap[lessonCode];
+
+  // Read URL query or retrieve from store progress
   const passedParam = searchParams.get('passed');
   const scoreParam = searchParams.get('score');
 
-  // Toggle between Page 12 (Passed) and Page 13 (Completed Not Passed)
-  const [outcome, setOutcome] = useState<'passed' | 'not_passed'>(
-    passedParam === '0' ? 'not_passed' : 'passed'
-  );
+  const isPassed = passedParam === '1'
+    ? true
+    : passedParam === '0'
+    ? false
+    : (progress?.status === 'passed' || (progress?.bestPostTestScorePercent || 0) >= 60);
 
-  const isPassed = outcome === 'passed';
+  const displayScore = scoreParam
+    ? Number(scoreParam)
+    : (progress?.bestPostTestScorePercent || (isPassed ? 90 : 50));
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      
-      {/* State Switcher to test Page 12 vs Page 13 */}
-      <div className="p-2.5 bg-white rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
-        <span className="font-bold text-slate-600 pl-2">ทดสอบหน้าผลการเรียน (Visual Reference หน้า 12 & 13):</span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setOutcome('passed')}
-            className={`px-3 py-1 rounded-xl font-bold transition ${
-              isPassed ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            ผ่านเกณฑ์ (Page 12: Passed)
-          </button>
-          <button
-            onClick={() => setOutcome('not_passed')}
-            className={`px-3 py-1 rounded-xl font-bold transition ${
-              !isPassed ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            ไม่ผ่านเกณฑ์ (Page 13: Completed Not Passed)
-          </button>
-        </div>
-      </div>
 
       {/* Stepper Progress Banner matching Page 13 */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 flex items-center justify-around text-center text-xs">
@@ -123,7 +105,7 @@ export default function LessonResultPage() {
 
             <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-center space-y-1">
               <span className="text-[10px] text-emerald-800 font-bold">Post-test (ที่นับ)</span>
-              <div className="text-xl font-black text-emerald-700">90%</div>
+              <div className="text-xl font-black text-emerald-700">{displayScore}%</div>
               <span className="text-[9px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">👑 คะแนนที่ดีที่สุด</span>
             </div>
 
@@ -218,14 +200,14 @@ export default function LessonResultPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
               <span className="text-[10px] text-slate-500">คะแนนครั้งล่าสุด</span>
-              <div className="text-xl font-black text-slate-800">60%</div>
-              <span className="text-[9px] text-slate-400">12 จาก 20 ข้อ</span>
+              <div className="text-xl font-black text-slate-800">{displayScore}%</div>
+              <span className="text-[9px] text-slate-400">คำนวณจากข้อที่ตอบถูก</span>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
               <span className="text-[10px] text-slate-500">คะแนนที่ดีที่สุด</span>
-              <div className="text-xl font-black text-amber-600">60%</div>
-              <span className="text-[9px] text-amber-700">12 จาก 20 ข้อ</span>
+              <div className="text-xl font-black text-amber-600">{displayScore}%</div>
+              <span className="text-[9px] text-amber-700">รอบที่ผ่านมา</span>
             </div>
 
             <div className="p-4 bg-red-50 rounded-2xl border border-red-100 text-center space-y-1">
@@ -268,5 +250,13 @@ export default function LessonResultPage() {
       )}
 
     </div>
+  );
+}
+
+export default function LessonResultPage() {
+  return (
+    <React.Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">กำลังโหลดข้อมูลผลการเรียน...</div>}>
+      <LessonResultContent />
+    </React.Suspense>
   );
 }

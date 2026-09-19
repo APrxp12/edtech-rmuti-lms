@@ -10,11 +10,12 @@ import {
 
 export default function Navbar() {
   const router = useRouter();
-  const { currentUser, switchRole } = useAppStore();
+  const { currentUser, logout } = useAppStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
+    logout();
     router.push('/login');
   };
 
@@ -63,32 +64,16 @@ export default function Navbar() {
 
           {/* Actions & Profile */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Role Quick-Switch Button (สำหรับ Pair Programming & Demo) */}
-            <button
-              onClick={() => {
-                const nextRole = currentUser.role === 'admin' ? 'student' : 'admin';
-                switchRole(nextRole);
-                if (nextRole === 'admin') {
-                  router.push('/admin/lessons');
-                } else {
-                  router.push('/dashboard');
-                }
-              }}
-              title="กดเพื่อสลับ Role ระหว่าง Student และ Admin เพื่อทดสอบ"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all shadow-xs cursor-pointer bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-            >
-              {currentUser.role === 'admin' ? (
-                <>
-                  <Shield className="w-3.5 h-3.5 text-amber-600" />
-                  <span>โหมด: แอดมิน (คลิกสลับเป็น นศ.)</span>
-                </>
-              ) : (
-                <>
-                  <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
-                  <span>โหมด: นักศึกษา (คลิกสลับเป็น แอดมิน)</span>
-                </>
-              )}
-            </button>
+            {/* If Admin, show official button to toggle to Admin Panel */}
+            {currentUser.role === 'admin' && (
+              <Link
+                href="/admin/lessons"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 transition shadow-xs"
+              >
+                <Shield className="w-3.5 h-3.5 text-amber-600" />
+                <span>แผงผู้ดูแลระบบ (Admin)</span>
+              </Link>
+            )}
 
             {/* Notification Bell */}
             <div className="relative">
@@ -182,20 +167,8 @@ export default function Navbar() {
 
                   <div className="border-t border-slate-100 mt-1 pt-1 px-2">
                     <button
-                      onClick={() => {
-                        const nextRole = currentUser.role === 'admin' ? 'student' : 'admin';
-                        switchRole(nextRole);
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-amber-700 rounded-lg hover:bg-amber-50 transition text-left"
-                    >
-                      <Shield className="w-4 h-4 text-amber-500" />
-                      สลับเป็น {currentUser.role === 'admin' ? 'นักศึกษา' : 'ผู้ดูแลระบบ (Admin)'}
-                    </button>
-
-                    <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-red-600 rounded-lg hover:bg-red-50 transition text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-red-600 rounded-lg hover:bg-red-50 transition text-left cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
                       ออกจากระบบ

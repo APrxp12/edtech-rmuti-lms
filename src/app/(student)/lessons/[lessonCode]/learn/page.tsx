@@ -82,7 +82,6 @@ export default function LearningVideoPage() {
     : fallbackVideos;
 
   const [activeVideoId, setActiveVideoId] = useState<string>(videos[0]?.id || fallbackVideos[0].id);
-  const [isSimulatingTrackingError, setIsSimulatingTrackingError] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
 
   const progress = progressMap[lesson?.code || 'RMUTI-003'] || {
@@ -144,14 +143,10 @@ export default function LearningVideoPage() {
   const handleMarkVideoComplete = (vidId: string) => {
     setSaveStatus('saving');
     setTimeout(() => {
-      if (isSimulatingTrackingError) {
-        setSaveStatus('error');
-      } else {
-        if (lesson?.code) {
-          updateVideoProgress(lesson.code, vidId, 100, 755);
-        }
-        setSaveStatus('saved');
+      if (lesson?.code) {
+        updateVideoProgress(lesson.code, vidId, 100, 755);
       }
+      setSaveStatus('saved');
     }, 400);
   };
 
@@ -205,25 +200,7 @@ export default function LearningVideoPage() {
         </div>
       </div>
 
-      {/* Developer State Switcher for Page 10 (Testing Tracking Error) */}
-      <div className="p-2 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-between text-xs px-3">
-        <span className="font-bold text-slate-600">จำลองสถานะการบันทึก (Visual Reference หน้า 10):</span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setIsSimulatingTrackingError(!isSimulatingTrackingError);
-              setSaveStatus(isSimulatingTrackingError ? 'saved' : 'error');
-            }}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
-              isSimulatingTrackingError ? 'bg-red-600 text-white' : 'bg-white text-slate-700 border'
-            }`}
-          >
-            {isSimulatingTrackingError ? '⚠️ โหมดเน็ตหลุด / Tracking Error เปิดอยู่' : 'จำลองเน็ตหลุด (Network Error)'}
-          </button>
-        </div>
-      </div>
-
-      {/* Network Tracking Error Banner matching Page 10 */}
+      {/* Network Tracking Error Banner */}
       {saveStatus === 'error' && (
         <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-between text-red-800 text-xs">
           <div className="flex items-center gap-2.5">
@@ -235,7 +212,6 @@ export default function LearningVideoPage() {
           </div>
           <button
             onClick={() => {
-              setIsSimulatingTrackingError(false);
               setSaveStatus('saved');
             }}
             className="px-3 py-1.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 flex items-center gap-1.5 cursor-pointer"
@@ -284,12 +260,13 @@ export default function LearningVideoPage() {
                 </span>
               )}
 
-              {/* Mark Complete Simulation Button */}
+              {/* Mark Complete Button */}
               <button
                 onClick={() => handleMarkVideoComplete(activeVideo?.id || 'vid-1')}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
               >
-                จำลองดูจบแล้ว
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>ทำเครื่องหมายว่าเรียนจบแล้ว</span>
               </button>
             </div>
           </div>

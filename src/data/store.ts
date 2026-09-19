@@ -17,6 +17,7 @@ import {
 } from '../types';
 import {
   initialCurrentUser,
+  initialAdminUser,
   initialLessons,
   initialQuizzes,
   initialAnnouncements,
@@ -24,6 +25,7 @@ import {
   mockUsersList,
 } from './mock-data';
 import { initialSystemSettings, SystemSettings } from '../config/system-settings';
+import { defaultAccessControlConfig } from '../config/access-control';
 
 const STORAGE_KEYS = {
   USER: 'edtech_current_user',
@@ -206,7 +208,80 @@ export function useAppStore() {
     }
   }, []);
 
-  // ฟังก์ชันสลับ Role ระหว่าง Student และ Admin เพื่อการทดสอบอย่างรวดเร็ว
+  // ฟังก์ชันเข้าสู่ระบบด้วย Google Account หรืออีเมลพร้อมตรวจสอบสิทธิ์ทางการ
+  const loginUser = (params: {
+    email: string;
+    fullName?: string;
+    displayName?: string;
+    avatarUrl?: string;
+    studentId?: string;
+  }): { success: boolean; message?: string; role?: 'student' | 'admin'; user?: UserProfile } => {
+    const cleanEmail = params.email.trim().toLowerCase();
+    const domain = cleanEmail.split('@')[1];
+
+    // 1. ตรวจสอบว่าโดเมนหรืออีเมลถูกบล็อกหรือไม่
+    if (defaultAccessControlConfig.blockedEmails.includes(cleanEmail)) {
+      return { success: false, message: 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
+    }
+
+    // 2. ตรวจสอบ Whitelist อีเมลก่อนเสมอ (Precedence)
+    const whitelisted = defaultAccessControlConfig.emailWhitelist.find(
+      (w) => w.email.toLowerCase() === cleanEmail
+    );
+
+    let role: 'student' | 'admin' = 'student';
+    let name = params.fullName || params.displayName || cleanEmail.split('@')[0];
+
+    if (whitelisted) {
+      role = whitelisted.role;
+      if (whitelisted.name && !params.fullName) {
+        name = whitelisted.name;
+      }
+    } else if (domain && defaultAccessControlConfig.allowedDomains.includes(domain)) {
+      role = 'student';
+    } else {
+      return {
+        success: false,
+        message: `บัญชี "${cleanEmail}" ไม่ได้รับอนุญาตให้เข้าใช้งาน กรุณาใช้บัญชี @rmuti.ac.th หรือติดต่ออาจารย์ผู้สอนเพื่อเพิ่มใน Whitelist`,
+      };
+    }
+
+    // สกัดรหัสนักศึกษาถ้ามี
+    const extractedStudentId = params.studentId || (role === 'admin' ? '-' : (/^\d+$/.test(cleanEmail.split('@')[0]) ? cleanEmail.split('@')[0] : '65123456789'));
+
+    const newUser: UserProfile = {
+      id: `usr-${Date.now()}`,
+      email: cleanEmail,
+      fullName: name,
+      displayName: params.displayName || name,
+      studentId: extractedStudentId,
+      role,
+      status: 'active',
+      isProfileCompleted: true,
+      firstLoginAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+      avatarUrl: params.avatarUrl || (role === 'admin' ? initialAdminUser.avatarUrl : initialCurrentUser.avatarUrl),
+    };
+
+    setCurrentUser(newUser);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(newUser));
+    } catch (e) {
+      console.error('Error saving user to localStorage:', e);
+    }
+
+    return { success: true, role, user: newUser };
+  };
+
+  const logout = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.USER);
+    } catch (e) {
+      console.error('Error removing user from localStorage:', e);
+    }
+  };
+
+  // ฟังก์ชันสลับ Role (คงไว้สำหรับกรณีจำเป็นในการทดสอบหลังบ้าน)
   const switchRole = (role: 'student' | 'admin') => {
     const updatedUser = {
       ...currentUser,
@@ -327,6 +402,8 @@ export function useAppStore() {
     accessRules,
     settings,
     progressMap,
+    loginUser,
+    logout,
     switchRole,
     saveRequiredProfile,
     updateVideoProgress,
