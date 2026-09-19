@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/data/store';
 import { 
-  Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2, Megaphone
+  Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2, Megaphone, HelpCircle
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -166,6 +166,15 @@ export default function Navbar() {
                     >
                       <Megaphone className="w-4 h-4 text-slate-400" />
                       ข่าวประกาศ (Announcements)
+                    </Link>
+
+                    <Link
+                      href="/faq"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition"
+                    >
+                      <HelpCircle className="w-4 h-4 text-slate-400" />
+                      ศูนย์ช่วยเหลือ (FAQ)
                     </Link>
                   </div>
 

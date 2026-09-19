@@ -18,7 +18,7 @@ export default function StudentSidebar() {
     { href: '/my-lessons', label: 'บทเรียนของฉัน', icon: BookOpen },
     { href: '/my-progress', label: 'ความก้าวหน้าของฉัน', icon: BarChart3 },
     { href: '/announcements', label: 'ข่าวประกาศ', icon: Megaphone },
-    { href: '#', label: 'ช่วยเหลือ (FAQ)', icon: HelpCircle },
+    { href: '/faq', label: 'ช่วยเหลือ (FAQ)', icon: HelpCircle },
   ];
 
   return (
