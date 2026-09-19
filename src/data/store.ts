@@ -427,6 +427,7 @@ export function useAppStore() {
     updateUserProfile,
     updateVideoProgress,
     setCurrentUser,
+    setUsersList,
     setLessons,
     setQuizzes,
     setAnnouncements,
