@@ -1,43 +1,122 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
-  BookOpen, Plus, RefreshCw, Search, Filter, Eye, Edit, 
-  MoreVertical, Users, CheckCircle2, Clock, Archive
+  BookOpen, Plus, RefreshCw, Search, Filter, Eye, Edit, Video,
+  FileText, CheckCircle2, Clock, Archive, Sparkles, Building2, 
+  User, HelpCircle, ArrowLeft, ArrowRight, X, ExternalLink, Layers,
+  BarChart3, Shield
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 
 export default function AdminLessonsPage() {
-  const { lessons } = useAppStore();
+  const { lessons, quizzes } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const filtered = lessons.filter((l) => {
-    const matchQuery = l.title.toLowerCase().includes(searchQuery.toLowerCase()) || l.code.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchStatus = statusFilter === 'all' || l.status === statusFilter;
-    return matchQuery && matchStatus;
-  });
+  // Course Information Constants
+  const courseInfo = {
+    code: '30-401-001-204',
+    title: 'นวัตกรรมและเทคโนโลยีดิจิทัลเพื่อการจัดการเรียนรู้',
+    instructor: 'ผศ.ดร.เฉลิมพล บุญทศ',
+    semester: 'ภาคการศึกษาที่ 1 / ปีการศึกษา 2569',
+    curriculum: 'หลักสูตรครุศาสตร์อุตสาหกรรมบัณฑิต (ค.อ.บ.)',
+    department: 'สาขาวิชาครุศาสตร์อุตสาหกรรมอุตสาหการ คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น',
+  };
+
+  // Live Dynamic Statistics Calculation
+  const stats = useMemo(() => {
+    const total = lessons.length;
+    let published = 0;
+    let draft = 0;
+    let totalVideos = 0;
+    let totalResources = 0;
+
+    lessons.forEach((l) => {
+      if (l.status === 'published') published++;
+      else if (l.status === 'draft') draft++;
+
+      const ver = l.versions[0];
+      if (ver) {
+        totalVideos += ver.videos?.length || 0;
+        totalResources += ver.resources?.length || 0;
+      }
+    });
+
+    return {
+      total,
+      published,
+      draft,
+      totalVideos,
+      totalResources,
+      totalQuizzes: quizzes.length,
+    };
+  }, [lessons, quizzes]);
+
+  // Filter lessons
+  const filtered = useMemo(() => {
+    return lessons.filter((l) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchQuery = !q || 
+        l.title.toLowerCase().includes(q) || 
+        l.code.toLowerCase().includes(q) ||
+        (l.description && l.description.toLowerCase().includes(q));
+      
+      const matchStatus = statusFilter === 'all' || l.status === statusFilter;
+      return matchQuery && matchStatus;
+    });
+  }, [lessons, searchQuery, statusFilter]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       
-      {/* Header matching Page 14 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Header & Fast Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200">
+              Admin CMS Console
+            </span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs font-mono font-bold text-slate-600">
+              {courseInfo.code}
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 tracking-tight">
             <BookOpen className="w-6 h-6 text-blue-600" />
-            จัดการบทเรียน
+            <span>จัดการเนื้อหาบทเรียน (Lessons Management)</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            จัดการเนื้อหาบทเรียนออนไลน์ เรียนรู้ได้ทุกที่ ทุกเวลา
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            จัดการโครงสร้างรายวิชา วิดีโอบรรยาย เอกสารประกอบ และคลังข้อสอบ
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <button className="p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 shadow-xs">
-            <RefreshCw className="w-4 h-4" />
-            <span className="hidden sm:inline">รีเฟรชรายการ</span>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <Link
+            href="/dashboard"
+            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+            title="ดูในมุมมองนักศึกษา"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">มุมมองผู้เรียน</span>
+          </Link>
+
+          <button 
+            onClick={handleRefresh}
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 flex items-center gap-1.5 shadow-2xs transition cursor-pointer ${
+              isRefreshing ? 'animate-spin' : ''
+            }`}
+            title="รีเฟรชรายการ"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">รีเฟรช</span>
           </button>
           
           <Link
@@ -45,169 +124,372 @@ export default function AdminLessonsPage() {
             className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-200 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>เพิ่มบทเรียน</span>
+            <span>เพิ่มบทเรียนใหม่</span>
           </Link>
         </div>
       </div>
 
-      {/* 4 KPI Stats Counter Cards matching Page 14 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+      {/* Official Course Syllabus Hero Banner (Soft Luminous Pastel Theme) */}
+      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-7 border border-blue-100/90 shadow-sm relative overflow-hidden">
+        {/* Ambient soft pastel orbs */}
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div className="relative z-10 space-y-4">
+          
+          {/* Top Row: Meta Badges */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold bg-white/95 text-blue-800 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>{courseInfo.curriculum}</span>
+              </span>
+              <span className="text-xs sm:text-sm text-slate-600 font-medium">
+                • {courseInfo.semester}
+              </span>
+            </div>
+            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
+              รหัสวิชา: {courseInfo.code}
+            </span>
+          </div>
+
+          {/* Course Title - Matching exact size and line behavior */}
+          <div className="space-y-1.5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-bold tracking-tight text-slate-900 break-keep whitespace-normal xl:whitespace-nowrap">
+              {courseInfo.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>{courseInfo.department}</span>
+            </p>
+          </div>
+
+          {/* Bottom Row: Instructor & Quick Stats */}
+          <div className="pt-3.5 border-t border-blue-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
+                <User className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[11px] text-slate-500 font-medium block">อาจารย์ผู้รับผิดชอบรายวิชา</span>
+                <span className="text-sm sm:text-base font-bold text-slate-900">{courseInfo.instructor}</span>
+              </div>
+            </div>
+
+            {/* Live Media Highlights */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <div className="bg-white/95 px-3 py-1.5 rounded-xl border border-blue-200/80 shadow-2xs flex items-center gap-1.5">
+                <Video className="w-3.5 h-3.5 text-blue-600" />
+                <span className="font-semibold text-slate-700">{stats.totalVideos} คลิปวิดีโอ</span>
+              </div>
+              <div className="bg-white/95 px-3 py-1.5 rounded-xl border border-indigo-200/80 shadow-2xs flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                <span className="font-semibold text-slate-700">{stats.totalResources} เอกสาร/สื่อ</span>
+              </div>
+              <div className="bg-white/95 px-3 py-1.5 rounded-xl border border-emerald-200/80 shadow-2xs flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="font-semibold text-slate-700">{stats.totalQuizzes} ชุดข้อสอบ</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* 4 Live KPI Stats Counter Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        
+        {/* Card 1: Total Lessons */}
+        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-black text-slate-900">48</div>
-            <div className="text-[10px] font-bold text-slate-400">บทเรียนทั้งหมด</div>
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+              {stats.total}
+            </div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">บทเรียนทั้งหมดในวิชา</div>
           </div>
         </div>
 
-        <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+        {/* Card 2: Published Lessons */}
+        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-black text-slate-900">32</div>
-            <div className="text-[10px] font-bold text-slate-400">เผยแพร่แล้ว</div>
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600 leading-tight">
+              {stats.published}
+            </div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">เผยแพร่ให้นักศึกษาแล้ว</div>
           </div>
         </div>
 
-        <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+        {/* Card 3: Draft Lessons */}
+        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-black text-slate-900">10</div>
-            <div className="text-[10px] font-bold text-slate-400">ฉบับร่าง</div>
+            <div className="text-xl sm:text-2xl font-bold text-amber-600 leading-tight">
+              {stats.draft}
+            </div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">ฉบับร่าง (รอเผยแพร่)</div>
           </div>
         </div>
 
-        <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
-            <Archive className="w-5 h-5" />
+        {/* Card 4: Total Learning Media */}
+        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold shrink-0">
+            <Layers className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-lg font-black text-slate-900">6</div>
-            <div className="text-[10px] font-bold text-slate-400">เก็บถาวร</div>
+            <div className="text-xl sm:text-2xl font-bold text-indigo-600 leading-tight">
+              {stats.totalVideos + stats.totalResources}
+            </div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">สื่อและคลิปรวมทั้งหมด</div>
           </div>
         </div>
+
       </div>
 
-      {/* Filter & Search Bar matching Page 14 */}
-      <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Filter & Search Bar */}
+      <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+        
+        {/* Search Input */}
         <div className="relative w-full sm:w-80">
           <input
             type="text"
-            placeholder="ค้นหาชื่อบทเรียน, รหัสบทเรียน..."
+            placeholder="ค้นหาชื่อบทเรียน, รหัสบทเรียน (RMUTI-001)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              title="ล้างคำค้น"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none"
-          >
-            <option value="all">ทุกสถานะ</option>
-            <option value="published">เผยแพร่แล้ว</option>
-            <option value="draft">ฉบับร่าง</option>
-          </select>
+        {/* Status Filter Tabs & Counters */}
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                statusFilter === 'all'
+                  ? 'bg-white text-blue-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              ทั้งหมด ({stats.total})
+            </button>
+            <button
+              onClick={() => setStatusFilter('published')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                statusFilter === 'published'
+                  ? 'bg-white text-emerald-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-emerald-700'
+              }`}
+            >
+              เผยแพร่แล้ว ({stats.published})
+            </button>
+            <button
+              onClick={() => setStatusFilter('draft')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                statusFilter === 'draft'
+                  ? 'bg-white text-amber-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-amber-700'
+              }`}
+            >
+              ฉบับร่าง ({stats.draft})
+            </button>
+          </div>
 
-          <button 
-            onClick={() => { setSearchQuery(''); setStatusFilter('all'); }}
-            className="text-xs text-blue-600 font-bold hover:underline px-2 py-1"
-          >
-            ล้างตัวกรอง
-          </button>
+          <span className="text-xs text-slate-400 font-medium pl-2 hidden md:inline">
+            แสดง {filtered.length} จาก {lessons.length} บทเรียน
+          </span>
         </div>
+
       </div>
 
-      {/* Table: Lessons with Versioning tags matching Page 14 */}
+      {/* Table: Lessons with Versioning & Quick Action Buttons */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
               <tr>
-                <th className="py-3.5 px-4">รหัสบทเรียน</th>
-                <th className="py-3.5 px-4">ชื่อบทเรียน</th>
-                <th className="py-3.5 px-4">สถานะ</th>
-                <th className="py-3.5 px-4">เวอร์ชั่นปัจจุบัน</th>
-                <th className="py-3.5 px-4">ฉบับร่าง</th>
-                <th className="py-3.5 px-4">ผู้เรียน</th>
-                <th className="py-3.5 px-4">อัปเดตล่าสุด</th>
-                <th className="py-3.5 px-4 text-center">จัดการ</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">รหัสบทเรียน</th>
+                <th className="py-3.5 px-4 min-w-[260px]">ชื่อบทเรียน</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">สถานะ</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">เวอร์ชัน</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">สื่อการสอน</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">ผู้เรียน</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">อัปเดตล่าสุด</th>
+                <th className="py-3.5 px-4 text-center whitespace-nowrap min-w-[280px]">การจัดการด่วน (Quick Actions)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((l) => {
-                const activeVer = l.versions[0];
-                const hasDraft = l.currentDraftVersionId || l.code === 'RMUTI-003';
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                    <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm font-semibold text-slate-600">ไม่พบบทเรียนที่ตรงกับเงื่อนไข</p>
+                    <p className="text-xs text-slate-400 mt-0.5">ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองสถานะเป็น ทั้งหมด</p>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((l) => {
+                  const activeVer = l.versions[0];
+                  const hasDraft = l.currentDraftVersionId || l.code === 'RMUTI-003';
+                  const videoCount = activeVer?.videos?.length || 0;
+                  const resourceCount = activeVer?.resources?.length || 0;
 
-                return (
-                  <tr key={l.id} className="hover:bg-slate-50/80 transition">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800">{l.code}</td>
-                    <td className="py-3.5 px-4 font-bold text-slate-900">{l.title}</td>
-                    
-                    <td className="py-3.5 px-4">
-                      {l.status === 'published' ? (
-                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                          เผยแพร่แล้ว
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-                          ฉบับร่าง
-                        </span>
-                      )}
-                    </td>
+                  return (
+                    <tr key={l.id} className="hover:bg-blue-50/30 transition">
+                      
+                      {/* Code */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-blue-700 whitespace-nowrap">
+                        {l.code}
+                      </td>
 
-                    <td className="py-3.5 px-4">
-                      <span className="font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
-                        {activeVer ? activeVer.versionTag : 'v1.0'}
-                      </span>
-                    </td>
+                      {/* Title & Cover Thumbnail */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          {l.coverImageUrl ? (
+                            <img
+                              src={l.coverImageUrl}
+                              alt={l.title}
+                              className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 font-bold">
+                              {l.sortOrder}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-900 truncate max-w-xs sm:max-w-sm">
+                              {l.title.startsWith('บทที่') ? l.title : `บทที่ ${l.sortOrder} ${l.title}`}
+                            </div>
+                            <div className="text-[11px] text-slate-500 truncate max-w-xs">
+                              {l.description || 'รายวิชาการเรียนรู้แบบกำกับตนเอง'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {/* Status */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {l.status === 'published' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>เผยแพร่แล้ว</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span>ฉบับร่าง</span>
+                          </span>
+                        )}
+                      </td>
 
-                    <td className="py-3.5 px-4">
-                      {hasDraft ? (
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                          มีฉบับร่าง
-                        </span>
-                      ) : (
-                        <span className="text-slate-300">-</span>
-                      )}
-                    </td>
+                      {/* Version Tag */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 text-[11px]">
+                            {activeVer ? activeVer.versionTag : 'v1.0'}
+                          </span>
+                          {hasDraft && (
+                            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
+                              Draft
+                            </span>
+                          )}
+                        </div>
+                      </td>
 
-                    <td className="py-3.5 px-4 font-mono text-slate-600 flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{activeVer ? activeVer.learnerCount : 0}</span>
-                    </td>
+                      {/* Media Breakdown */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2 text-slate-600 font-medium">
+                          <span className="flex items-center gap-1" title="คลิปวิดีโอ">
+                            <Video className="w-3.5 h-3.5 text-blue-600" />
+                            <span>{videoCount}</span>
+                          </span>
+                          <span className="text-slate-300">•</span>
+                          <span className="flex items-center gap-1" title="เอกสาร/สื่อ">
+                            <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>{resourceCount}</span>
+                          </span>
+                        </div>
+                      </td>
 
-                    <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                      {new Date(l.updatedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                    </td>
+                      {/* Learners Count */}
+                      <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
+                        {activeVer ? activeVer.learnerCount : 0} คน
+                      </td>
 
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <Link
-                          href={`/lessons/${l.code}/intro`}
-                          className="px-2.5 py-1 text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
-                        >
-                          เปิด
-                        </Link>
-                        <Link
-                          href={`/admin/lessons/${l.id}/metadata`}
-                          className="px-2.5 py-1 text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-                        >
-                          แก้ไข
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      {/* Last Updated */}
+                      <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
+                        {new Date(l.updatedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </td>
+
+                      {/* Quick Actions Set */}
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5">
+                          
+                          {/* Live Student View Button */}
+                          <Link
+                            href={`/lessons/${l.code}/intro`}
+                            target="_blank"
+                            className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1"
+                            title="เปิดดูมุมมองนักศึกษา"
+                          >
+                            <Eye className="w-3 h-3 text-slate-500" />
+                            <span>ดูหน้าเรียน</span>
+                          </Link>
+
+                          {/* Edit Metadata Button */}
+                          <Link
+                            href={`/admin/lessons/${l.id}/metadata`}
+                            className="px-2.5 py-1 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition flex items-center gap-1 border border-blue-200/80"
+                            title="แก้ไขชื่อ คำอธิบาย ข้อมูลบทเรียน"
+                          >
+                            <Edit className="w-3 h-3 text-blue-600" />
+                            <span>ข้อมูลวิชา</span>
+                          </Link>
+
+                          {/* Edit Videos & Resources Button */}
+                          <Link
+                            href={`/admin/lessons/${l.id}/content`}
+                            className="px-2.5 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition flex items-center gap-1 border border-indigo-200/80"
+                            title="จัดการวิดีโอและสื่อประกอบ"
+                          >
+                            <Video className="w-3 h-3 text-indigo-600" />
+                            <span>สื่อ/วิดีโอ</span>
+                          </Link>
+
+                          {/* Quizzes Button */}
+                          <Link
+                            href={`/admin/quizzes/${l.code}`}
+                            className="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition flex items-center gap-1 border border-emerald-200/80"
+                            title="จัดการแบบทดสอบ Pre/Post Test"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>ข้อสอบ</span>
+                          </Link>
+
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
