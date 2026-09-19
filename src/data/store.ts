@@ -306,6 +306,24 @@ export function useAppStore() {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
   };
 
+  // อัปเดตข้อมูลโปรไฟล์ผู้เรียน (ชื่อ-นามสกุล, รหัสนักศึกษา)
+  const updateUserProfile = (data: { fullName?: string; studentId?: string; displayName?: string }) => {
+    const updatedUser: UserProfile = {
+      ...currentUser,
+      fullName: data.fullName !== undefined ? data.fullName.trim() : currentUser.fullName,
+      displayName: data.displayName !== undefined ? data.displayName.trim() : (data.fullName ? data.fullName.trim() : currentUser.displayName),
+      studentId: data.studentId !== undefined ? data.studentId.trim() : currentUser.studentId,
+      isProfileCompleted: true,
+    };
+    setCurrentUser(updatedUser);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+    } catch (e) {
+      console.error('Error saving updated user to localStorage:', e);
+    }
+    return updatedUser;
+  };
+
   // บันทึกความคืบหน้าวิดีโอ (Progress ห้ามถอยหลัง)
   const updateVideoProgress = (
     lessonCode: string,
@@ -406,6 +424,7 @@ export function useAppStore() {
     logout,
     switchRole,
     saveRequiredProfile,
+    updateUserProfile,
     updateVideoProgress,
     setCurrentUser,
     setLessons,
