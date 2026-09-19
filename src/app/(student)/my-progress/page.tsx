@@ -102,57 +102,90 @@ export default function MyProgressPage() {
         </div>
       </div>
 
-      {/* Official Course Banner (Theme unified with Dashboard & My Lessons) */}
-      <div className="bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 rounded-3xl p-6 sm:p-7 text-white relative overflow-hidden shadow-lg border border-blue-600/30">
+      {/* Official Course Banner (Soft Luminous Tone with Circular Progress Widget) */}
+      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-7 border border-blue-100/90 shadow-sm relative overflow-hidden">
+        {/* Ambient soft pastel orbs */}
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 rounded-full blur-2xl pointer-events-none"></div>
+
         <div className="relative z-10 space-y-4">
+          
+          {/* Top Row: Meta Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-blue-50 flex items-center gap-1.5 border border-white/15 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span className="text-xs font-bold bg-white/90 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 <span>{courseInfo.curriculum}</span>
               </span>
-              <span className="text-xs text-blue-100 font-medium">
+              <span className="text-xs text-slate-500 font-medium">
                 • {courseInfo.semester}
               </span>
             </div>
-            <span className="text-xs font-mono font-bold bg-white/15 px-3.5 py-1 rounded-full border border-white/20 text-amber-300 shadow-xs">
+            <span className="text-xs font-mono font-bold bg-white/90 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
               รหัสวิชา: {courseInfo.code}
             </span>
           </div>
 
+          {/* Course Title */}
           <div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white drop-shadow-xs break-keep">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 break-keep">
               {courseInfo.title}
             </h2>
-            <p className="text-xs sm:text-sm text-blue-100/90 mt-1.5 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-blue-200 shrink-0" />
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
               <span>{courseInfo.department}</span>
             </p>
           </div>
 
-          <div className="pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-4 text-xs text-blue-100">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-amber-300" />
-              <span>อาจารย์ผู้สอนประจำวิชา: <strong className="text-white">{courseInfo.instructor}</strong></span>
+          {/* Bottom Row: Instructor & Circular Wheel Hero Widget */}
+          <div className="pt-3.5 border-t border-blue-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <div className="w-7 h-7 rounded-xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
+                <User className="w-4 h-4" />
+              </div>
+              <span>อาจารย์ผู้สอนประจำวิชา: <strong className="text-slate-900">{courseInfo.instructor}</strong></span>
             </div>
-            <div className="flex items-center gap-4">
-              <span>ความก้าวหน้ารวม: <strong className="text-amber-300 text-sm font-black">{stats.percent}%</strong></span>
-              <span className="hidden sm:inline text-white/40">•</span>
-              <span>สถานะ: <strong className="text-emerald-300 font-bold">{stats.percent === 100 ? 'สำเร็จการศึกษา' : 'กำลังศึกษา'}</strong></span>
-            </div>
-          </div>
-        </div>
 
-        {/* Ambient Glows */}
-        <div className="absolute -right-8 -bottom-8 w-52 h-52 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div className="absolute top-0 right-1/4 w-36 h-36 bg-amber-400/15 rounded-full blur-xl pointer-events-none"></div>
+            {/* Circular Wheel Widget in Banner */}
+            <div className="flex items-center gap-3 bg-white/90 backdrop-blur-xs px-4 py-2 rounded-2xl border border-blue-200/70 shadow-2xs self-start sm:self-auto">
+              <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
+                <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-slate-100"
+                    strokeWidth="3.5"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-emerald-500 transition-all duration-700"
+                    strokeDasharray={`${stats.percent}, 100`}
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <span className="text-[10px] font-black text-slate-800 absolute font-mono">{stats.percent}%</span>
+              </div>
+              <div className="text-xs">
+                <span className="text-slate-500 font-medium block">ความก้าวหน้ารวม</span>
+                <span className="font-bold text-slate-900">ผ่าน {stats.completed}/{stats.total} บทเรียน</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
       </div>
 
-      {/* 3 Overview Stat Cards */}
+      {/* 3 Overview Stat Cards (Equipped with Circular Progress Wheels) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         
-        {/* Card 1: ความก้าวหน้าโดยรวม */}
-        <div className="md:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+        {/* Card 1: ความก้าวหน้าโดยรวม (วงล้อความก้าวหน้าหลัก) */}
+        <div className="md:col-span-4 bg-gradient-to-br from-white via-emerald-50/20 to-white rounded-3xl p-5 sm:p-6 border border-emerald-100 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shadow-2xs">
@@ -168,9 +201,10 @@ export default function MyProgressPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4 my-4">
-            <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-              <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+          <div className="flex items-center justify-center gap-6 my-4">
+            {/* Prominent Circular Wheel */}
+            <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+              <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
                 <path
                   className="text-slate-100"
                   strokeWidth="3.5"
@@ -179,7 +213,7 @@ export default function MyProgressPage() {
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
                 <path
-                  className="text-emerald-500 transition-all duration-700"
+                  className="text-emerald-500 transition-all duration-1000 ease-out"
                   strokeDasharray={`${stats.percent}, 100`}
                   strokeWidth="3.5"
                   strokeLinecap="round"
@@ -188,38 +222,57 @@ export default function MyProgressPage() {
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
               </svg>
-              <span className="absolute text-sm font-black text-slate-800">{stats.percent}%</span>
+              <div className="absolute flex flex-col items-center justify-center text-center">
+                <span className="text-lg font-black text-slate-900 font-mono leading-none">{stats.percent}%</span>
+                <span className="text-[9px] font-bold text-emerald-600 mt-0.5">รวม</span>
+              </div>
             </div>
 
-            <div className="space-y-1.5 flex-1 min-w-0">
-              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                <div 
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-700" 
-                  style={{ width: `${stats.percent}%` }}
-                ></div>
+            {/* Status breakdown metrics */}
+            <div className="space-y-1.5 min-w-[120px]">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  ผ่านแล้ว:
+                </span>
+                <strong className="text-emerald-700 font-mono">{stats.completed} บท</strong>
               </div>
-              <p className="text-xs font-bold text-slate-800">
-                {stats.percent === 100 ? 'ผ่านครบทุกบทเรียนแล้ว 🎉' : `คงเหลืออีก ${stats.total - stats.completed} บทเรียน`}
-              </p>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  กำลังเรียน:
+                </span>
+                <strong className="text-blue-700 font-mono">{stats.inProgress} บท</strong>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                  ยังไม่เริ่ม:
+                </span>
+                <strong className="text-slate-600 font-mono">{stats.notStarted} บท</strong>
+              </div>
             </div>
           </div>
 
-          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>กำลังเรียน: <strong className="text-blue-600">{stats.inProgress}</strong></span>
-            <span>ยังไม่เริ่ม: <strong className="text-slate-600">{stats.notStarted}</strong></span>
+          <div className="pt-2.5 border-t border-slate-100 text-center text-xs text-slate-500">
+            <span>
+              {stats.percent === 100 
+                ? '🏆 สำเร็จครบทุกบทเรียนแล้ว!' 
+                : `คงเหลืออีก ${stats.total - stats.completed} บทเรียน เพื่อสำเร็จการศึกษา`}
+            </span>
           </div>
         </div>
 
-        {/* Card 2: สถิติคะแนนเฉลี่ยแบบทดสอบ */}
-        <div className="md:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+        {/* Card 2: สถิติคะแนนแบบทดสอบ (แสดงวงล้อคะแนน Pre / Post) */}
+        <div className="md:col-span-4 bg-gradient-to-br from-white via-blue-50/20 to-white rounded-3xl p-5 sm:p-6 border border-blue-100 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-2xs">
                 <BarChart3 className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-800">สถิติการทดสอบ</h3>
-                <span className="text-xs text-slate-500">คะแนนประเมินผลสัมฤทธิ์</span>
+                <h3 className="text-sm font-bold text-slate-800">สถิติแบบทดสอบ</h3>
+                <span className="text-xs text-slate-500">ผลสัมฤทธิ์ทางการเรียน</span>
               </div>
             </div>
             <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
@@ -227,21 +280,63 @@ export default function MyProgressPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 my-4">
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-              <span className="text-xs text-slate-500 font-medium block">เฉลี่ยก่อนเรียน (Pre)</span>
-              <div className="text-lg font-black text-slate-800 font-mono mt-0.5">
-                {stats.avgPre !== '-' ? `${stats.avgPre}/10` : '-'}
+          <div className="grid grid-cols-2 gap-3 my-3">
+            {/* Pre-test Wheel */}
+            <div className="p-3 rounded-2xl bg-white border border-slate-100 shadow-2xs flex flex-col items-center text-center">
+              <span className="text-[11px] text-slate-500 font-bold mb-2">ก่อนเรียน (Pre)</span>
+              <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-slate-100"
+                    strokeWidth="4"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-blue-600 transition-all duration-700"
+                    strokeDasharray={`${stats.avgPre !== '-' ? Math.round(Number(stats.avgPre) * 10) : 0}, 100`}
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <span className="absolute text-xs font-black text-slate-800 font-mono">
+                  {stats.avgPre !== '-' ? `${stats.avgPre}` : '-'}
+                </span>
               </div>
-              <span className="text-[11px] text-slate-400">ทำแล้ว {stats.preCount} บท</span>
+              <span className="text-[10px] text-slate-400 mt-2">ทำแล้ว {stats.preCount} บท</span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-center">
-              <span className="text-xs text-emerald-800 font-medium block">เฉลี่ยหลังเรียน (Post)</span>
-              <div className="text-lg font-black text-emerald-700 font-mono mt-0.5">
-                {stats.avgPost !== '-' ? `${stats.avgPost}%` : '-'}
+            {/* Post-test Wheel */}
+            <div className="p-3 rounded-2xl bg-white border border-emerald-100 shadow-2xs flex flex-col items-center text-center">
+              <span className="text-[11px] text-emerald-800 font-bold mb-2">หลังเรียน (Post)</span>
+              <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-slate-100"
+                    strokeWidth="4"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-emerald-500 transition-all duration-700"
+                    strokeDasharray={`${stats.avgPost !== '-' ? Number(stats.avgPost) : 0}, 100`}
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <span className="absolute text-xs font-black text-emerald-700 font-mono">
+                  {stats.avgPost !== '-' ? `${stats.avgPost}%` : '-'}
+                </span>
               </div>
-              <span className="text-[11px] text-emerald-600">ทำแล้ว {stats.postCount} บท</span>
+              <span className="text-[10px] text-emerald-600 mt-2">ทำแล้ว {stats.postCount} บท</span>
             </div>
           </div>
 
@@ -251,13 +346,13 @@ export default function MyProgressPage() {
         </div>
 
         {/* Card 3: เกณฑ์การผ่านรายวิชา */}
-        <div className="md:col-span-4 bg-gradient-to-br from-emerald-50/50 via-white to-white rounded-3xl p-5 sm:p-6 border border-emerald-200 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center gap-2.5 border-b border-emerald-100/80 pb-3">
+        <div className="md:col-span-4 bg-gradient-to-br from-white via-slate-50/50 to-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
             <div className="w-9 h-9 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-emerald-950">เกณฑ์การผ่านรายวิชา</h3>
+              <h3 className="text-sm font-bold text-slate-900">เกณฑ์การผ่านรายวิชา</h3>
               <span className="text-xs text-emerald-600">มาตรฐานหลักสูตร ค.อ.บ.</span>
             </div>
           </div>
@@ -277,9 +372,9 @@ export default function MyProgressPage() {
             </div>
           </div>
 
-          <div className="pt-2.5 border-t border-emerald-100 flex items-center justify-between text-xs font-bold text-emerald-800">
+          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700">
             <span>สถานะเกณฑ์:</span>
-            <span className="bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
+            <span className={`px-2.5 py-0.5 rounded-full ${stats.percent === 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>
               {stats.percent === 100 ? 'ผ่านเกณฑ์ครบถ้วน' : 'กำลังดำเนินการ'}
             </span>
           </div>
@@ -287,7 +382,7 @@ export default function MyProgressPage() {
 
       </div>
 
-      {/* Lesson Progress Table (Full-Width, Strict Zero Horizontal Scroll) */}
+      {/* Lesson Progress Table (Full-Width, Strict Zero Horizontal Scroll, Circular Progress Wheels) */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hidden md:block">
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2">
@@ -296,7 +391,7 @@ export default function MyProgressPage() {
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-bold text-slate-900">ตารางความก้าวหน้ารายบทเรียนทั้งหมด ({lessons.length} บทเรียน)</h3>
-              <p className="text-xs text-slate-500">แสดงข้อมูลผลการเรียนรู้และคะแนนแบบทดสอบอย่างละเอียด</p>
+              <p className="text-xs text-slate-500">แสดงผลความก้าวหน้าแบบวงล้อและสถิติคลิป/แบบทดสอบละเอียด</p>
             </div>
           </div>
           <Link
@@ -313,8 +408,8 @@ export default function MyProgressPage() {
           <table className="w-full table-fixed divide-y divide-slate-100 text-left">
             <thead className="bg-slate-50/80 text-slate-700 font-bold border-b border-slate-200 text-xs">
               <tr>
-                <th className="py-3.5 px-4 w-[34%]">บทเรียน</th>
-                <th className="py-3.5 px-3 w-[16%]">ความคืบหน้า</th>
+                <th className="py-3.5 px-4 w-[33%]">บทเรียน</th>
+                <th className="py-3.5 px-3 w-[17%]">ความคืบหน้า (วงล้อ)</th>
                 <th className="py-3.5 px-2 text-center w-[11%]">ก่อนเรียน (Pre)</th>
                 <th className="py-3.5 px-2 text-center w-[13%]">หลังเรียน (Post)</th>
                 <th className="py-3.5 px-2 text-center w-[13%]">สถานะ</th>
@@ -349,17 +444,49 @@ export default function MyProgressPage() {
                       </div>
                     </td>
                     
-                    {/* 2. ความคืบหน้า */}
+                    {/* 2. ความคืบหน้า (แสดงเป็นวงล้อความก้าวหน้า) */}
                     <td className="py-3.5 px-3">
-                      <div className="space-y-1 pr-2">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-700 font-mono">
-                          <span>{progress.progressPercent}%</span>
+                      <div className="flex items-center gap-2.5">
+                        <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
+                          <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
+                            <path
+                              className="text-slate-100"
+                              strokeWidth="4"
+                              stroke="currentColor"
+                              fill="none"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <path
+                              className={`transition-all duration-700 ${
+                                isCompleted 
+                                  ? 'text-emerald-500' 
+                                  : isInProgress 
+                                  ? 'text-blue-600' 
+                                  : 'text-slate-300'
+                              }`}
+                              strokeDasharray={`${progress.progressPercent}, 100`}
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              stroke="currentColor"
+                              fill="none"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                          </svg>
+                          {isCompleted ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 absolute" />
+                          ) : (
+                            <span className="text-[9px] font-black text-slate-700 absolute font-mono">
+                              {progress.progressPercent}
+                            </span>
+                          )}
                         </div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-blue-600'}`}
-                            style={{ width: `${progress.progressPercent}%` }}
-                          ></div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-slate-800 block font-mono whitespace-nowrap">
+                            {progress.progressPercent}%
+                          </span>
+                          <span className="text-[10px] text-slate-400 block whitespace-nowrap">
+                            {isCompleted ? 'เสร็จสิ้น' : isInProgress ? 'กำลังเรียน' : 'ยังไม่เริ่ม'}
+                          </span>
                         </div>
                       </div>
                     </td>
@@ -460,7 +587,7 @@ export default function MyProgressPage() {
         </div>
       </div>
 
-      {/* Mobile Card List (Screen < 768px) */}
+      {/* Mobile Card List (Screen < 768px, Circular Progress Wheels) */}
       <div className="md:hidden space-y-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-bold text-slate-800">รายการบทเรียน ({lessons.length})</h3>
@@ -504,16 +631,36 @@ export default function MyProgressPage() {
                 )}
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-500 font-medium">
-                  <span>ความก้าวหน้า</span>
-                  <span className="font-bold text-slate-800">{progress.progressPercent}%</span>
+              {/* Mobile Circular Progress Wheel Row */}
+              <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50/80 border border-slate-100">
+                <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
+                  <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-slate-200/80"
+                      strokeWidth="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className={isCompleted ? 'text-emerald-500' : isInProgress ? 'text-blue-600' : 'text-slate-300'}
+                      strokeDasharray={`${progress.progressPercent}, 100`}
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <span className="text-[10px] font-black text-slate-800 absolute font-mono">
+                    {progress.progressPercent}%
+                  </span>
                 </div>
-                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-blue-600'}`}
-                    style={{ width: `${progress.progressPercent}%` }}
-                  ></div>
+                <div className="text-xs">
+                  <span className="text-slate-500 block">ความก้าวหน้ารายบท</span>
+                  <span className="font-bold text-slate-800">
+                    {isCompleted ? 'เรียนผ่านเกณฑ์แล้ว' : isInProgress ? 'กำลังเรียนรู้' : 'ยังไม่ได้เริ่มเรียน'}
+                  </span>
                 </div>
               </div>
 
