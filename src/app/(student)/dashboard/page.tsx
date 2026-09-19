@@ -190,7 +190,9 @@ export default function StudentDashboardPage() {
               <div className="min-w-0">
                 <span className="text-xs text-blue-200 font-semibold block">บทเรียนถัดไปสำหรับคุณ:</span>
                 <p className="text-sm font-bold text-white truncate max-w-xs">
-                  บทที่ {stats.activeLesson.sortOrder} {stats.activeLesson.title}
+                  {stats.activeLesson.title.startsWith('บทที่')
+                    ? stats.activeLesson.title
+                    : `บทที่ ${stats.activeLesson.sortOrder} ${stats.activeLesson.title}`}
                 </p>
               </div>
               <Link
