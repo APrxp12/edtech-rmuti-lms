@@ -26,6 +26,14 @@ import {
 } from './mock-data';
 import { initialSystemSettings, SystemSettings } from '../config/system-settings';
 import { defaultAccessControlConfig } from '../config/access-control';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
+import {
+  dbFetchUsers,
+  dbUpsertUser,
+  dbFetchAccessRules,
+  dbFetchAnnouncements,
+  subscribeToUsersTable,
+} from '../lib/dbService';
 
 const STORAGE_KEYS = {
   USER: 'edtech_current_user',
@@ -224,6 +232,101 @@ export function useAppStore() {
     }
   }, []);
 
+  // ซิงค์ข้อมูลกับ Supabase ฐานข้อมูลกลาง (ถ้าเชื่อมต่อไว้) พร้อมระบบ Realtime
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    let isMounted = true;
+
+    async function syncFromCloud() {
+      try {
+        const [cloudUsers, cloudRules, cloudAnnouncements] = await Promise.all([
+          dbFetchUsers(),
+          dbFetchAccessRules(),
+          dbFetchAnnouncements(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (cloudUsers && cloudUsers.length > 0) {
+          setUsersList(cloudUsers);
+          try {
+            localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(cloudUsers));
+          } catch (e) {}
+        }
+
+        if (cloudRules && cloudRules.length > 0) {
+          setAccessRules(cloudRules);
+          try {
+            localStorage.setItem(STORAGE_KEYS.ACCESS_RULES, JSON.stringify(cloudRules));
+          } catch (e) {}
+        }
+
+        if (cloudAnnouncements && cloudAnnouncements.length > 0) {
+          setAnnouncements(cloudAnnouncements);
+          try {
+            localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(cloudAnnouncements));
+          } catch (e) {}
+        }
+      } catch (err) {
+        console.warn('[Supabase Sync Error]:', err);
+      }
+    }
+
+    syncFromCloud();
+
+    // ดักฟังการเปลี่ยนแปลงผู้ใช้แบบ Realtime
+    const unsubscribeUsers = subscribeToUsersTable((freshUsers) => {
+      if (!isMounted) return;
+      if (freshUsers && freshUsers.length > 0) {
+        setUsersList(freshUsers);
+        try {
+          localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(freshUsers));
+        } catch (e) {}
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribeUsers();
+    };
+  }, []);
+
+  // ฟังก์ชันรีเฟรชข้อมูลสดจาก Cloud ด้วยตนเอง (Manual Sync)
+  const refreshFromCloud = async (): Promise<boolean> => {
+    if (!isSupabaseConfigured()) return false;
+    try {
+      const [cloudUsers, cloudRules, cloudAnnouncements] = await Promise.all([
+        dbFetchUsers(),
+        dbFetchAccessRules(),
+        dbFetchAnnouncements(),
+      ]);
+
+      if (cloudUsers && cloudUsers.length > 0) {
+        setUsersList(cloudUsers);
+        try {
+          localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(cloudUsers));
+        } catch (e) {}
+      }
+      if (cloudRules && cloudRules.length > 0) {
+        setAccessRules(cloudRules);
+        try {
+          localStorage.setItem(STORAGE_KEYS.ACCESS_RULES, JSON.stringify(cloudRules));
+        } catch (e) {}
+      }
+      if (cloudAnnouncements && cloudAnnouncements.length > 0) {
+        setAnnouncements(cloudAnnouncements);
+        try {
+          localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(cloudAnnouncements));
+        } catch (e) {}
+      }
+      return true;
+    } catch (err) {
+      console.warn('Manual cloud refresh failed:', err);
+      return false;
+    }
+  };
+
   // ฟังก์ชันเข้าสู่ระบบด้วย Google Account หรืออีเมลพร้อมตรวจสอบสิทธิ์ทางการ
   const loginUser = (params: {
     email: string;
@@ -333,6 +436,13 @@ export function useAppStore() {
       }
       return updated;
     });
+
+    // บันทึกลงฐานข้อมูลกลาง Supabase ทันทีเมื่อเข้าใช้งาน
+    if (isSupabaseConfigured()) {
+      dbUpsertUser(newUser).catch((err) => {
+        console.warn('[Supabase] Failed to upsert user on login:', err);
+      });
+    }
 
     return { success: true, role, user: newUser };
   };
@@ -497,5 +607,7 @@ export function useAppStore() {
     setAnnouncements,
     setAccessRules,
     setSettings,
+    isSupabaseLive: isSupabaseConfigured(),
+    refreshFromCloud,
   };
 }

@@ -12,10 +12,12 @@ import {
 import { useAppStore } from '@/data/store';
 import { UserProfile, UserRole, UserStatus } from '@/types';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { dbUpdateUser, dbDeleteUser, dbUpsertUser } from '@/lib/dbService';
 
 export default function AdminUsersPage() {
-  const { usersList, setUsersList } = useAppStore();
+  const { usersList, setUsersList, isSupabaseLive, refreshFromCloud } = useAppStore();
   const [users, setUsers] = useState<UserProfile[]>(() => usersList);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'student' | 'admin'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'blocked'>('all');
@@ -72,6 +74,9 @@ export default function AdminUsersPage() {
       updated,
       `ปรับเปลี่ยนสิทธิ์ของ "${target?.fullName || 'ผู้ใช้'}" เป็น ${newRole === 'admin' ? 'ผู้ดูแลระบบ' : 'นักศึกษา'} เรียบร้อย`
     );
+    if (isSupabaseLive) {
+      dbUpdateUser(userId, { role: newRole }).catch(console.warn);
+    }
   };
 
   // Change Status
@@ -84,6 +89,9 @@ export default function AdminUsersPage() {
         newStatus === 'active' ? 'ใช้งานอยู่' : newStatus === 'blocked' ? 'ถูกระงับ' : 'ไม่ได้ใช้งาน'
       } เรียบร้อย`
     );
+    if (isSupabaseLive) {
+      dbUpdateUser(userId, { status: newStatus }).catch(console.warn);
+    }
   };
 
   // Delete User
@@ -96,6 +104,9 @@ export default function AdminUsersPage() {
     if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้ "${target?.fullName || ''}"?`)) {
       const updated = users.filter((u) => u.id !== userId);
       saveAndSyncUsers(updated, `ลบผู้ใช้งาน "${target?.fullName || ''}" ออกจากระบบแล้ว`);
+      if (isSupabaseLive) {
+        dbDeleteUser(userId).catch(console.warn);
+      }
     }
   };
 
@@ -129,20 +140,25 @@ export default function AdminUsersPage() {
 
     if (modalEditingId) {
       // Edit existing user
-      const updated = users.map((u) =>
-        u.id === modalEditingId
-          ? {
-              ...u,
-              fullName: modalFullName.trim(),
-              displayName: modalDisplayName.trim() || modalFullName.trim(),
-              studentId: modalRole === 'student' ? (modalStudentId.trim() || '-') : '-',
-              email: modalEmail.trim().toLowerCase(),
-              role: modalRole,
-              status: modalStatus,
-            }
-          : u
-      );
+      const existing = users.find((u) => u.id === modalEditingId);
+      const updatedUser: UserProfile = {
+        ...(existing || ({} as UserProfile)),
+        id: modalEditingId,
+        fullName: modalFullName.trim(),
+        displayName: modalDisplayName.trim() || modalFullName.trim(),
+        studentId: modalRole === 'student' ? (modalStudentId.trim() || '-') : '-',
+        email: modalEmail.trim().toLowerCase(),
+        role: modalRole,
+        status: modalStatus,
+        isProfileCompleted: true,
+        firstLoginAt: existing?.firstLoginAt || new Date().toISOString(),
+        lastLoginAt: existing?.lastLoginAt || new Date().toISOString(),
+      };
+      const updated = users.map((u) => (u.id === modalEditingId ? updatedUser : u));
       saveAndSyncUsers(updated, `แก้ไขข้อมูลของ "${modalFullName.trim()}" สำเร็จ`);
+      if (isSupabaseLive) {
+        dbUpsertUser(updatedUser).catch(console.warn);
+      }
     } else {
       // Add new user
       const newUser: UserProfile = {
@@ -159,8 +175,31 @@ export default function AdminUsersPage() {
         avatarUrl: '',
       };
       saveAndSyncUsers([newUser, ...users], `เพิ่มผู้ใช้งานใหม่ "${newUser.fullName}" สำเร็จเรียบร้อย`);
+      if (isSupabaseLive) {
+        dbUpsertUser(newUser).catch(console.warn);
+      }
     }
     setIsUserModalOpen(false);
+  };
+
+  // Sync with Cloud
+  const handleSyncFromCloud = async () => {
+    if (!refreshFromCloud) return;
+    setIsRefreshing(true);
+    try {
+      const ok = await refreshFromCloud();
+      if (ok) {
+        setToastMsg('ซิงค์ข้อมูลล่าสุดจากฐานข้อมูล Cloud เรียบร้อย');
+        setTimeout(() => setToastMsg(null), 3000);
+      } else {
+        setToastMsg('ระบบกำลังทำงานในโหมด LocalStorage (ไม่ได้ตั้งค่า Supabase)');
+        setTimeout(() => setToastMsg(null), 3500);
+      }
+    } catch (err) {
+      console.warn('Sync error:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   // Copy email helper
@@ -241,6 +280,34 @@ export default function AdminUsersPage() {
 
         {/* Global Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator Badge */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs"
+              title="ระบบกำลังทำงานในโหมด LocalStorage บันทึกเฉพาะเครื่องนี้ หากต้องการให้ทุกเครื่องเชื่อมต่อข้อมูลกลาง ให้ระบุ Supabase Keys ใน .env.local"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง (Offline)</span>
+            </div>
+          )}
+
+          {/* Sync Button */}
+          <button
+            type="button"
+            onClick={handleSyncFromCloud}
+            disabled={isRefreshing}
+            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 rounded-xl text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+            title="รีเฟรชดึงข้อมูลล่าสุดจาก Cloud"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
+            <span>{isRefreshing ? 'กำลังดึงข้อมูล...' : 'รีเฟรชข้อมูล'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleOpenAddModal}
