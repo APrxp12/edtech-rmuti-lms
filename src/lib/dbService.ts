@@ -203,6 +203,42 @@ export async function dbDeleteAccessRule(ruleId: string): Promise<boolean> {
   }
 }
 
+export async function dbSaveAllAccessRules(rules: AccessRule[]): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    // ล้างข้อมูลเก่าออกทั้งหมด
+    const { error: delErr } = await sb.from('access_rules').delete().neq('id', '___never___');
+    if (delErr) {
+      console.warn('[Supabase] Error clearing access_rules:', delErr.message);
+    }
+
+    if (rules.length === 0) return true;
+
+    const rows = rules.map((r) => ({
+      id: r.id,
+      type: r.type,
+      value: r.value.toLowerCase().trim(),
+      decision: r.decision,
+      default_role: r.defaultRole,
+      is_active: r.isActive,
+      note: r.note || '',
+      updated_at: r.updatedAt || new Date().toISOString(),
+    }));
+
+    const { error: insErr } = await sb.from('access_rules').insert(rows);
+    if (insErr) {
+      console.warn('[Supabase] Error inserting access_rules:', insErr.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception saving all access_rules:', err);
+    return false;
+  }
+}
+
 // ==========================================
 // 3. ANNOUNCEMENTS TABLE
 // ==========================================

@@ -1,19 +1,21 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Shield, ShieldCheck, ShieldAlert, Plus, Trash2, Edit3, CheckCircle2, 
   AlertTriangle, RotateCcw, ArrowLeft, Search, X, Check, 
-  Globe, Mail, GraduationCap, Lock, HelpCircle, Info
+  Globe, Mail, GraduationCap, Lock, HelpCircle, Info, Save, RefreshCw
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { AccessRule, UserRole } from '@/types';
 import { initialAccessRules } from '@/data/mock-data';
+import { dbSaveAllAccessRules, dbDeleteAccessRule } from '@/lib/dbService';
 
 export default function AdminAccessRulesPage() {
-  const { accessRules, setAccessRules } = useAppStore();
+  const { accessRules, setAccessRules, isSupabaseLive } = useAppStore();
   const [rules, setRules] = useState<AccessRule[]>(() => accessRules);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,7 +37,14 @@ export default function AdminAccessRulesPage() {
   // Toast Notification
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  // Sync and save rules to Store & LocalStorage
+  // อัปเดตรายการกฎเมื่อโหลดข้อมูลจาก Cloud หรือ Store สำเร็จ
+  useEffect(() => {
+    if (accessRules) {
+      setRules(accessRules);
+    }
+  }, [accessRules]);
+
+  // ซิงค์และบันทึกกฎไปยัง Store, LocalStorage และ Supabase Cloud DB
   const saveAndSyncRules = (updated: AccessRule[], message?: string) => {
     setRules(updated);
     setAccessRules(updated);
@@ -44,9 +53,44 @@ export default function AdminAccessRulesPage() {
     } catch (e) {
       console.error('Error saving access rules to localStorage:', e);
     }
+
+    if (isSupabaseLive) {
+      dbSaveAllAccessRules(updated).catch((err) => {
+        console.warn('[Supabase] Auto-sync access_rules failed:', err);
+      });
+    }
+
     if (message) {
       setToastMsg(message);
       setTimeout(() => setToastMsg(null), 3000);
+    }
+  };
+
+  // ปุ่มบันทึกข้อมูลหลัก (Manual Save Button ตามที่ผู้ใช้ระบุ)
+  const handleManualSave = async () => {
+    setIsSaving(true);
+    try {
+      setAccessRules(rules);
+      try {
+        localStorage.setItem('edtech_access_rules', JSON.stringify(rules));
+      } catch (e) {}
+
+      if (isSupabaseLive) {
+        const ok = await dbSaveAllAccessRules(rules);
+        if (ok) {
+          setToastMsg('บันทึกการตั้งค่าสิทธิ์การเข้าใช้งานลงฐานข้อมูล Cloud สำเร็จแล้ว');
+        } else {
+          setToastMsg('บันทึกลงหน่วยความจำเรียบร้อยแล้ว');
+        }
+      } else {
+        setToastMsg('บันทึกข้อมูลลงในระบบเรียบร้อยแล้ว');
+      }
+    } catch (err) {
+      console.error('Error saving access rules:', err);
+      setToastMsg('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -243,14 +287,43 @@ export default function AdminAccessRulesPage() {
 
         {/* Global Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
+          {/* ปุ่มบันทึกการตั้งค่า (Save Changes Button) */}
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={handleManualSave}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+            title="บันทึกการเปลี่ยนแปลงทั้งหมดลงฐานข้อมูล"
+          >
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleResetDefaults}
             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-            title="คืนค่ากฎเริ่มต้นทั้งหมด"
+            title="ล้างกฎทั้งหมด"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>คืนค่าเริ่มต้น</span>
+            <span>ล้างค่าทั้งหมด</span>
           </button>
 
           <button
