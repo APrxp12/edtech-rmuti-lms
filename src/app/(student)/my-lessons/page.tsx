@@ -161,70 +161,85 @@ export default function MyLessonsPage() {
         </div>
       </div>
 
-      {/* Official Course Syllabus Hero Header */}
-      <div className="bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg border border-blue-600/30">
+      {/* Official Course Syllabus Hero Header (Soft Luminous Tone with Circular Progress Wheel) */}
+      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-8 border border-blue-100/90 shadow-sm relative overflow-hidden">
+        {/* Ambient soft pastel orbs matching my-progress */}
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 rounded-full blur-2xl pointer-events-none"></div>
+
         <div className="relative z-10 space-y-5">
           
           {/* Top Row: Meta Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-blue-50 flex items-center gap-1.5 border border-white/15 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span className="text-xs sm:text-sm font-bold bg-white/95 text-blue-800 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
+                <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>{courseInfo.curriculum}</span>
               </span>
-              <span className="text-xs text-blue-100 font-medium">
+              <span className="text-xs sm:text-sm text-slate-600 font-medium">
                 • {courseInfo.semester}
               </span>
             </div>
-            <span className="text-xs font-mono font-bold bg-white/15 px-3.5 py-1 rounded-full border border-white/20 text-amber-300 shadow-xs">
+            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
               รหัสวิชา: {courseInfo.code}
             </span>
           </div>
 
           {/* Course Title - Full width across top so it stays strictly on a single line! */}
-          <div className="space-y-2">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black tracking-tight text-white drop-shadow-xs break-keep whitespace-normal xl:whitespace-nowrap">
+          <div className="space-y-1.5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[30px] font-black tracking-tight text-slate-900 break-keep whitespace-normal xl:whitespace-nowrap">
               {courseInfo.title}
             </h2>
-            <p className="text-xs sm:text-sm text-blue-100/90 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-blue-200 shrink-0" />
+            <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
               <span>{courseInfo.department}</span>
             </p>
           </div>
 
-          {/* Bottom Section: Split into Instructor on Left & Progress/Action on Right */}
-          <div className="pt-4 border-t border-white/15 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          {/* Bottom Section: Split into Instructor on Left & Circular Progress Wheel & Resume on Right */}
+          <div className="pt-4 border-t border-blue-100/80 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             
             {/* Instructor Badge */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 shadow-xs shrink-0">
-                <User className="w-5 h-5" />
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
+                <User className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] text-blue-200 font-medium block">อาจารย์ผู้สอนประจำวิชา</span>
-                <span className="text-sm sm:text-base font-bold text-white">{courseInfo.instructor}</span>
+                <span className="text-[11px] text-slate-500 font-medium block">อาจารย์ผู้สอนประจำวิชา</span>
+                <span className="text-sm sm:text-base font-bold text-slate-900">{courseInfo.instructor}</span>
               </div>
             </div>
 
-            {/* Right: Progress & Stats & Resume Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:px-5 sm:py-3.5 border border-white/15">
+            {/* Right: Circular Progress Wheel & Quick Resume Button */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 self-start lg:self-auto">
               
-              {/* Progress Bar & Percent */}
-              <div className="flex items-center gap-3 min-w-[200px]">
-                <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center font-black text-xs shrink-0">
-                  {stats.percent}%
+              {/* Circular Wheel Widget in Banner */}
+              <div className="flex items-center gap-3 bg-white/95 backdrop-blur-xs px-3.5 py-2 rounded-2xl border border-blue-200/80 shadow-xs">
+                <div className="relative w-11 h-11 shrink-0 flex items-center justify-center">
+                  <svg className="w-11 h-11 transform -rotate-90 drop-shadow-2xs" viewBox="0 0 36 36">
+                    <path
+                      className="text-slate-100"
+                      strokeWidth="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-emerald-500 transition-all duration-700"
+                      strokeDasharray={`${stats.percent}, 100`}
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <span className="text-xs font-black text-slate-900 absolute font-mono">{stats.percent}%</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between text-[11px] text-blue-100 font-bold mb-1">
-                    <span>ความก้าวหน้ารวม</span>
-                    <span className="text-emerald-300">{stats.completed}/{stats.total} บทเรียน</span>
-                  </div>
-                  <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-emerald-400 to-amber-300 h-full rounded-full transition-all duration-700"
-                      style={{ width: `${stats.percent}%` }}
-                    ></div>
-                  </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 font-bold block">ความก้าวหน้ารวม</span>
+                  <span className="text-xs sm:text-sm font-black text-slate-900">{stats.completed}/{stats.total} บทเรียน</span>
                 </div>
               </div>
 
@@ -232,7 +247,7 @@ export default function MyLessonsPage() {
               {stats.nextLesson && (
                 <Link
                   href={`/lessons/${stats.nextLesson.code}/intro`}
-                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-amber-300 text-blue-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition active:scale-95 shrink-0 whitespace-nowrap"
+                  className="px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition active:scale-95 shrink-0 whitespace-nowrap"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>
@@ -247,11 +262,6 @@ export default function MyLessonsPage() {
           </div>
 
         </div>
-
-        {/* Decorative Background Glows matching Dashboard */}
-        <div className="absolute -right-8 -bottom-8 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-400/15 rounded-full blur-xl pointer-events-none"></div>
-        <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-400/10 rounded-full blur-xl pointer-events-none"></div>
       </div>
 
       {/* Control Bar: Search, Status Tabs, View Switcher */}
@@ -491,19 +501,40 @@ export default function MyLessonsPage() {
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span>ความก้าวหน้า</span>
-                      <span className="font-bold text-slate-800">{isLocked ? '-' : `${progress.progressPercent}%`}</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          isCompleted ? 'bg-emerald-500' : isReadyForPostTest ? 'bg-amber-500' : 'bg-blue-600'
-                        }`}
-                        style={{ width: isLocked ? '0%' : `${progress.progressPercent}%` }}
-                      ></div>
+                  {/* Circular Progress Wheel */}
+                  <div className="flex items-center justify-between pt-1 px-1">
+                    <div className="flex items-center gap-2.5">
+                      <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
+                        <svg className="w-10 h-10 transform -rotate-90 drop-shadow-2xs" viewBox="0 0 36 36">
+                          <path
+                            className="text-slate-100"
+                            strokeWidth="3.5"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                          <path
+                            className={`transition-all duration-500 ${
+                              isCompleted ? 'text-emerald-500' : isReadyForPostTest ? 'text-amber-500' : 'text-blue-600'
+                            }`}
+                            strokeDasharray={isLocked ? '0, 100' : `${progress.progressPercent}, 100`}
+                            strokeWidth="3.5"
+                            strokeLinecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <span className="text-[10px] font-black text-slate-800 absolute font-mono">
+                          {isLocked ? '-' : `${progress.progressPercent}%`}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[11px] text-slate-400 font-medium block">ความก้าวหน้า</span>
+                        <span className="text-xs font-bold text-slate-700">
+                          {isCompleted ? 'ผ่านเกณฑ์แล้ว' : isInProgress ? 'กำลังศึกษา' : isReadyForPostTest ? 'รอสอบ' : isLocked ? 'ปิด' : 'ยังไม่เริ่ม'}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -691,19 +722,38 @@ export default function MyLessonsPage() {
                     </span>
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="w-full space-y-1">
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span>ความก้าวหน้า</span>
-                      <span className="font-bold text-slate-800">{isLocked ? '-' : `${progress.progressPercent}%`}</span>
+                  {/* Circular Progress Wheel in List View */}
+                  <div className="w-full flex items-center justify-between gap-3 bg-slate-50/80 px-3 py-1.5 rounded-2xl border border-slate-100">
+                    <div>
+                      <span className="text-[11px] text-slate-400 font-medium block">ความก้าวหน้า</span>
+                      <span className="text-xs font-bold text-slate-700">
+                        {isCompleted ? 'ผ่านเกณฑ์' : isInProgress ? 'กำลังเรียน' : isReadyForPostTest ? 'รอสอบ' : isLocked ? '-' : 'ยังไม่เริ่ม'}
+                      </span>
                     </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${
-                          isCompleted ? 'bg-emerald-500' : isReadyForPostTest ? 'bg-amber-500' : 'bg-blue-600'
-                        }`}
-                        style={{ width: isLocked ? '0%' : `${progress.progressPercent}%` }}
-                      ></div>
+                    <div className="relative w-9 h-9 shrink-0 flex items-center justify-center">
+                      <svg className="w-9 h-9 transform -rotate-90" viewBox="0 0 36 36">
+                        <path
+                          className="text-slate-200/80"
+                          strokeWidth="3.5"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                        <path
+                          className={`transition-all duration-500 ${
+                            isCompleted ? 'text-emerald-500' : isReadyForPostTest ? 'text-amber-500' : 'text-blue-600'
+                          }`}
+                          strokeDasharray={isLocked ? '0, 100' : `${progress.progressPercent}, 100`}
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      </svg>
+                      <span className="text-[10px] font-black text-slate-800 absolute font-mono">
+                        {isLocked ? '-' : `${progress.progressPercent}%`}
+                      </span>
                     </div>
                   </div>
 

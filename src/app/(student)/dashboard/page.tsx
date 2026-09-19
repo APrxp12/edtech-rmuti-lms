@@ -161,26 +161,26 @@ export default function StudentDashboardPage() {
       {/* 3 Top Executive Overview Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         
-        {/* Card 1: Greeting Hero with Real-Time Flair */}
-        <div className="lg:col-span-4 bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 rounded-3xl p-5 sm:p-6 text-white relative overflow-hidden shadow-lg flex flex-col justify-between border border-blue-600/30">
+        {/* Card 1: Greeting Hero with Soft Luminous Pastel Theme */}
+        <div className="lg:col-span-4 bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-5 sm:p-6 border border-blue-100/90 shadow-sm relative overflow-hidden flex flex-col justify-between">
           <div className="relative z-10 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-blue-50 flex items-center gap-1.5 border border-white/10 shadow-xs">
+              <span className="text-xs font-bold bg-white/95 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
                 <span>{greetingInfo.icon}</span>
                 <span>{greetingInfo.text}</span>
               </span>
-              <span className="text-xs text-blue-200 font-medium hidden sm:inline-block">
+              <span className="text-xs text-slate-500 font-medium hidden sm:inline-block">
                 • {greetingInfo.thaiDate}
               </span>
             </div>
 
             <div>
-              <h1 className="text-xl sm:text-2xl font-black leading-tight tracking-tight">
-                สวัสดีคุณ <span className="text-amber-300">
+              <h1 className="text-xl sm:text-2xl font-black leading-tight tracking-tight text-slate-900">
+                สวัสดีคุณ <span className="text-blue-700 font-black">
                   {(currentUser.displayName || currentUser.fullName || 'นักศึกษา').replace(/^(นาย|นางสาว|นาง)\s*/i, '').trim() || 'นักศึกษา'}
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-blue-100/90 mt-1 font-medium leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium leading-relaxed">
                 ยินดีต้อนรับสู่ระบบการเรียนรู้วิชานวัตกรรมและเทคโนโลยีดิจิทัลเพื่อการจัดการเรียนรู้
               </p>
             </div>
@@ -188,10 +188,10 @@ export default function StudentDashboardPage() {
 
           {/* Quick Resume Button */}
           {stats.activeLesson && (
-            <div className="relative z-10 pt-5 mt-4 border-t border-white/15 flex flex-col sm:flex-row lg:flex-col xl:flex-row lg:items-start xl:items-center justify-between gap-3">
+            <div className="relative z-10 pt-5 mt-4 border-t border-blue-100/80 flex flex-col sm:flex-row lg:flex-col xl:flex-row lg:items-start xl:items-center justify-between gap-3">
               <div className="min-w-0">
-                <span className="text-[11px] text-blue-200 font-semibold block">บทเรียนถัดไปสำหรับคุณ:</span>
-                <p className="text-xs sm:text-sm font-bold text-white truncate max-w-xs">
+                <span className="text-[11px] text-slate-500 font-semibold block">บทเรียนถัดไปสำหรับคุณ:</span>
+                <p className="text-xs sm:text-sm font-bold text-slate-900 truncate max-w-xs">
                   {stats.activeLesson.title.startsWith('บทที่')
                     ? stats.activeLesson.title
                     : `บทที่ ${stats.activeLesson.sortOrder} ${stats.activeLesson.title}`}
@@ -199,7 +199,7 @@ export default function StudentDashboardPage() {
               </div>
               <Link
                 href={`/lessons/${stats.activeLesson.code}/intro`}
-                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white text-blue-900 hover:bg-amber-300 hover:text-slate-900 text-xs font-bold shadow-md hover:shadow-lg transition active:scale-95 shrink-0 whitespace-nowrap w-full sm:w-auto lg:w-full xl:w-auto"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm hover:shadow-md transition active:scale-95 shrink-0 whitespace-nowrap w-full sm:w-auto lg:w-full xl:w-auto"
               >
                 <span>เข้าสู่บทเรียน</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -208,8 +208,9 @@ export default function StudentDashboardPage() {
           )}
 
           {/* Background Decorative Blur Orbs */}
-          <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div className="absolute top-0 right-1/4 w-32 h-32 bg-amber-400/10 rounded-full blur-xl pointer-events-none"></div>
+          <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-blue-200/30 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="absolute top-0 right-1/4 w-36 h-36 bg-amber-200/25 rounded-full blur-xl pointer-events-none"></div>
+          <div className="absolute -left-10 -top-10 w-36 h-36 bg-indigo-200/20 rounded-full blur-xl pointer-events-none"></div>
         </div>
 
         {/* Card 2: Overall Progress Card (Elevated & Live Calc) */}
@@ -255,13 +256,7 @@ export default function StudentDashboardPage() {
               </span>
             </div>
 
-            <div className="space-y-1.5 flex-1 min-w-0">
-              <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                <div 
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-700" 
-                  style={{ width: `${stats.percent}%` }}
-                ></div>
-              </div>
+            <div className="space-y-1 flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-bold text-slate-800 truncate">
                 {stats.percent === 100 
                   ? 'สำเร็จครบทุกบทเรียนแล้ว! 🎉' 
@@ -269,7 +264,7 @@ export default function StudentDashboardPage() {
                   ? 'คุณกำลังไปได้ดีมาก!' 
                   : 'เริ่มต้นบทเรียนแรกกันเลย!'}
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 {stats.percent === 100 
                   ? 'ยินดีด้วย! คุณสามารถทบทวนเนื้อหาได้ตลอดเวลา' 
                   : `เหลืออีก ${stats.total - stats.completed} บทเรียน เพื่อเรียนจบวิชา`}
@@ -654,19 +649,40 @@ export default function StudentDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Progress Bar */}
-                    <div className="space-y-1.5 pt-1">
-                      <div className="flex items-center justify-between text-xs text-slate-500">
-                        <span>ความก้าวหน้า</span>
-                        <span className="font-bold text-slate-800">{isLocked ? '-' : `${progress.progressPercent}%`}</span>
-                      </div>
-                      <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            isCompleted ? 'bg-emerald-500' : isReadyForPostTest ? 'bg-amber-500' : 'bg-blue-600'
-                          }`}
-                          style={{ width: isLocked ? '0%' : `${progress.progressPercent}%` }}
-                        ></div>
+                    {/* Circular Progress Wheel */}
+                    <div className="flex items-center justify-between pt-1 px-1">
+                      <div className="flex items-center gap-2.5">
+                        <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
+                          <svg className="w-10 h-10 transform -rotate-90 drop-shadow-2xs" viewBox="0 0 36 36">
+                            <path
+                              className="text-slate-100"
+                              strokeWidth="3.5"
+                              stroke="currentColor"
+                              fill="none"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <path
+                              className={`transition-all duration-500 ${
+                                isCompleted ? 'text-emerald-500' : isReadyForPostTest ? 'text-amber-500' : 'text-blue-600'
+                              }`}
+                              strokeDasharray={isLocked ? '0, 100' : `${progress.progressPercent}, 100`}
+                              strokeWidth="3.5"
+                              strokeLinecap="round"
+                              stroke="currentColor"
+                              fill="none"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                          </svg>
+                          <span className="text-[10px] font-black text-slate-800 absolute font-mono">
+                            {isLocked ? '-' : `${progress.progressPercent}%`}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[11px] text-slate-400 font-medium block">ความก้าวหน้า</span>
+                          <span className="text-xs font-bold text-slate-700">
+                            {isCompleted ? 'ผ่านเกณฑ์แล้ว' : isInProgress ? 'กำลังศึกษา' : isReadyForPostTest ? 'รอสอบ' : isLocked ? 'ปิด' : 'ยังไม่เริ่ม'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
