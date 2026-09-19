@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { 
   Play, BookOpen, CheckCircle2, Award, Search, ArrowRight, 
   Clock, Lock, FileText, LayoutGrid, List, Check, ArrowLeft,
-  Sparkles, GraduationCap, User, Building2, Calendar, X, AlertCircle
+  Sparkles, GraduationCap, User, Building2, Calendar, X, AlertCircle, AlertTriangle
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { EmptyStateCard } from '@/components/shared/SharedDialogs';
@@ -14,6 +14,33 @@ import { EmptyStateCard } from '@/components/shared/SharedDialogs';
 export default function MyLessonsPage() {
   const router = useRouter();
   const { currentUser, lessons, progressMap, settings } = useAppStore();
+
+  const isProfileIncomplete =
+    currentUser.role === 'student' &&
+    (!currentUser.isProfileCompleted ||
+      !currentUser.studentId ||
+      currentUser.studentId.trim() === '' ||
+      currentUser.studentId === '-' ||
+      currentUser.studentId === '65123456789' ||
+      !currentUser.fullName ||
+      currentUser.fullName.trim() === '');
+
+  const handleStartLesson = (destinationUrl: string, lessonTitle: string, isLocked?: boolean) => {
+    if (isLocked) return;
+    if (isProfileIncomplete) {
+      window.dispatchEvent(
+        new CustomEvent('edtech_open_profile_modal', {
+          detail: {
+            reason: 'lesson_blocked',
+            lessonTitle,
+            destinationUrl,
+          },
+        })
+      );
+      return;
+    }
+    router.push(destinationUrl);
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<'order' | 'progress'>('order');
@@ -160,6 +187,44 @@ export default function MyLessonsPage() {
           </span>
         </div>
       </div>
+
+      {/* แถบเตือนกรณีข้อมูลนักศึกษายังไม่สมบูรณ์ (Persistent Warning Banner) */}
+      {isProfileIncomplete && (
+        <div className="p-4 sm:p-5 rounded-3xl bg-amber-50/90 border-2 border-amber-300/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs sm:text-sm font-black text-amber-950">
+                  บัญชีของคุณยังไม่ได้ระบุชื่อ-นามสกุล และรหัสนักศึกษา
+                </h3>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
+                  จำเป็นต้องกรอกก่อนเริ่มเรียน
+                </span>
+              </div>
+              <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                ระบบไม่อนุญาตให้เริ่มเรียนบทเรียนหรือทำแบบทดสอบ จนกว่าจะระบุชื่อและรหัสนักศึกษาให้เรียบร้อย
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent('edtech_open_profile_modal', {
+                  detail: { reason: 'banner' },
+                })
+              )
+            }
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition shrink-0 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>กรอกข้อมูลนักศึกษาทันที</span>
+          </button>
+        </div>
+      )}
 
       {/* Official Course Syllabus Hero Header (Soft Luminous Tone with Circular Progress Wheel) */}
       <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-8 border border-blue-100/90 shadow-sm relative overflow-hidden">
@@ -421,7 +486,7 @@ export default function MyLessonsPage() {
             return (
               <div
                 key={lesson.id}
-                onClick={() => !isLocked && router.push(destinationUrl)}
+                onClick={() => handleStartLesson(destinationUrl, lesson.title, isLocked)}
                 className={`bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-blue-400 transition-all flex flex-col justify-between group ${
                   isLocked ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
                 }`}
@@ -471,7 +536,7 @@ export default function MyLessonsPage() {
                   </div>
                 </div>
 
-                {/* Card Content */}
+                {/* Card Content Body */}
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div>
                     <div className="text-xs font-mono font-semibold text-blue-600 mb-1">
@@ -488,15 +553,11 @@ export default function MyLessonsPage() {
                     <div className="flex items-center gap-2 pt-3 text-xs text-slate-600 font-medium">
                       <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
                         <Play className="w-3.5 h-3.5 text-blue-600" />
-                        {version?.videos?.length || 2} คลิป
+                        {version?.videos?.length || 2} คลิปวิดีโอ
                       </span>
                       <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
                         <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                        {version?.resources?.length || 1} สื่อ
-                      </span>
-                      <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-                        <Clock className="w-3.5 h-3.5 text-amber-500" />
-                        {version?.estimatedDurationMinutes || 30} นาที
+                        {version?.resources?.length || 1} สื่อเอกสาร
                       </span>
                     </div>
                   </div>
@@ -542,39 +603,47 @@ export default function MyLessonsPage() {
                   <div className="pt-2">
                     {isCompleted ? (
                       <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Link
-                          href={`/lessons/${lesson.code}/intro?mode=review`}
-                          className="py-2.5 px-2 sm:px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-emerald-200 transition shadow-2xs active:scale-95 whitespace-nowrap"
+                        <button
+                          type="button"
+                          onClick={() => handleStartLesson(`/lessons/${lesson.code}/intro?mode=review`, lesson.title, false)}
+                          className="py-2.5 px-2 sm:px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-emerald-200 transition shadow-2xs active:scale-95 whitespace-nowrap cursor-pointer"
                         >
                           <BookOpen className="w-4 h-4 shrink-0 text-emerald-600" />
                           <span>ทบทวน</span>
-                        </Link>
-                        <Link
-                          href={`/lessons/${lesson.code}/result`}
-                          className="py-2.5 px-2 sm:px-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-blue-200 transition shadow-2xs active:scale-95 whitespace-nowrap"
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStartLesson(`/lessons/${lesson.code}/result`, lesson.title, false)}
+                          className="py-2.5 px-2 sm:px-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-blue-200 transition shadow-2xs active:scale-95 whitespace-nowrap cursor-pointer"
                         >
                           <Award className="w-4 h-4 shrink-0 text-blue-600" />
                           <span>ดูผล</span>
-                        </Link>
+                        </button>
                       </div>
                     ) : isInProgress ? (
-                      <Link
-                        href={`/lessons/${lesson.code}/learn`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartLesson(`/lessons/${lesson.code}/learn`, lesson.title, false);
+                        }}
+                        className="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap cursor-pointer"
                       >
                         <Play className="w-4 h-4 fill-white shrink-0" />
                         <span>เรียนต่อ</span>
-                      </Link>
+                      </button>
                     ) : isReadyForPostTest ? (
-                      <Link
-                        href={`/lessons/${lesson.code}/post-test`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartLesson(`/lessons/${lesson.code}/post-test`, lesson.title, false);
+                        }}
+                        className="w-full py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap cursor-pointer"
                       >
                         <FileText className="w-4 h-4 shrink-0" />
                         <span>ทำแบบทดสอบหลังเรียน</span>
-                      </Link>
+                      </button>
                     ) : isLocked ? (
                       <button
                         disabled
@@ -584,14 +653,17 @@ export default function MyLessonsPage() {
                         <span>ยังไม่เปิดเรียน</span>
                       </button>
                     ) : (
-                      <Link
-                        href={`/lessons/${lesson.code}/intro`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full py-2.5 px-4 rounded-2xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition active:scale-95 whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartLesson(`/lessons/${lesson.code}/intro`, lesson.title, false);
+                        }}
+                        className="w-full py-2.5 px-4 rounded-2xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition active:scale-95 whitespace-nowrap cursor-pointer"
                       >
                         <Play className="w-4 h-4 fill-blue-600 shrink-0" />
                         <span>เริ่มเรียน</span>
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -630,7 +702,7 @@ export default function MyLessonsPage() {
             return (
               <div
                 key={lesson.id}
-                onClick={() => !isLocked && router.push(destinationUrl)}
+                onClick={() => handleStartLesson(destinationUrl, lesson.title, isLocked)}
                 className={`bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 group ${
                   isLocked ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
                 }`}
@@ -761,37 +833,41 @@ export default function MyLessonsPage() {
                   <div className="w-full" onClick={(e) => e.stopPropagation()}>
                     {isCompleted ? (
                       <div className="grid grid-cols-2 gap-2">
-                        <Link
-                          href={`/lessons/${lesson.code}/intro?mode=review`}
-                          className="py-2 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center gap-1 border border-emerald-200 transition whitespace-nowrap"
+                        <button
+                          type="button"
+                          onClick={() => handleStartLesson(`/lessons/${lesson.code}/intro?mode=review`, lesson.title, false)}
+                          className="py-2 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center gap-1 border border-emerald-200 transition whitespace-nowrap cursor-pointer"
                         >
                           <BookOpen className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>ทบทวน</span>
-                        </Link>
-                        <Link
-                          href={`/lessons/${lesson.code}/result`}
-                          className="py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 border border-blue-200 transition whitespace-nowrap"
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStartLesson(`/lessons/${lesson.code}/result`, lesson.title, false)}
+                          className="py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 border border-blue-200 transition whitespace-nowrap cursor-pointer"
                         >
                           <Award className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                           <span>ดูผล</span>
-                        </Link>
+                        </button>
                       </div>
                     ) : isInProgress ? (
-                      <Link
-                        href={`/lessons/${lesson.code}/learn`}
-                        className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-xs whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={() => handleStartLesson(`/lessons/${lesson.code}/learn`, lesson.title, false)}
+                        className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-xs whitespace-nowrap cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5 fill-white shrink-0" />
                         <span>เรียนต่อ</span>
-                      </Link>
+                      </button>
                     ) : isReadyForPostTest ? (
-                      <Link
-                        href={`/lessons/${lesson.code}/post-test`}
-                        className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-xs whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={() => handleStartLesson(`/lessons/${lesson.code}/post-test`, lesson.title, false)}
+                        className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-xs whitespace-nowrap cursor-pointer"
                       >
                         <FileText className="w-3.5 h-3.5 shrink-0" />
                         <span>ทำแบบทดสอบ</span>
-                      </Link>
+                      </button>
                     ) : isLocked ? (
                       <button
                         disabled
@@ -801,13 +877,14 @@ export default function MyLessonsPage() {
                         <span>ยังไม่เปิดเรียน</span>
                       </button>
                     ) : (
-                      <Link
-                        href={`/lessons/${lesson.code}/intro`}
-                        className="w-full py-2.5 px-4 rounded-xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold flex items-center justify-center gap-2 transition whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={() => handleStartLesson(`/lessons/${lesson.code}/intro`, lesson.title, false)}
+                        className="w-full py-2.5 px-4 rounded-xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold flex items-center justify-center gap-2 transition whitespace-nowrap cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5 fill-blue-600 shrink-0" />
                         <span>เริ่มเรียน</span>
-                      </Link>
+                      </button>
                     )}
                   </div>
 

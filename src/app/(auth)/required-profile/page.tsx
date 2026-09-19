@@ -13,33 +13,42 @@ export default function RequiredProfilePage() {
   const router = useRouter();
   const { currentUser, saveRequiredProfile } = useAppStore();
 
-  const [fullName, setFullName] = useState(currentUser.fullName || 'สมชาย ใจดี');
-  const [studentId, setStudentId] = useState(currentUser.studentId || '65123456789');
+  const [fullName, setFullName] = useState(
+    currentUser.fullName && !currentUser.fullName.includes('@') ? currentUser.fullName : ''
+  );
+  const [studentId, setStudentId] = useState(
+    currentUser.studentId && currentUser.studentId !== '-' && currentUser.studentId !== '65123456789'
+      ? currentUser.studentId
+      : ''
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isValidName = fullName.trim().length >= 3;
-  const isValidStudentId = /^[0-9]{10,13}$/.test(studentId.trim());
+  const isValidStudentId = /^[0-9A-Za-z-]{10,15}$/.test(studentId.trim());
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidName) {
-      setErrorMessage('กรุณากรอกชื่อ - นามสกุลให้ครบถ้วน');
+      setErrorMessage('กรุณากรอกชื่อ - นามสกุลจริงให้ครบถ้วน (อย่างน้อย 3 ตัวอักษร)');
       return;
     }
     if (!isValidStudentId) {
-      setErrorMessage('กรุณากรอกรหัสนักศึกษาให้ถูกต้อง (ตัวเลข 11-13 หลัก)');
+      setErrorMessage('กรุณากรอกรหัสนักศึกษาให้ถูกต้อง (ตัวเลข 10-14 หลัก)');
       return;
     }
 
     setIsSaving(true);
     setErrorMessage(null);
 
-    setTimeout(() => {
-      saveRequiredProfile(fullName, studentId);
+    try {
+      await saveRequiredProfile(fullName.trim(), studentId.trim());
       setIsSaving(false);
       router.push('/dashboard');
-    }, 500);
+    } catch (err) {
+      setIsSaving(false);
+      setErrorMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
+    }
   };
 
   return (

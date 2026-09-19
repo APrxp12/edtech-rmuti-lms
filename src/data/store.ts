@@ -481,26 +481,71 @@ export function useAppStore() {
       }
     }
 
-    // สกัดรหัสนักศึกษาถ้ามี
-    const extractedStudentId = params.studentId || (role === 'admin' ? '-' : (/^\d+$/.test(cleanEmail.split('@')[0]) ? cleanEmail.split('@')[0] : '65123456789'));
-
-    // ค้นหาผู้ใช้เดิมใน usersList ถ้ามี
-    const existingUser = usersList.find((u) => u.email.toLowerCase() === cleanEmail);
+    // ค้นหาผู้ใช้เดิมใน usersList ถ้ามี หรือค้นหาจาก Supabase
+    let existingUser = usersList.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (!existingUser && isSupabaseConfigured()) {
+      try {
+        const cloudUsers = await dbFetchUsers();
+        if (cloudUsers && Array.isArray(cloudUsers)) {
+          existingUser = cloudUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+        }
+      } catch (e) {}
+    }
 
     // กำหนดรูปโปรไฟล์: ใช้รูปจริงจาก Google (params.avatarUrl) เป็นอันดับแรกสุดเสมอ
     const resolvedAvatar = params.avatarUrl
       ? params.avatarUrl
       : (existingUser?.avatarUrl && !existingUser.avatarUrl.includes('images.unsplash.com') ? existingUser.avatarUrl : '');
 
+    let userFullName = '';
+    let userDisplayName = '';
+    let userStudentId = '';
+    let isProfileCompleted = false;
+
+    if (role === 'admin' || isMasterDev) {
+      role = 'admin';
+      userFullName = cleanEmail === 'bugzonvazan@gmail.com' ? 'Lamut (ผู้พัฒนา)' : (existingUser?.fullName || 'ผู้ดูแลระบบ');
+      userDisplayName = cleanEmail === 'bugzonvazan@gmail.com' ? 'Lamut (ผู้พัฒนา)' : (existingUser?.displayName || 'ผู้ดูแลระบบ');
+      userStudentId = '-';
+      isProfileCompleted = true;
+    } else {
+      // สำหรับนักศึกษา:
+      // ต้องมีรหัสนักศึกษาจริง (ไม่ใช่ '-', ไม่ใช่ '65123456789') และมีชื่อจริง (ไม่ใช่ค่าว่าง หรือชื่ออีเมล)
+      const hasValidStudentId = Boolean(
+        existingUser?.studentId &&
+        existingUser.studentId.trim() !== '' &&
+        existingUser.studentId !== '-' &&
+        existingUser.studentId !== '65123456789'
+      );
+      const hasValidFullName = Boolean(
+        existingUser?.fullName &&
+        existingUser.fullName.trim() !== '' &&
+        !existingUser.fullName.includes('@')
+      );
+
+      if (hasValidStudentId && hasValidFullName && existingUser?.isProfileCompleted) {
+        userFullName = existingUser.fullName.trim();
+        userDisplayName = existingUser.displayName?.trim() || userFullName;
+        userStudentId = existingUser.studentId.trim();
+        isProfileCompleted = true;
+      } else {
+        // บัญชีใหม่ หรือบัญชีที่ยังไม่กรอก: ให้เว้นว่างไว้ ไม่สุ่ม ไม่ใช้ชื่ออีเมล
+        userFullName = '';
+        userDisplayName = '';
+        userStudentId = '';
+        isProfileCompleted = false;
+      }
+    }
+
     const newUser: UserProfile = {
       id: existingUser ? existingUser.id : `usr-${Date.now()}`,
       email: cleanEmail,
-      fullName: name,
-      displayName: params.displayName || (existingUser?.displayName || name),
-      studentId: existingUser?.studentId && existingUser.studentId !== '-' ? existingUser.studentId : extractedStudentId,
+      fullName: userFullName,
+      displayName: userDisplayName,
+      studentId: userStudentId,
       role,
       status: 'active',
-      isProfileCompleted: true,
+      isProfileCompleted,
       firstLoginAt: existingUser ? existingUser.firstLoginAt : new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
       avatarUrl: resolvedAvatar,
@@ -565,41 +610,109 @@ export function useAppStore() {
     const updatedUser = {
       ...currentUser,
       role,
-      fullName: role === 'admin' ? 'นายสมชาย ใจดี' : 'น.ส.ทพรรณ ใจดี',
-      displayName: role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : 'น.ส.ทพรรณ ใจดี',
-      studentId: role === 'admin' ? '-' : '65123456789',
+      fullName: role === 'admin' ? 'ผู้ดูแลระบบ' : (currentUser.fullName || ''),
+      displayName: role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : (currentUser.displayName || ''),
+      studentId: role === 'admin' ? '-' : (currentUser.studentId && currentUser.studentId !== '-' ? currentUser.studentId : ''),
+      isProfileCompleted: role === 'admin' ? true : Boolean(currentUser.fullName && currentUser.studentId),
     };
     setCurrentUser(updatedUser);
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
   };
 
   // บันทึกโปรไฟล์ที่จำเป็น (Required Profile)
-  const saveRequiredProfile = (fullName: string, studentId: string) => {
-    const updatedUser = {
+  const saveRequiredProfile = async (fullName: string, studentId: string): Promise<boolean> => {
+    const cleanName = fullName.trim();
+    const cleanStudentId = studentId.trim();
+
+    const updatedUser: UserProfile = {
       ...currentUser,
-      fullName,
-      studentId,
+      fullName: cleanName,
+      displayName: cleanName,
+      studentId: cleanStudentId,
       isProfileCompleted: true,
+      lastLoginAt: new Date().toISOString(),
     };
+
     setCurrentUser(updatedUser);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+    } catch (e) {
+      console.error('Error saving user to localStorage:', e);
+    }
+
+    setUsersList((prevList) => {
+      const exists = prevList.some((u) => u.email.toLowerCase() === updatedUser.email.toLowerCase());
+      const updated = exists
+        ? prevList.map((u) => (u.email.toLowerCase() === updatedUser.email.toLowerCase() ? { ...u, ...updatedUser } : u))
+        : [updatedUser, ...prevList];
+      try {
+        localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    if (isSupabaseConfigured()) {
+      try {
+        await dbUpsertUser(updatedUser);
+      } catch (err) {
+        console.warn('[Supabase] Failed to upsert user on saveRequiredProfile:', err);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('edtech_profile_saved', { detail: updatedUser }));
+    }
+
+    return true;
   };
 
   // อัปเดตข้อมูลโปรไฟล์ผู้เรียน (ชื่อ-นามสกุล, รหัสนักศึกษา)
-  const updateUserProfile = (data: { fullName?: string; studentId?: string; displayName?: string }) => {
+  const updateUserProfile = async (data: { fullName?: string; studentId?: string; displayName?: string }) => {
+    const cleanName = data.fullName !== undefined ? data.fullName.trim() : currentUser.fullName;
+    const cleanStudentId = data.studentId !== undefined ? data.studentId.trim() : currentUser.studentId;
+    const cleanDisplayName = data.displayName !== undefined ? data.displayName.trim() : (cleanName || currentUser.displayName);
+
+    const isComplete = Boolean(
+      currentUser.role === 'admin' ||
+      (cleanName && cleanStudentId && cleanStudentId !== '-' && cleanStudentId !== '65123456789')
+    );
+
     const updatedUser: UserProfile = {
       ...currentUser,
-      fullName: data.fullName !== undefined ? data.fullName.trim() : currentUser.fullName,
-      displayName: data.displayName !== undefined ? data.displayName.trim() : (data.fullName ? data.fullName.trim() : currentUser.displayName),
-      studentId: data.studentId !== undefined ? data.studentId.trim() : currentUser.studentId,
-      isProfileCompleted: true,
+      fullName: cleanName,
+      displayName: cleanDisplayName,
+      studentId: cleanStudentId,
+      isProfileCompleted: isComplete,
     };
+
     setCurrentUser(updatedUser);
     try {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
     } catch (e) {
       console.error('Error saving updated user to localStorage:', e);
     }
+
+    setUsersList((prevList) => {
+      const exists = prevList.some((u) => u.email.toLowerCase() === updatedUser.email.toLowerCase());
+      const updated = exists
+        ? prevList.map((u) => (u.email.toLowerCase() === updatedUser.email.toLowerCase() ? { ...u, ...updatedUser } : u))
+        : [updatedUser, ...prevList];
+      try {
+        localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    if (isSupabaseConfigured()) {
+      try {
+        await dbUpsertUser(updatedUser);
+      } catch (err) {}
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('edtech_profile_saved', { detail: updatedUser }));
+    }
+
     return updatedUser;
   };
 

@@ -4,6 +4,7 @@ import React from 'react';
 import Navbar from '@/components/navigation/Navbar';
 import StudentSidebar from '@/components/navigation/StudentSidebar';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
+import { RequiredProfileModal } from '@/components/modals/RequiredProfileModal';
 
 export default function StudentLayout({
   children,
@@ -20,6 +21,7 @@ export default function StudentLayout({
         </main>
       </div>
       <MobileBottomNav />
+      <RequiredProfileModal />
     </div>
   );
 }

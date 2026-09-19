@@ -28,19 +28,34 @@ export async function dbFetchUsers(): Promise<UserProfile[] | null> {
 
     if (!data) return [];
 
-    return data.map((row: any) => ({
-      id: row.id,
-      email: row.email,
-      fullName: row.full_name || '',
-      displayName: row.display_name || row.full_name || '',
-      studentId: row.student_id || '-',
-      role: row.role || 'student',
-      status: row.status || 'active',
-      isProfileCompleted: row.is_profile_completed ?? true,
-      avatarUrl: row.avatar_url || '',
-      firstLoginAt: row.first_login_at || new Date().toISOString(),
-      lastLoginAt: row.last_login_at || new Date().toISOString(),
-    }));
+    return data.map((row: any) => {
+      const isAdmin = row.role === 'admin';
+      const hasValidStudentId = Boolean(
+        row.student_id &&
+        row.student_id !== '-' &&
+        row.student_id !== '65123456789' &&
+        row.student_id.trim() !== ''
+      );
+      const hasValidName = Boolean(
+        row.full_name &&
+        row.full_name.trim() !== '' &&
+        !row.full_name.includes('@')
+      );
+
+      return {
+        id: row.id,
+        email: row.email,
+        fullName: row.full_name || '',
+        displayName: row.display_name || row.full_name || '',
+        studentId: isAdmin ? '-' : (hasValidStudentId ? row.student_id : ''),
+        role: row.role || 'student',
+        status: row.status || 'active',
+        isProfileCompleted: isAdmin ? true : Boolean(row.is_profile_completed && hasValidStudentId && hasValidName),
+        avatarUrl: row.avatar_url || '',
+        firstLoginAt: row.first_login_at || new Date().toISOString(),
+        lastLoginAt: row.last_login_at || new Date().toISOString(),
+      };
+    });
   } catch (err) {
     console.warn('[Supabase] Exception fetching users:', err);
     return null;

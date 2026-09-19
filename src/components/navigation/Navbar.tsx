@@ -111,7 +111,9 @@ export default function Navbar() {
                 />
                 <div className="hidden sm:flex flex-col text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-slate-800">{currentUser.fullName || currentUser.displayName}</span>
+                    <span className="text-xs font-bold text-slate-800">
+                      {currentUser.fullName || currentUser.displayName || 'ยังไม่ระบุชื่อ'}
+                    </span>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       currentUser.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
                     }`}>
@@ -119,7 +121,11 @@ export default function Navbar() {
                     </span>
                   </div>
                   <span className="text-[11px] text-slate-500">
-                    {currentUser.role === 'admin' ? currentUser.email : `รหัสนักศึกษา ${currentUser.studentId || '-'}`}
+                    {currentUser.role === 'admin'
+                      ? currentUser.email
+                      : (currentUser.studentId && currentUser.studentId !== '-' && currentUser.studentId !== '65123456789'
+                          ? `รหัสนักศึกษา ${currentUser.studentId}`
+                          : 'ยังไม่ระบุรหัสนักศึกษา')}
                   </span>
                 </div>
                 <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
@@ -139,7 +145,9 @@ export default function Navbar() {
                       className="w-9 h-9 border border-slate-200 shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-slate-800 truncate">{currentUser.fullName || currentUser.displayName}</p>
+                      <p className="text-xs font-bold text-slate-800 truncate">
+                        {currentUser.fullName || currentUser.displayName || 'ยังไม่ระบุชื่อ'}
+                      </p>
                       <p className="text-[11px] text-slate-500 truncate">{currentUser.email}</p>
                       <span className={`inline-block mt-0.5 text-[9px] font-semibold px-2 py-0.5 rounded-full ${
                         currentUser.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
@@ -150,6 +158,20 @@ export default function Navbar() {
                   </div>
 
                   <div className="px-2 py-1">
+                    {currentUser.role === 'student' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          window.dispatchEvent(new CustomEvent('edtech_open_profile_modal'));
+                        }}
+                        className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition cursor-pointer"
+                      >
+                        <User className="w-4 h-4 text-blue-600" />
+                        <span>แก้ไขชื่อ / รหัสนักศึกษา</span>
+                      </button>
+                    )}
+
                     <Link
                       href="/profile"
                       onClick={() => setDropdownOpen(false)}
