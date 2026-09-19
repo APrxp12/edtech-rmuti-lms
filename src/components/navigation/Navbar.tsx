@@ -123,7 +123,16 @@ export default function Navbar() {
                       className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition"
                     >
                       <GraduationCap className="w-4 h-4 text-slate-400" />
-                      พื้นที่การเรียนรู้ (Student)
+                      พื้นที่การเรียนรู้ (Dashboard)
+                    </Link>
+
+                    <Link
+                      href="/my-lessons"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition"
+                    >
+                      <BookOpen className="w-4 h-4 text-slate-400" />
+                      บทเรียนของฉัน (My Lessons)
                     </Link>
 
                     {currentUser.role === 'admin' && (

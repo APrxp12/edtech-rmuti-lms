@@ -1,0 +1,769 @@
+'use client';
+
+import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { 
+  Play, BookOpen, CheckCircle2, Award, Search, ArrowRight, 
+  Clock, Lock, FileText, LayoutGrid, List, Check, ArrowLeft,
+  Sparkles, GraduationCap, User, Building2, Calendar, X, AlertCircle
+} from 'lucide-react';
+import { useAppStore } from '@/data/store';
+import { EmptyStateCard } from '@/components/shared/SharedDialogs';
+
+export default function MyLessonsPage() {
+  const router = useRouter();
+  const { currentUser, lessons, progressMap, settings } = useAppStore();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSort, setSelectedSort] = useState<'order' | 'progress'>('order');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'completed' | 'not_started'>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Course Information Constants
+  const courseInfo = {
+    code: '30-401-001-204',
+    title: 'นวัตกรรมและเทคโนโลยีดิจิทัลเพื่อการจัดการเรียนรู้',
+    instructor: 'ผศ.ดร.เฉลิมพล บุญทศ',
+    semester: 'ภาคการศึกษาที่ 1 / ปีการศึกษา 2569',
+    curriculum: 'หลักสูตรครุศาสตร์อุตสาหกรรมบัณฑิต (ค.อ.บ.)',
+    department: 'สาขาวิชาเทคโนโลยีการศึกษา คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น',
+  };
+
+  // Compute stats
+  const stats = useMemo(() => {
+    const total = lessons.length;
+    let completed = 0;
+    let inProgress = 0;
+    let notStarted = 0;
+    let totalVideos = 0;
+    let totalResources = 0;
+    let totalMinutes = 0;
+
+    lessons.forEach((lesson) => {
+      const p = progressMap[lesson.code];
+      const isPassed = p?.status === 'passed' || p?.progressPercent === 100;
+      const isProg = p && p.progressPercent > 0 && p.progressPercent < 100;
+
+      if (isPassed) {
+        completed++;
+      } else if (isProg) {
+        inProgress++;
+      } else {
+        notStarted++;
+      }
+
+      const version = lesson.versions[0];
+      const vCount = version?.videos?.length || 2;
+      const rCount = version?.resources?.length || 1;
+      const estMin = version?.estimatedDurationMinutes || 30;
+
+      totalVideos += vCount;
+      totalResources += rCount;
+      totalMinutes += estMin;
+    });
+
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    // Find active / next lesson
+    const nextLesson = lessons.find((l) => {
+      const p = progressMap[l.code];
+      return p && p.progressPercent > 0 && p.progressPercent < 100;
+    }) || lessons.find((l) => {
+      const p = progressMap[l.code];
+      return (!p || p.progressPercent === 0) && l.status === 'published';
+    }) || lessons[0];
+
+    return {
+      total,
+      completed,
+      inProgress,
+      notStarted,
+      percent,
+      totalVideos,
+      totalResources,
+      totalMinutes,
+      nextLesson,
+    };
+  }, [lessons, progressMap]);
+
+  // Filter lessons
+  const filteredLessons = useMemo(() => {
+    let result = [...lessons];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((lesson) => {
+        const titleMatch = lesson.title.toLowerCase().includes(q);
+        const codeMatch = lesson.code.toLowerCase().includes(q);
+        const descMatch = lesson.description && lesson.description.toLowerCase().includes(q);
+        const objMatch = lesson.versions[0]?.learningObjectives?.some(obj => obj.toLowerCase().includes(q));
+        return titleMatch || codeMatch || descMatch || objMatch;
+      });
+    }
+
+    if (statusFilter === 'completed') {
+      result = result.filter((l) => {
+        const p = progressMap[l.code];
+        return p?.status === 'passed' || p?.progressPercent === 100;
+      });
+    } else if (statusFilter === 'in_progress') {
+      result = result.filter((l) => {
+        const p = progressMap[l.code];
+        return p && p.progressPercent > 0 && p.progressPercent < 100;
+      });
+    } else if (statusFilter === 'not_started') {
+      result = result.filter((l) => {
+        const p = progressMap[l.code];
+        return (!p || p.progressPercent === 0) && l.status === 'published';
+      });
+    }
+
+    if (selectedSort === 'order') {
+      result.sort((a, b) => a.sortOrder - b.sortOrder);
+    } else if (selectedSort === 'progress') {
+      result.sort((a, b) => {
+        const pA = progressMap[a.code]?.progressPercent || 0;
+        const pB = progressMap[b.code]?.progressPercent || 0;
+        return pB - pA;
+      });
+    }
+
+    return result;
+  }, [lessons, searchQuery, statusFilter, selectedSort, progressMap]);
+
+  return (
+    <div className="w-full max-w-[1500px] mx-auto space-y-8 pb-16">
+      
+      {/* Top Breadcrumbs */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard"
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition flex items-center justify-center shadow-2xs"
+            title="กลับหน้าหลัก"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900">บทเรียนของฉัน (My Lessons)</h1>
+            <p className="text-xs text-slate-500">แผนผังรายวิชาและบทเรียนการเรียนรู้แบบกำกับตนเองทั้งหมด</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200 shadow-2xs font-mono">
+            {courseInfo.code}
+          </span>
+          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 shadow-2xs">
+            {stats.completed} / {stats.total} บทเรียนผ่านแล้ว
+          </span>
+        </div>
+      </div>
+
+      {/* Official Course Syllabus Hero Header */}
+      <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl border border-blue-800/60">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          
+          {/* Left: Course details */}
+          <div className="space-y-3 max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>{courseInfo.curriculum}</span>
+              </span>
+              <span className="text-xs text-blue-200 font-medium">
+                • {courseInfo.semester}
+              </span>
+            </div>
+
+            <div>
+              <div className="text-xs sm:text-sm font-mono font-bold text-blue-300 mb-1">
+                รหัสวิชา: {courseInfo.code}
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                {courseInfo.title}
+              </h2>
+              <p className="text-xs sm:text-sm text-blue-100/90 mt-2 leading-relaxed">
+                {courseInfo.department}
+              </p>
+            </div>
+
+            {/* Instructor badge */}
+            <div className="pt-2 flex items-center gap-2.5 text-xs text-blue-200">
+              <div className="w-7 h-7 rounded-lg bg-blue-800/80 border border-blue-600 flex items-center justify-center text-amber-400">
+                <User className="w-4 h-4" />
+              </div>
+              <span>อาจารย์ผู้สอนประจำวิชา: <strong className="text-white">{courseInfo.instructor}</strong></span>
+            </div>
+          </div>
+
+          {/* Right: Progress & Quick Action */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 min-w-[280px] sm:min-w-[320px] space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-blue-200">ความก้าวหน้ารายวิชา</span>
+              <span className="text-sm font-black text-amber-300">{stats.percent}%</span>
+            </div>
+
+            <div className="w-full bg-white/20 h-2.5 rounded-full overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full transition-all duration-700"
+                style={{ width: `${stats.percent}%` }}
+              ></div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center text-[11px] pt-1 border-t border-white/10">
+              <div>
+                <div className="font-bold text-white text-sm">{stats.total}</div>
+                <span className="text-blue-200">บทเรียน</span>
+              </div>
+              <div>
+                <div className="font-bold text-emerald-400 text-sm">{stats.completed}</div>
+                <span className="text-blue-200">ผ่านแล้ว</span>
+              </div>
+              <div>
+                <div className="font-bold text-amber-300 text-sm">{stats.totalVideos}</div>
+                <span className="text-blue-200">คลิปวิดีโอ</span>
+              </div>
+            </div>
+
+            {stats.nextLesson && (
+              <Link
+                href={`/lessons/${stats.nextLesson.code}/intro`}
+                className="w-full py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-95"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-950" />
+                <span>
+                  {stats.percent === 100 
+                    ? 'ทบทวนบทเรียนทั้งหมด' 
+                    : `เรียนต่อ: ${stats.nextLesson.title.startsWith('บทที่') ? stats.nextLesson.title : `บทที่ ${stats.nextLesson.sortOrder}`}`}
+                </span>
+              </Link>
+            )}
+          </div>
+
+        </div>
+
+        {/* Decorative Background Glows */}
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      </div>
+
+      {/* Control Bar: Search, Status Tabs, View Switcher */}
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          
+          {/* Real-time Search Box */}
+          <div className="relative flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="ค้นหาบทเรียน, รหัส, วิดีโอ, หรือจุดประสงค์การเรียนรู้..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-9 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-2xs transition"
+            />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-2.5 p-0.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                title="ล้างคำค้น"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Right controls: View Mode Switcher + Sort */}
+          <div className="flex items-center gap-3">
+            {/* View Mode Switcher */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'grid'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+                title="มุมมองการ์ด (Grid View)"
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span className="hidden sm:inline">การ์ด</span>
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'list'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+                title="มุมมองรายการแผนการสอน (List View)"
+              >
+                <List className="w-4 h-4" />
+                <span className="hidden sm:inline">รายการ</span>
+              </button>
+            </div>
+
+            {/* Sort Dropdown */}
+            <select
+              value={selectedSort}
+              onChange={(e) => setSelectedSort(e.target.value as 'order' | 'progress')}
+              className="text-xs sm:text-sm bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs font-medium text-slate-700 cursor-pointer"
+            >
+              <option value="order">เรียงตามลำดับบทเรียน (1-8)</option>
+              <option value="progress">เรียงตามความก้าวหน้า</option>
+            </select>
+          </div>
+
+        </div>
+
+        {/* Status Filter Tabs */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              statusFilter === 'all'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            ทั้งหมด ({lessons.length})
+          </button>
+          <button
+            onClick={() => setStatusFilter('in_progress')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              statusFilter === 'in_progress'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            กำลังเรียน ({stats.inProgress})
+          </button>
+          <button
+            onClick={() => setStatusFilter('completed')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              statusFilter === 'completed'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            ผ่านเกณฑ์แล้ว ({stats.completed})
+          </button>
+          <button
+            onClick={() => setStatusFilter('not_started')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              statusFilter === 'not_started'
+                ? 'bg-slate-800 text-white shadow-xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            ยังไม่ได้เริ่ม ({stats.notStarted})
+          </button>
+
+          {searchQuery && (
+            <div className="ml-auto text-xs font-semibold text-blue-600">
+              พบ {filteredLessons.length} บทเรียนที่ตรงกับคำค้น
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Content: Grid or List View */}
+      {filteredLessons.length === 0 ? (
+        <EmptyStateCard
+          title="ไม่พบบทเรียนที่ตรงกับเงื่อนไข"
+          description={searchQuery ? `ไม่พบบทเรียนที่มีคำว่า "${searchQuery}" กรุณาลองค้นหาด้วยคำอื่น หรือกดล้างการค้นหา` : 'ยังไม่มีบทเรียนในสถานะที่เลือก'}
+          actionLabel={searchQuery ? 'ล้างคำค้นหา' : undefined}
+          onAction={searchQuery ? () => setSearchQuery('') : undefined}
+        />
+      ) : viewMode === 'grid' ? (
+        
+        /* Grid View (⊞) */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {filteredLessons.map((lesson) => {
+            const progress = progressMap[lesson.code] || {
+              progressPercent: 0,
+              status: 'not_started',
+            };
+
+            const isCompleted = progress.progressPercent === 100 && progress.status === 'passed';
+            const isInProgress = progress.progressPercent > 0 && progress.progressPercent < 100;
+            const isReadyForPostTest = progress.status === 'content_completed' || (progress.progressPercent === 100 && progress.status !== 'passed');
+            const isLocked = lesson.status === 'draft';
+
+            const destinationUrl = isLocked
+              ? '#'
+              : isCompleted
+              ? `/lessons/${lesson.code}/intro?mode=review`
+              : isInProgress
+              ? `/lessons/${lesson.code}/learn`
+              : isReadyForPostTest
+              ? `/lessons/${lesson.code}/post-test`
+              : `/lessons/${lesson.code}/intro`;
+
+            const version = lesson.versions[0];
+
+            return (
+              <div
+                key={lesson.id}
+                onClick={() => !isLocked && router.push(destinationUrl)}
+                className={`bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-blue-400 transition-all flex flex-col justify-between group ${
+                  isLocked ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
+                }`}
+              >
+                {/* Thumbnail Header */}
+                <div className="relative h-44 bg-slate-100 overflow-hidden">
+                  {lesson.coverImageUrl ? (
+                    <img
+                      src={lesson.coverImageUrl}
+                      alt={lesson.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-300">
+                      <BookOpen className="w-10 h-10" />
+                    </div>
+                  )}
+
+                  {/* Order Badge */}
+                  <div className="absolute top-3 left-3 w-8 h-8 rounded-xl bg-blue-600 text-white text-sm font-black flex items-center justify-center shadow-md">
+                    {lesson.sortOrder}
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="absolute top-3 right-3">
+                    {isCompleted ? (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500 text-white shadow-xs">
+                        เสร็จสิ้น
+                      </span>
+                    ) : isInProgress ? (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-600 text-white shadow-xs">
+                        กำลังเรียน
+                      </span>
+                    ) : isReadyForPostTest ? (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500 text-white shadow-xs">
+                        รอทำแบบทดสอบ
+                      </span>
+                    ) : isLocked ? (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-400 text-white shadow-xs">
+                        ยังไม่เปิดเรียน
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200 shadow-2xs">
+                        ยังไม่ได้เริ่ม
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="text-xs font-mono font-semibold text-blue-600 mb-1">
+                      {lesson.code}
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-blue-600 transition">
+                      {lesson.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                      {lesson.description}
+                    </p>
+
+                    {/* Media Badges */}
+                    <div className="flex items-center gap-2 pt-3 text-xs text-slate-600 font-medium">
+                      <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+                        <Play className="w-3.5 h-3.5 text-blue-600" />
+                        {version?.videos?.length || 2} คลิป
+                      </span>
+                      <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+                        <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                        {version?.resources?.length || 1} สื่อ
+                      </span>
+                      <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+                        <Clock className="w-3.5 h-3.5 text-amber-500" />
+                        {version?.estimatedDurationMinutes || 30} นาที
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>ความก้าวหน้า</span>
+                      <span className="font-bold text-slate-800">{isLocked ? '-' : `${progress.progressPercent}%`}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isCompleted ? 'bg-emerald-500' : isReadyForPostTest ? 'bg-amber-500' : 'bg-blue-600'
+                        }`}
+                        style={{ width: isLocked ? '0%' : `${progress.progressPercent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Action Buttons */}
+                  <div className="pt-2">
+                    {isCompleted ? (
+                      <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
+                        <Link
+                          href={`/lessons/${lesson.code}/intro?mode=review`}
+                          className="py-2.5 px-2 sm:px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-emerald-200 transition shadow-2xs active:scale-95 whitespace-nowrap"
+                        >
+                          <BookOpen className="w-4 h-4 shrink-0 text-emerald-600" />
+                          <span>ทบทวน</span>
+                        </Link>
+                        <Link
+                          href={`/lessons/${lesson.code}/result`}
+                          className="py-2.5 px-2 sm:px-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-blue-200 transition shadow-2xs active:scale-95 whitespace-nowrap"
+                        >
+                          <Award className="w-4 h-4 shrink-0 text-blue-600" />
+                          <span>ดูผล</span>
+                        </Link>
+                      </div>
+                    ) : isInProgress ? (
+                      <Link
+                        href={`/lessons/${lesson.code}/learn`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap"
+                      >
+                        <Play className="w-4 h-4 fill-white shrink-0" />
+                        <span>เรียนต่อ</span>
+                      </Link>
+                    ) : isReadyForPostTest ? (
+                      <Link
+                        href={`/lessons/${lesson.code}/post-test`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap"
+                      >
+                        <FileText className="w-4 h-4 shrink-0" />
+                        <span>ทำแบบทดสอบหลังเรียน</span>
+                      </Link>
+                    ) : isLocked ? (
+                      <button
+                        disabled
+                        className="w-full py-2.5 px-4 rounded-2xl bg-slate-100 text-slate-400 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed whitespace-nowrap"
+                      >
+                        <Lock className="w-4 h-4 shrink-0" />
+                        <span>ยังไม่เปิดเรียน</span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/lessons/${lesson.code}/intro`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full py-2.5 px-4 rounded-2xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition active:scale-95 whitespace-nowrap"
+                      >
+                        <Play className="w-4 h-4 fill-blue-600 shrink-0" />
+                        <span>เริ่มเรียน</span>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+      ) : (
+
+        /* List / Syllabus View (☰) */
+        <div className="space-y-4">
+          {filteredLessons.map((lesson) => {
+            const progress = progressMap[lesson.code] || {
+              progressPercent: 0,
+              status: 'not_started',
+            };
+
+            const isCompleted = progress.progressPercent === 100 && progress.status === 'passed';
+            const isInProgress = progress.progressPercent > 0 && progress.progressPercent < 100;
+            const isReadyForPostTest = progress.status === 'content_completed' || (progress.progressPercent === 100 && progress.status !== 'passed');
+            const isLocked = lesson.status === 'draft';
+
+            const destinationUrl = isLocked
+              ? '#'
+              : isCompleted
+              ? `/lessons/${lesson.code}/intro?mode=review`
+              : isInProgress
+              ? `/lessons/${lesson.code}/learn`
+              : isReadyForPostTest
+              ? `/lessons/${lesson.code}/post-test`
+              : `/lessons/${lesson.code}/intro`;
+
+            const version = lesson.versions[0];
+
+            return (
+              <div
+                key={lesson.id}
+                onClick={() => !isLocked && router.push(destinationUrl)}
+                className={`bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 group ${
+                  isLocked ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
+                }`}
+              >
+                {/* Left: Thumbnail & Lesson info */}
+                <div className="flex flex-col sm:flex-row items-start gap-4 flex-1">
+                  <div className="relative w-full sm:w-44 h-28 rounded-2xl bg-slate-100 overflow-hidden shrink-0">
+                    {lesson.coverImageUrl ? (
+                      <img
+                        src={lesson.coverImageUrl}
+                        alt={lesson.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-300">
+                        <BookOpen className="w-8 h-8" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2 w-7 h-7 rounded-xl bg-blue-600 text-white text-xs font-black flex items-center justify-center shadow-md">
+                      {lesson.sortOrder}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                        {lesson.code}
+                      </span>
+                      {isCompleted ? (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500 text-white">
+                          เสร็จสิ้น (Passed)
+                        </span>
+                      ) : isInProgress ? (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-600 text-white">
+                          กำลังเรียน (In Progress)
+                        </span>
+                      ) : isReadyForPostTest ? (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500 text-white">
+                          รอสอบ Post-test
+                        </span>
+                      ) : isLocked ? (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-400 text-white">
+                          ยังไม่เปิดเรียน
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">
+                          ยังไม่ได้เริ่ม
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition">
+                      {lesson.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                      {lesson.description}
+                    </p>
+
+                    {/* Learning Objectives Chips */}
+                    {version?.learningObjectives && version.learningObjectives.length > 0 && (
+                      <div className="pt-1 flex flex-wrap items-center gap-1.5">
+                        {version.learningObjectives.slice(0, 2).map((obj, i) => (
+                          <span key={i} className="text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span className="truncate max-w-xs">{obj}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: Media counts, Progress & Action buttons */}
+                <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 shrink-0 lg:w-56 pt-2 lg:pt-0 border-t sm:border-t-0 border-slate-100">
+                  
+                  {/* Media counts */}
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                    <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                      <Play className="w-3 h-3 text-blue-600" />
+                      {version?.videos?.length || 2} คลิป
+                    </span>
+                    <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                      <FileText className="w-3 h-3 text-emerald-600" />
+                      {version?.resources?.length || 1} สื่อ
+                    </span>
+                    <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                      <Clock className="w-3 h-3 text-amber-500" />
+                      {version?.estimatedDurationMinutes || 30} น.
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="w-full space-y-1">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>ความก้าวหน้า</span>
+                      <span className="font-bold text-slate-800">{isLocked ? '-' : `${progress.progressPercent}%`}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          isCompleted ? 'bg-emerald-500' : isReadyForPostTest ? 'bg-amber-500' : 'bg-blue-600'
+                        }`}
+                        style={{ width: isLocked ? '0%' : `${progress.progressPercent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="w-full" onClick={(e) => e.stopPropagation()}>
+                    {isCompleted ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href={`/lessons/${lesson.code}/intro?mode=review`}
+                          className="py-2 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center gap-1 border border-emerald-200 transition whitespace-nowrap"
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>ทบทวน</span>
+                        </Link>
+                        <Link
+                          href={`/lessons/${lesson.code}/result`}
+                          className="py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 border border-blue-200 transition whitespace-nowrap"
+                        >
+                          <Award className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span>ดูผล</span>
+                        </Link>
+                      </div>
+                    ) : isInProgress ? (
+                      <Link
+                        href={`/lessons/${lesson.code}/learn`}
+                        className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-xs whitespace-nowrap"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-white shrink-0" />
+                        <span>เรียนต่อ</span>
+                      </Link>
+                    ) : isReadyForPostTest ? (
+                      <Link
+                        href={`/lessons/${lesson.code}/post-test`}
+                        className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-xs whitespace-nowrap"
+                      >
+                        <FileText className="w-3.5 h-3.5 shrink-0" />
+                        <span>ทำแบบทดสอบ</span>
+                      </Link>
+                    ) : isLocked ? (
+                      <button
+                        disabled
+                        className="w-full py-2.5 px-4 rounded-xl bg-slate-100 text-slate-400 text-xs font-semibold flex items-center justify-center gap-2 cursor-not-allowed whitespace-nowrap"
+                      >
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        <span>ยังไม่เปิดเรียน</span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/lessons/${lesson.code}/intro`}
+                        className="w-full py-2.5 px-4 rounded-xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold flex items-center justify-center gap-2 transition whitespace-nowrap"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-blue-600 shrink-0" />
+                        <span>เริ่มเรียน</span>
+                      </Link>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+      )}
+
+    </div>
+  );
+}

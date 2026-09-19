@@ -15,7 +15,7 @@ export default function StudentSidebar() {
   const navItems = [
     { href: '/dashboard', label: 'หน้าหลัก', icon: Home },
     { href: '/profile', label: 'ข้อมูลส่วนตัวของฉัน', icon: User },
-    { href: '/dashboard#lessons', label: 'บทเรียนของฉัน', icon: BookOpen },
+    { href: '/my-lessons', label: 'บทเรียนของฉัน', icon: BookOpen },
     { href: '/my-progress', label: 'ความก้าวหน้าของฉัน', icon: BarChart3 },
     { href: '/dashboard#announcements', label: 'ข่าวประกาศ', icon: Megaphone },
     { href: '#', label: 'ช่วยเหลือ (FAQ)', icon: HelpCircle },

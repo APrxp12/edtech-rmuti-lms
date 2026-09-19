@@ -10,10 +10,10 @@ export default function MobileBottomNav() {
 
   const navItems = [
     { href: '/dashboard', label: 'หน้าแรก', icon: Home },
-    { href: '/dashboard#lessons', label: 'บทเรียน', icon: BookOpen },
+    { href: '/my-lessons', label: 'บทเรียน', icon: BookOpen },
     { href: '/lessons/RMUTI-003/pre-test', label: 'แบบทดสอบ', icon: CheckSquare },
     { href: '/my-progress', label: 'ความก้าวหน้า', icon: BarChart3 },
-    { href: '/required-profile', label: 'โปรไฟล์', icon: User },
+    { href: '/profile', label: 'โปรไฟล์', icon: User },
   ];
 
   return (

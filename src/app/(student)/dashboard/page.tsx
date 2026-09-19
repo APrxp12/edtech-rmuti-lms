@@ -417,14 +417,23 @@ export default function StudentDashboardPage() {
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <BookOpen className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900">
-                บทเรียนทั้งหมด ({lessons.length} บทเรียน)
-              </h2>
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-base sm:text-lg font-black text-slate-900">
+                  บทเรียนทั้งหมด ({lessons.length} บทเรียน)
+                </h2>
+                <Link
+                  href="/my-lessons"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition"
+                >
+                  <span>เปิดหน้ารายวิชาเต็ม</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
               <p className="text-xs text-slate-500">
                 รายวิชาการเรียนรู้แบบกำกับตนเอง (Self-Directed Learning)
               </p>
