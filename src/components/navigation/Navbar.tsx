@@ -5,14 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/data/store';
 import { 
-  Search, Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2
+  Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2
 } from 'lucide-react';
 
 export default function Navbar() {
   const router = useRouter();
   const { currentUser, logout } = useAppStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -26,40 +25,23 @@ export default function Navbar() {
           
           {/* Logo & University Title */}
           <div className="flex items-center gap-3">
-            <Link href={currentUser.role === 'admin' ? '/admin/lessons' : '/dashboard'} className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md">
+            <Link href="/dashboard" className="flex items-center gap-3 group transition">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition">
                 <BookOpen className="w-6 h-6 text-amber-400" />
               </div>
               <div className="hidden sm:block">
-                <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                   มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-black text-blue-900 tracking-tight">EDTech</span>
-                  <span className="text-[10px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                    Learn • Create • Grow
-                  </span>
+                  <span className="text-xl sm:text-2xl font-black text-blue-900 tracking-tight group-hover:text-blue-700 transition">EDTech</span>
                 </div>
               </div>
               <div className="sm:hidden flex flex-col">
                 <span className="text-lg font-black text-blue-900">EDTech</span>
-                <span className="text-[9px] text-slate-500">มทร.อีสาน ขอนแก่น</span>
+                <span className="text-[10px] text-slate-500">มทร.อีสาน ขอนแก่น</span>
               </div>
             </Link>
-          </div>
-
-          {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-xs mx-6">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="ค้นหาข้อมูล, บทเรียน..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            </div>
           </div>
 
           {/* Actions & Profile */}

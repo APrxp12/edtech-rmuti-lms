@@ -156,14 +156,32 @@ export function ErrorRetryBanner({ message, onRetry }: { message: string; onRetr
 }
 
 // 6. Empty State Card
-export function EmptyStateCard({ title, description }: { title: string; description: string }) {
+export function EmptyStateCard({ 
+  title, 
+  description,
+  actionLabel,
+  onAction,
+}: { 
+  title: string; 
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
-    <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center my-4">
+    <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 text-center my-4">
       <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-400 mx-auto flex items-center justify-center mb-3">
         <HelpCircle className="w-8 h-8" />
       </div>
-      <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-      <p className="text-xs text-slate-500 mt-1">{description}</p>
+      <h4 className="text-base font-bold text-slate-800">{title}</h4>
+      <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">{description}</p>
+      {actionLabel && onAction && (
+        <button
+          onClick={onAction}
+          className="mt-4 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-xs transition cursor-pointer"
+        >
+          {actionLabel}
+        </button>
+      )}
     </div>
   );
 }
