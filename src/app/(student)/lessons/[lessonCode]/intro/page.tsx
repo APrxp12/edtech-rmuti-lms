@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { 
   ArrowLeft, BookOpen, Clock, FileText, CheckCircle2, Play, 
-  Award, HelpCircle, Download, ExternalLink, Sparkles, Lock, X, Maximize2
+  Award, HelpCircle, Download, ExternalLink, Sparkles, Lock, X, Maximize2, Target
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 
@@ -164,20 +164,35 @@ export default function LessonIntroPage() {
         </div>
       )}
 
-      {/* Section 1: สิ่งที่คุณจะได้เรียนรู้ (Objectives) matching Page 6 */}
+      {/* Section 1: จุดประสงค์การเรียนรู้ (Learning Objectives) */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600" />
-          <h2 className="text-sm font-bold text-slate-800">สิ่งที่คุณจะได้เรียนรู้</h2>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <Target className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">
+              จุดประสงค์การเรียนรู้ (Learning Objectives)
+            </h2>
+            <p className="text-xs text-slate-500">
+              เป้าหมายและผลลัพธ์การเรียนรู้ที่ผู้เรียนจะได้รับหลังจากศึกษาบทเรียนนี้
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {learningObjectives.map((obj, i) => (
-            <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              <span>{obj}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          {learningObjectives && learningObjectives.length > 0 ? (
+            learningObjectives.map((obj, i) => (
+              <div key={i} className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-blue-50/40 border border-blue-100/80 text-xs sm:text-sm text-slate-700 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{obj}</span>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-2 p-4 rounded-xl bg-slate-50 text-slate-500 text-xs text-center">
+              ยังไม่มีการระบุจุดประสงค์การเรียนรู้สำหรับบทเรียนนี้
             </div>
-          ))}
+          )}
         </div>
       </div>
 

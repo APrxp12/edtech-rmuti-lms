@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { 
   ArrowLeft, Save, AlertTriangle, BookOpen, Clock, Users, 
-  Send, Archive, Plus, CheckCircle2, ChevronRight
+  Send, Archive, Plus, CheckCircle2, ChevronRight, Target
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { StructuralWarningDialog } from '@/components/shared/SharedDialogs';
@@ -17,24 +17,44 @@ export default function LessonMetadataEditorPage() {
   const lessonId = params.id as string;
   const { lessons, setLessons } = useAppStore();
 
-  const lesson = lessons.find((l) => l.id === lessonId) || lessons[2]; // Default to Lesson 3
+  const lesson = lessons.find((l) => l.id === lessonId || l.code === lessonId) || lessons[0];
   const publishedVer = lesson.versions[0];
 
   const [title, setTitle] = useState(lesson.title);
   const [description, setDescription] = useState(lesson.description);
   const [infographic, setInfographic] = useState(lesson.introInfographicUrl || lesson.coverImageUrl || '');
+  const [objectivesText, setObjectivesText] = useState(() => {
+    return (publishedVer?.learningObjectives || []).join('\n');
+  });
   const [showStructuralWarning, setShowStructuralWarning] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const handleSaveMetadata = () => {
+    const objectivesArray = objectivesText
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
     const updated = lessons.map((l) => {
       if (l.id === lesson.id) {
+        const updatedVersions = l.versions.map((v, idx) => {
+          if (idx === 0) {
+            return {
+              ...v,
+              learningObjectives: objectivesArray,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return v;
+        });
+
         return {
           ...l,
           title,
           description,
           introInfographicUrl: infographic,
           coverImageUrl: infographic || l.coverImageUrl,
+          versions: updatedVersions,
           updatedAt: new Date().toISOString(),
         };
       }
@@ -62,7 +82,7 @@ export default function LessonMetadataEditorPage() {
             <ArrowLeft className="w-4 h-4" />
             กลับไปยังรายการบทเรียน
           </Link>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
             แก้ไขบทเรียน: {lesson.title}
           </h1>
           <p className="text-xs text-slate-500">จัดการข้อมูลบทเรียน เนื้อหา และเวอร์ชัน</p>
@@ -120,7 +140,7 @@ export default function LessonMetadataEditorPage() {
               เผยแพร่แล้ว
             </span>
           </div>
-          <div className="text-2xl font-black text-emerald-600">{publishedVer.versionTag}</div>
+          <div className="text-2xl font-bold text-emerald-600">{publishedVer.versionTag}</div>
           
           <div className="space-y-1 text-xs text-slate-500">
             <p>📅 เผยแพร่เมื่อ: 15 ม.ค. 2568</p>
@@ -137,7 +157,7 @@ export default function LessonMetadataEditorPage() {
               ร่างบันทึก
             </span>
           </div>
-          <div className="text-2xl font-black text-amber-600">v1.1 (Draft)</div>
+          <div className="text-2xl font-bold text-amber-600">v1.1 (Draft)</div>
           
           <div className="space-y-1 text-xs text-slate-500">
             <p>📅 แก้ไขล่าสุด: วันนี้</p>
@@ -183,6 +203,51 @@ export default function LessonMetadataEditorPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-2.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
           ></textarea>
+        </div>
+
+        {/* Learning Objectives Box */}
+        <div className="space-y-2.5 p-5 rounded-2xl bg-blue-50/40 border border-blue-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-blue-600" />
+              <label className="block text-xs font-bold text-slate-800">
+                จุดประสงค์การเรียนรู้ (Learning Objectives)
+              </label>
+            </div>
+            <span className="text-[11px] text-slate-500 font-medium">
+              💡 พิมพ์แยก 1 จุดประสงค์ ต่อ 1 บรรทัด
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500">
+            จุดประสงค์ที่ระบุที่นี่จะนำไปแสดงที่หน้าบทเรียนสำหรับนักศึกษา (แทนที่บล็อกเดิม) โดยอัตโนมัติ
+          </p>
+          <textarea
+            rows={5}
+            value={objectivesText}
+            onChange={(e) => setObjectivesText(e.target.value)}
+            placeholder={"ตัวอย่าง:\n1. อธิบายความหมายและวิวัฒนาการของเทคโนโลยีดิจิทัลเพื่อการศึกษาได้\n2. วิเคราะห์บทบาทของนวัตกรรมต่อการจัดการเรียนรู้ในศตวรรษที่ 21 ได้\n3. สามารถนำเครื่องมือดิจิทัลไปประยุกต์ใช้ในการจัดกิจกรรมการเรียนรู้ได้"}
+            className="w-full p-3 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 leading-relaxed font-sans"
+          ></textarea>
+
+          {/* Live Preview */}
+          {objectivesText.trim() && (
+            <div className="pt-2 space-y-2">
+              <div className="text-[11px] font-semibold text-slate-700 flex items-center gap-1.5">
+                <span>ตัวอย่างการแสดงผลสำหรับนักศึกษา</span>
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
+                  {objectivesText.split('\n').filter(s => s.trim()).length} ข้อ
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {objectivesText.split('\n').filter(s => s.trim()).map((obj, idx) => (
+                  <div key={idx} className="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-blue-200/80 text-[11px] text-slate-800 shadow-2xs">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="leading-snug">{obj}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
