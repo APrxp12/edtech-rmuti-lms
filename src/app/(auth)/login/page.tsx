@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { 
   BookOpen, GraduationCap, User, ShieldCheck, 
-  MapPin, Phone, Mail, Sparkles, AlertCircle, Code
+  MapPin, Phone, Mail, Sparkles, AlertCircle
 } from 'lucide-react';
 import { siteBranding } from '@/config/site-branding';
 import { useAppStore } from '@/data/store';
@@ -61,7 +61,7 @@ export default function LoginPage() {
             size: 'large',
             text: 'signin_with',
             shape: 'pill',
-            width: 380,
+            width: 400,
             locale: 'th',
             logo_alignment: 'left',
           });
@@ -175,7 +175,7 @@ export default function LoginPage() {
               {/* Google Native GSI Button Container */}
               <div 
                 ref={googleBtnContainerRef} 
-                className="flex justify-center w-full min-h-[48px]"
+                className="flex justify-center w-full min-h-[52px] py-1 transform scale-105 sm:scale-110 origin-center transition"
               />
 
               {/* Fallback button while GSI script initializes */}
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 <button
                   onClick={handleManualGoogleClick}
                   disabled={isLoading}
-                  className="w-full max-w-[380px] flex items-center justify-center gap-3 py-3.5 px-6 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-200 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
+                  className="w-full max-w-[420px] flex items-center justify-center gap-3.5 py-4 px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg shadow-blue-200 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -240,17 +240,17 @@ export default function LoginPage() {
 
         </div>
 
-        {/* 3 Guidance Info Announcement Cards */}
+        {/* Guidance Info Announcement Cards */}
         <div className="mt-14 pt-10 border-t border-slate-200">
           <div className="text-center mb-8 space-y-1">
             <h3 className="text-base font-bold text-slate-800">บัญชีที่สามารถเข้าสู่ระบบได้</h3>
             <p className="text-xs sm:text-sm text-slate-500">กรุณาใช้บัญชี Google ของมหาวิทยาลัยหรือบัญชีที่ได้รับอนุญาตเท่านั้น</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             
             {/* Card 1: นักศึกษา */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-4 select-none">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-4 select-none">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                 <GraduationCap className="w-6 h-6" />
               </div>
@@ -262,7 +262,7 @@ export default function LoginPage() {
             </div>
 
             {/* Card 2: อาจารย์และบุคลากร */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-4 select-none">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-4 select-none">
               <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                 <User className="w-6 h-6" />
               </div>
@@ -270,18 +270,6 @@ export default function LoginPage() {
                 <div className="text-xs font-bold text-slate-800">อาจารย์และบุคลากร</div>
                 <div className="text-[11px] text-indigo-600 font-mono truncate">เช่น somchai@rmuti.ac.th</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">บัญชีบุคลากรของมหาวิทยาลัย</div>
-              </div>
-            </div>
-
-            {/* Card 3: ผู้พัฒนาระบบ */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-4 select-none">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                <Code className="w-6 h-6" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-slate-800">ผู้พัฒนาระบบ</div>
-                <div className="text-[11px] text-amber-600 font-mono truncate">Bugzonvazan@gmail.com</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">สิทธิ์ผู้ดูแลระบบและพัฒนา</div>
               </div>
             </div>
 
