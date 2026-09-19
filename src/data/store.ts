@@ -32,7 +32,6 @@ import {
   dbUpsertUser,
   dbFetchAccessRules,
   dbFetchAnnouncements,
-  subscribeToUsersTable,
 } from '../lib/dbService';
 
 const STORAGE_KEYS = {
@@ -232,7 +231,7 @@ export function useAppStore() {
     }
   }, []);
 
-  // ซิงค์ข้อมูลกับ Supabase ฐานข้อมูลกลาง (ถ้าเชื่อมต่อไว้) พร้อมระบบ Realtime
+  // ซิงค์ข้อมูลกับ Supabase ฐานข้อมูลกลาง (ถ้าเชื่อมต่อไว้)
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
 
@@ -240,13 +239,17 @@ export function useAppStore() {
 
     async function syncFromCloud() {
       try {
-        const [cloudUsers, cloudRules, cloudAnnouncements] = await Promise.all([
+        const results = await Promise.allSettled([
           dbFetchUsers(),
           dbFetchAccessRules(),
           dbFetchAnnouncements(),
         ]);
 
         if (!isMounted) return;
+
+        const cloudUsers = results[0].status === 'fulfilled' ? results[0].value : null;
+        const cloudRules = results[1].status === 'fulfilled' ? results[1].value : null;
+        const cloudAnnouncements = results[2].status === 'fulfilled' ? results[2].value : null;
 
         if (cloudUsers && cloudUsers.length > 0) {
           setUsersList(cloudUsers);
@@ -275,20 +278,8 @@ export function useAppStore() {
 
     syncFromCloud();
 
-    // ดักฟังการเปลี่ยนแปลงผู้ใช้แบบ Realtime
-    const unsubscribeUsers = subscribeToUsersTable((freshUsers) => {
-      if (!isMounted) return;
-      if (freshUsers && freshUsers.length > 0) {
-        setUsersList(freshUsers);
-        try {
-          localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(freshUsers));
-        } catch (e) {}
-      }
-    });
-
     return () => {
       isMounted = false;
-      unsubscribeUsers();
     };
   }, []);
 

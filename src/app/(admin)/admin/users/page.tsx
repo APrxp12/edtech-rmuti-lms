@@ -12,7 +12,7 @@ import {
 import { useAppStore } from '@/data/store';
 import { UserProfile, UserRole, UserStatus } from '@/types';
 import { UserAvatar } from '@/components/ui/UserAvatar';
-import { dbUpdateUser, dbDeleteUser, dbUpsertUser } from '@/lib/dbService';
+import { dbUpdateUser, dbDeleteUser, dbUpsertUser, subscribeToUsersTable } from '@/lib/dbService';
 
 export default function AdminUsersPage() {
   const { usersList, setUsersList, isSupabaseLive, refreshFromCloud } = useAppStore();
@@ -50,6 +50,20 @@ export default function AdminUsersPage() {
       setUsers(usersList);
     }
   }, [usersList]);
+
+  // รับข้อมูลผู้ใช้ใหม่แบบ Realtime เมื่ออยู่ในหน้านี้โดยเฉพาะ
+  useEffect(() => {
+    if (!isSupabaseLive) return;
+    const unsubscribe = subscribeToUsersTable((freshUsers) => {
+      if (freshUsers && freshUsers.length > 0) {
+        setUsers(freshUsers);
+        if (setUsersList) setUsersList(freshUsers);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, [isSupabaseLive, setUsersList]);
 
   // Synchronize and persist users to store & localStorage
   const saveAndSyncUsers = (updatedUsers: UserProfile[], successMessage?: string) => {

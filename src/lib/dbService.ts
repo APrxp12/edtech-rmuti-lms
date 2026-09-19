@@ -378,23 +378,35 @@ export async function dbUpsertUserProgress(progress: UserLessonProgress): Promis
 
 export function subscribeToUsersTable(onChange: (users: UserProfile[]) => void) {
   const sb = getSupabase();
-  if (!sb) return () => {};
+  if (!sb || typeof window === 'undefined') return () => {};
 
-  const channel = sb
-    .channel('public:users')
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'users' },
-      async () => {
-        const freshUsers = await dbFetchUsers();
-        if (freshUsers) {
-          onChange(freshUsers);
+  try {
+    const channelId = `realtime-users-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const channel = sb
+      .channel(channelId)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'users' },
+        async () => {
+          try {
+            const freshUsers = await dbFetchUsers();
+            if (freshUsers) {
+              onChange(freshUsers);
+            }
+          } catch (e) {
+            console.warn('[Realtime] Failed to process users update:', e);
+          }
         }
-      }
-    )
-    .subscribe();
+      )
+      .subscribe();
 
-  return () => {
-    sb.removeChannel(channel);
-  };
+    return () => {
+      try {
+        sb.removeChannel(channel);
+      } catch (e) {}
+    };
+  } catch (err) {
+    console.warn('[Realtime] Failed to subscribe to users:', err);
+    return () => {};
+  }
 }
