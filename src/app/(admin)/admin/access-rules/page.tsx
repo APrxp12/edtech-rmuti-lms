@@ -35,13 +35,6 @@ export default function AdminAccessRulesPage() {
   // Toast Notification
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const courseInfo = {
-    code: '30-401-001-204',
-    title: 'นวัตกรรมและเทคโนโลยีสารสนเทศทางการศึกษา',
-    program: 'หลักสูตร ค.อ.บ. (5 ปี) • ภาคเรียนที่ 1/2568',
-    instructor: 'ผศ.ดร.เฉลิมพล บุญทศ',
-  };
-
   // Sync and save rules to Store & LocalStorage
   const saveAndSyncRules = (updated: AccessRule[], message?: string) => {
     setRules(updated);
@@ -235,8 +228,8 @@ export default function AdminAccessRulesPage() {
               Access Control & Security
             </span>
             <span className="text-xs text-slate-400">•</span>
-            <span className="text-xs font-mono font-bold text-slate-600">
-              {courseInfo.code}
+            <span className="text-xs font-semibold text-slate-500">
+              ระบบส่วนกลาง (Global System)
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 tracking-tight flex items-center gap-2">
@@ -287,19 +280,16 @@ export default function AdminAccessRulesPage() {
 
         <div className="relative z-10 space-y-5">
           
-          {/* Course Metadata Tag Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/60 pb-4">
-            <div className="flex flex-wrap items-center gap-2">
+          {/* Security Tag Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/60 pb-3">
+            <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-blue-900 bg-white/90 px-3 py-1 rounded-xl shadow-2xs border border-blue-100 flex items-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 text-blue-600" />
-                <span>นโยบายความปลอดภัยของระบบ</span>
-              </span>
-              <span className="text-xs font-semibold text-slate-600 bg-white/70 px-3 py-1 rounded-xl border border-slate-200/60">
-                {courseInfo.program}
+                <span>นโยบายความปลอดภัยและการควบคุมสิทธิ์การเข้าถึงระบบ</span>
               </span>
             </div>
             <span className="text-xs font-semibold text-slate-500">
-              ผู้รับผิดชอบ: <strong className="text-slate-800">{courseInfo.instructor}</strong>
+              ระบบตรวจสอบสิทธิ์ Google OAuth และอีเมลอัตโนมัติ
             </span>
           </div>
 
