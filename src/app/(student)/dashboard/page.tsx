@@ -365,7 +365,16 @@ export default function StudentDashboardPage() {
               <Megaphone className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900">ข่าวประกาศล่าสุด</h2>
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">ข่าวประกาศล่าสุด</h2>
+                <Link
+                  href="/announcements"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition"
+                >
+                  <span>ดูประกาศทั้งหมด</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
               <p className="text-xs text-slate-500">ข้อมูลข่าวสารและกำหนดการสำคัญจากอาจารย์ผู้สอน</p>
             </div>
           </div>

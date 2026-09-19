@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/data/store';
 import { 
-  Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2
+  Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2, Megaphone
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -59,10 +59,14 @@ export default function Navbar() {
 
             {/* Notification Bell */}
             <div className="relative">
-              <button className="p-2 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition relative">
+              <Link
+                href="/announcements"
+                className="p-2 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition relative block"
+                title="ข่าวประกาศและแจ้งเตือน"
+              >
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              </Link>
             </div>
 
             {/* User Profile Dropdown */}
@@ -153,6 +157,15 @@ export default function Navbar() {
                     >
                       <CheckCircle2 className="w-4 h-4 text-slate-400" />
                       ความก้าวหน้าของฉัน
+                    </Link>
+
+                    <Link
+                      href="/announcements"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition"
+                    >
+                      <Megaphone className="w-4 h-4 text-slate-400" />
+                      ข่าวประกาศ (Announcements)
                     </Link>
                   </div>
 
