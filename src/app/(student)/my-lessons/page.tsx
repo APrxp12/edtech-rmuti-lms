@@ -27,7 +27,7 @@ export default function MyLessonsPage() {
     instructor: 'ผศ.ดร.เฉลิมพล บุญทศ',
     semester: 'ภาคการศึกษาที่ 1 / ปีการศึกษา 2569',
     curriculum: 'หลักสูตรครุศาสตร์อุตสาหกรรมบัณฑิต (ค.อ.บ.)',
-    department: 'สาขาวิชาเทคโนโลยีการศึกษา คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น',
+    department: 'สาขาวิชาครุศาสตร์อุตสาหกรรมอุตสาหการ คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น',
   };
 
   // Compute stats
@@ -162,91 +162,96 @@ export default function MyLessonsPage() {
       </div>
 
       {/* Official Course Syllabus Hero Header */}
-      <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl border border-blue-800/60">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg border border-blue-600/30">
+        <div className="relative z-10 space-y-5">
           
-          {/* Left: Course details */}
-          <div className="space-y-3 max-w-3xl">
+          {/* Top Row: Meta Badges */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-blue-50 flex items-center gap-1.5 border border-white/15 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                 <span>{courseInfo.curriculum}</span>
               </span>
-              <span className="text-xs text-blue-200 font-medium">
+              <span className="text-xs text-blue-100 font-medium">
                 • {courseInfo.semester}
               </span>
             </div>
-
-            <div>
-              <div className="text-xs sm:text-sm font-mono font-bold text-blue-300 mb-1">
-                รหัสวิชา: {courseInfo.code}
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
-                {courseInfo.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-blue-100/90 mt-2 leading-relaxed">
-                {courseInfo.department}
-              </p>
-            </div>
-
-            {/* Instructor badge */}
-            <div className="pt-2 flex items-center gap-2.5 text-xs text-blue-200">
-              <div className="w-7 h-7 rounded-lg bg-blue-800/80 border border-blue-600 flex items-center justify-center text-amber-400">
-                <User className="w-4 h-4" />
-              </div>
-              <span>อาจารย์ผู้สอนประจำวิชา: <strong className="text-white">{courseInfo.instructor}</strong></span>
-            </div>
+            <span className="text-xs font-mono font-bold bg-white/15 px-3.5 py-1 rounded-full border border-white/20 text-amber-300 shadow-xs">
+              รหัสวิชา: {courseInfo.code}
+            </span>
           </div>
 
-          {/* Right: Progress & Quick Action */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 min-w-[280px] sm:min-w-[320px] space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-blue-200">ความก้าวหน้ารายวิชา</span>
-              <span className="text-sm font-black text-amber-300">{stats.percent}%</span>
-            </div>
+          {/* Course Title - Full width across top so it stays strictly on a single line! */}
+          <div className="space-y-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black tracking-tight text-white drop-shadow-xs break-keep whitespace-normal xl:whitespace-nowrap">
+              {courseInfo.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-blue-100/90 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-blue-200 shrink-0" />
+              <span>{courseInfo.department}</span>
+            </p>
+          </div>
 
-            <div className="w-full bg-white/20 h-2.5 rounded-full overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full transition-all duration-700"
-                style={{ width: `${stats.percent}%` }}
-              ></div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center text-[11px] pt-1 border-t border-white/10">
-              <div>
-                <div className="font-bold text-white text-sm">{stats.total}</div>
-                <span className="text-blue-200">บทเรียน</span>
+          {/* Bottom Section: Split into Instructor on Left & Progress/Action on Right */}
+          <div className="pt-4 border-t border-white/15 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            
+            {/* Instructor Badge */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 shadow-xs shrink-0">
+                <User className="w-5 h-5" />
               </div>
               <div>
-                <div className="font-bold text-emerald-400 text-sm">{stats.completed}</div>
-                <span className="text-blue-200">ผ่านแล้ว</span>
-              </div>
-              <div>
-                <div className="font-bold text-amber-300 text-sm">{stats.totalVideos}</div>
-                <span className="text-blue-200">คลิปวิดีโอ</span>
+                <span className="text-[11px] text-blue-200 font-medium block">อาจารย์ผู้สอนประจำวิชา</span>
+                <span className="text-sm sm:text-base font-bold text-white">{courseInfo.instructor}</span>
               </div>
             </div>
 
-            {stats.nextLesson && (
-              <Link
-                href={`/lessons/${stats.nextLesson.code}/intro`}
-                className="w-full py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-95"
-              >
-                <Play className="w-3.5 h-3.5 fill-slate-950" />
-                <span>
-                  {stats.percent === 100 
-                    ? 'ทบทวนบทเรียนทั้งหมด' 
-                    : `เรียนต่อ: ${stats.nextLesson.title.startsWith('บทที่') ? stats.nextLesson.title : `บทที่ ${stats.nextLesson.sortOrder}`}`}
-                </span>
-              </Link>
-            )}
+            {/* Right: Progress & Stats & Resume Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:px-5 sm:py-3.5 border border-white/15">
+              
+              {/* Progress Bar & Percent */}
+              <div className="flex items-center gap-3 min-w-[200px]">
+                <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center font-black text-xs shrink-0">
+                  {stats.percent}%
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between text-[11px] text-blue-100 font-bold mb-1">
+                    <span>ความก้าวหน้ารวม</span>
+                    <span className="text-emerald-300">{stats.completed}/{stats.total} บทเรียน</span>
+                  </div>
+                  <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-emerald-400 to-amber-300 h-full rounded-full transition-all duration-700"
+                      style={{ width: `${stats.percent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Resume Button */}
+              {stats.nextLesson && (
+                <Link
+                  href={`/lessons/${stats.nextLesson.code}/intro`}
+                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-amber-300 text-blue-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition active:scale-95 shrink-0 whitespace-nowrap"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>
+                    {stats.percent === 100 
+                      ? 'ทบทวนบทเรียน' 
+                      : `เรียนต่อ: ${stats.nextLesson.title.startsWith('บทที่') ? stats.nextLesson.title.split(' ')[0] + ' ' + (stats.nextLesson.title.split(' ')[1] || '') : `บทที่ ${stats.nextLesson.sortOrder}`}`}
+                  </span>
+                </Link>
+              )}
+            </div>
+
           </div>
 
         </div>
 
-        {/* Decorative Background Glows */}
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -left-10 -top-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        {/* Decorative Background Glows matching Dashboard */}
+        <div className="absolute -right-8 -bottom-8 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-400/15 rounded-full blur-xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-400/10 rounded-full blur-xl pointer-events-none"></div>
       </div>
 
       {/* Control Bar: Search, Status Tabs, View Switcher */}

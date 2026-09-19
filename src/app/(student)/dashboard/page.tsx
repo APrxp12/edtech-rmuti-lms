@@ -176,10 +176,12 @@ export default function StudentDashboardPage() {
 
             <div>
               <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight">
-                สวัสดีคุณ <span className="text-amber-300">{currentUser.fullName || currentUser.displayName || 'นักศึกษา'}</span>
+                สวัสดีคุณ <span className="text-amber-300">
+                  {(currentUser.displayName || currentUser.fullName || 'นักศึกษา').replace(/^(นาย|นางสาว|นาง)\s*/i, '').trim() || 'นักศึกษา'}
+                </span>
               </h1>
               <p className="text-sm text-blue-100/90 mt-1 font-medium">
-                ยินดีต้อนรับสู่ระบบการเรียนรู้วิชาเทคโนโลยีการศึกษา
+                ยินดีต้อนรับสู่ระบบการเรียนรู้วิชานวัตกรรมและเทคโนโลยีดิจิทัลเพื่อการจัดการเรียนรู้
               </p>
             </div>
           </div>

@@ -15,15 +15,44 @@ export default function StudentProfilePage() {
   const router = useRouter();
   const { currentUser, lessons, progressMap, settings, updateUserProfile, logout } = useAppStore();
 
+  // Helper to parse Thai name with prefix
+  const parseFullName = (raw: string) => {
+    let prefix = 'นาย';
+    let clean = (raw || '').trim();
+
+    if (clean.startsWith('นางสาว')) {
+      prefix = 'นางสาว';
+      clean = clean.slice(6).trim();
+    } else if (clean.startsWith('นาง')) {
+      prefix = 'นาง';
+      clean = clean.slice(3).trim();
+    } else if (clean.startsWith('นาย')) {
+      prefix = 'นาย';
+      clean = clean.slice(3).trim();
+    }
+
+    const parts = clean.split(/\s+/);
+    const first = parts[0] || '';
+    const last = parts.slice(1).join(' ') || '';
+
+    return { prefix, first, last };
+  };
+
   // Form State
-  const [fullName, setFullName] = useState(currentUser.fullName || currentUser.displayName || '');
+  const initialParsed = parseFullName(currentUser.fullName || currentUser.displayName || '');
+  const [titlePrefix, setTitlePrefix] = useState(initialParsed.prefix);
+  const [firstName, setFirstName] = useState(initialParsed.first);
+  const [lastName, setLastName] = useState(initialParsed.last);
   const [studentId, setStudentId] = useState(currentUser.studentId || '');
   const [isSaved, setIsSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Sync state when currentUser changes
   useEffect(() => {
-    setFullName(currentUser.fullName || currentUser.displayName || '');
+    const parsed = parseFullName(currentUser.fullName || currentUser.displayName || '');
+    setTitlePrefix(parsed.prefix);
+    setFirstName(parsed.first);
+    setLastName(parsed.last);
     setStudentId(currentUser.studentId || '');
   }, [currentUser]);
 
@@ -39,14 +68,21 @@ export default function StudentProfilePage() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!fullName.trim()) {
-      setErrorMessage('กรุณาระบุชื่อ-นามสกุล');
+    // Sanitize any accidentally typed title prefix in firstName
+    const cleanedFirst = firstName.replace(/^(นาย|นางสาว|นาง)\s*/i, '').trim();
+    const cleanedLast = lastName.trim();
+
+    if (!cleanedFirst) {
+      setErrorMessage('กรุณาระบุชื่อ');
       return;
     }
 
+    const fullOfficialName = `${titlePrefix}${cleanedFirst}${cleanedLast ? ' ' + cleanedLast : ''}`.trim();
+    const cleanDisplayName = `${cleanedFirst}${cleanedLast ? ' ' + cleanedLast : ''}`.trim();
+
     updateUserProfile({
-      fullName: fullName.trim(),
-      displayName: fullName.trim(),
+      fullName: fullOfficialName,
+      displayName: cleanDisplayName,
       studentId: studentId.trim(),
     });
 
@@ -191,21 +227,54 @@ export default function StudentProfilePage() {
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               
-              {/* Full Name */}
+              {/* Prefix & First Name */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                {/* Prefix Dropdown */}
+                <div className="sm:col-span-4">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    คำนำหน้าชื่อ <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={titlePrefix}
+                    onChange={(e) => setTitlePrefix(e.target.value)}
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition cursor-pointer font-medium text-slate-800"
+                  >
+                    <option value="นาย">นาย</option>
+                    <option value="นางสาว">นางสาว</option>
+                    <option value="นาง">นาง</option>
+                  </select>
+                </div>
+
+                {/* First Name */}
+                <div className="sm:col-span-8">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    ชื่อ <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="เช่น พีรพล"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Last Name */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  ชื่อ - นามสกุล <span className="text-red-500">*</span>
+                  นามสกุล
                 </label>
                 <input
                   type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="เช่น นายสมชาย ใจดี"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="เช่น น้อยโนนงิ้ว"
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
-                  required
                 />
                 <p className="text-[11px] text-slate-400 mt-1">
-                  ชื่อนี้จะปรากฏในหน้าหลัก ระบบคะแนน และข้อมูลการศึกษา
+                  ชื่อนี้จะแสดงในบัตรประจำตัวนักศึกษา และคำทักทายในหน้าแรก
                 </p>
               </div>
 
@@ -333,7 +402,7 @@ export default function StudentProfilePage() {
                   <h3 className="text-base font-bold text-slate-900">
                     ข้อมูลการลงทะเบียนและสถานะรายวิชาทางการ
                   </h3>
-                  <p className="text-xs text-slate-500">บันทึกการศึกษาหลักสูตรเทคโนโลยีการศึกษา ประจำปีการศึกษา 2569</p>
+                  <p className="text-xs text-slate-500">บันทึกการศึกษาสาขาวิชาครุศาสตร์อุตสาหกรรมอุตสาหการ ประจำปีการศึกษา 2569</p>
                 </div>
               </div>
 
