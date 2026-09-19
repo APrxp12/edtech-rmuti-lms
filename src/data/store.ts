@@ -235,26 +235,52 @@ export function useAppStore() {
     const cleanEmail = params.email.trim().toLowerCase();
     const domain = cleanEmail.split('@')[1];
 
-    // 1. ตรวจสอบว่าโดเมนหรืออีเมลถูกบล็อกหรือไม่
-    if (defaultAccessControlConfig.blockedEmails.includes(cleanEmail)) {
-      return { success: false, message: 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
-    }
+    // 1. ตรวจสอบกฎการปฏิเสธใน accessRules (Dynamic Deny) หรือ blockedEmails
+    const dynamicDenyEmail = accessRules.find(
+      (r) => r.isActive && r.type === 'email' && r.value.toLowerCase() === cleanEmail && r.decision === 'deny'
+    );
+    const dynamicDenyDomain = domain
+      ? accessRules.find(
+          (r) => r.isActive && r.type === 'domain' && r.value.toLowerCase() === domain && r.decision === 'deny'
+        )
+      : null;
 
-    // 2. ตรวจสอบ Whitelist อีเมลก่อนเสมอ (Precedence)
+    // อีเมล Whitelist มีลำดับความสำคัญสูงกว่า Deny Domain
+    const dynamicAllowEmail = accessRules.find(
+      (r) => r.isActive && r.type === 'email' && r.value.toLowerCase() === cleanEmail && r.decision === 'allow'
+    );
     const whitelisted = defaultAccessControlConfig.emailWhitelist.find(
       (w) => w.email.toLowerCase() === cleanEmail
     );
 
+    if (
+      defaultAccessControlConfig.blockedEmails.includes(cleanEmail) ||
+      dynamicDenyEmail ||
+      (dynamicDenyDomain && !dynamicAllowEmail && !whitelisted)
+    ) {
+      return { success: false, message: 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
+    }
+
     let role: 'student' | 'admin' = 'student';
     let name = params.fullName || params.displayName || cleanEmail.split('@')[0];
 
-    if (whitelisted) {
+    // 2. ตรวจสอบสิทธิ์อนุญาต: Email Whitelist ก่อนเสมอ
+    if (dynamicAllowEmail) {
+      role = dynamicAllowEmail.defaultRole;
+    } else if (whitelisted) {
       role = whitelisted.role;
       if (whitelisted.name && !params.fullName) {
         name = whitelisted.name;
       }
-    } else if (domain && defaultAccessControlConfig.allowedDomains.includes(domain)) {
-      role = 'student';
+    } else if (
+      domain &&
+      (defaultAccessControlConfig.allowedDomains.includes(domain) ||
+        accessRules.some((r) => r.isActive && r.type === 'domain' && r.value.toLowerCase() === domain && r.decision === 'allow'))
+    ) {
+      const matchedDomainRule = accessRules.find(
+        (r) => r.isActive && r.type === 'domain' && r.value.toLowerCase() === domain && r.decision === 'allow'
+      );
+      role = matchedDomainRule?.defaultRole || 'student';
     } else {
       return {
         success: false,
