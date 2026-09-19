@@ -11,7 +11,7 @@ import { siteBranding } from '@/config/site-branding';
 
 export default function RequiredProfilePage() {
   const router = useRouter();
-  const { currentUser, saveRequiredProfile } = useAppStore();
+  const { currentUser, isLoaded, saveRequiredProfile } = useAppStore();
 
   const [fullName, setFullName] = useState(
     currentUser.fullName && !currentUser.fullName.includes('@') ? currentUser.fullName : ''
@@ -23,6 +23,22 @@ export default function RequiredProfilePage() {
   );
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!isLoaded) return;
+    if (!currentUser?.email || !currentUser?.id) {
+      router.replace('/login');
+    }
+  }, [isLoaded, currentUser, router]);
+
+  React.useEffect(() => {
+    if (currentUser?.fullName && !currentUser.fullName.includes('@')) {
+      setFullName(currentUser.fullName);
+    }
+    if (currentUser?.studentId && currentUser.studentId !== '-' && currentUser.studentId !== '65123456789') {
+      setStudentId(currentUser.studentId);
+    }
+  }, [currentUser]);
 
   const isValidName = fullName.trim().length >= 3;
   const isValidStudentId = /^[0-9A-Za-z-]{10,15}$/.test(studentId.trim());

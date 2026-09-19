@@ -7,10 +7,17 @@ import {
   Home, BookOpen, Users, Shield, Settings, Megaphone, BarChart3, LogOut, ArrowLeft
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAppStore } from '@/data/store';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useAppStore();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   const navItems = [
     { href: '/dashboard', label: 'หน้าแรก (มุมมองผู้เรียน)', icon: ArrowLeft },
@@ -57,8 +64,8 @@ export default function AdminSidebar() {
         </div>
 
         <button
-          onClick={() => router.push('/login')}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 mt-4 text-xs font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 mt-4 text-xs font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           ออกจากระบบ

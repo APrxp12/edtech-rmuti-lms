@@ -17,6 +17,7 @@ import {
 } from '../types';
 import {
   initialCurrentUser,
+  emptyGuestUser,
   initialAdminUser,
   initialLessons,
   initialQuizzes,
@@ -71,12 +72,22 @@ export function useAppStore() {
     try {
       const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
       if (savedUser) {
-        const parsedUser: UserProfile = JSON.parse(savedUser);
-        if (parsedUser.avatarUrl && parsedUser.avatarUrl.includes('images.unsplash.com') && parsedUser.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
-          parsedUser.avatarUrl = '';
-          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+        try {
+          const parsedUser: UserProfile = JSON.parse(savedUser);
+          if (parsedUser && parsedUser.email && parsedUser.id) {
+            if (parsedUser.avatarUrl && parsedUser.avatarUrl.includes('images.unsplash.com') && parsedUser.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
+              parsedUser.avatarUrl = '';
+              localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+            }
+            setCurrentUser(parsedUser);
+          } else {
+            setCurrentUser(emptyGuestUser);
+          }
+        } catch {
+          setCurrentUser(emptyGuestUser);
         }
-        setCurrentUser(parsedUser);
+      } else {
+        setCurrentUser(emptyGuestUser);
       }
 
       const savedUsersList = localStorage.getItem(STORAGE_KEYS.USERS_LIST);
@@ -108,131 +119,13 @@ export function useAppStore() {
 
       const savedProgress = localStorage.getItem(STORAGE_KEYS.LEARNER_PROGRESS);
       if (savedProgress) {
-        setProgressMap(JSON.parse(savedProgress));
+        try {
+          setProgressMap(JSON.parse(savedProgress));
+        } catch {
+          setProgressMap({});
+        }
       } else {
-        // Initial Mock Progress matching Visual Reference Page 3 & 5
-        const defaultProgress: Record<string, UserLessonProgress> = {
-          'RMUTI-001': {
-            userId: initialCurrentUser.id,
-            lessonId: 'lsn-001',
-            assignedVersionId: 'ver-001-v1',
-            status: 'passed',
-            progressPercent: 100,
-            isPreTestCompleted: true,
-            preTestScore: { score: 8, max: 10, percent: 80 },
-            isPostTestUnlocked: true,
-            bestPostTestScorePercent: 90,
-            postTestAttempts: [
-              {
-                id: 'att-1',
-                quizId: 'quiz-post-001',
-                quizVersionId: 'qv-post-001',
-                quizType: 'post_test',
-                attemptNumber: 1,
-                scoreObtained: 7,
-                maxScore: 10,
-                scorePercent: 70,
-                isPassed: true,
-                isCountedInFinal: false,
-                submittedAt: '2025-04-15T10:30:00Z',
-                answers: [],
-              },
-              {
-                id: 'att-2',
-                quizId: 'quiz-post-001',
-                quizVersionId: 'qv-post-001',
-                quizType: 'post_test',
-                attemptNumber: 2,
-                scoreObtained: 9,
-                maxScore: 10,
-                scorePercent: 90,
-                isPassed: true,
-                isCountedInFinal: true,
-                submittedAt: '2025-04-16T14:20:00Z',
-                answers: [],
-              },
-            ],
-            preTestAttempts: [],
-            watchedVideos: {
-              'vid-1-1': { progressPercent: 100, isCompleted: true, watchedSeconds: 735, lastPositionSeconds: 735 },
-              'vid-1-2': { progressPercent: 100, isCompleted: true, watchedSeconds: 870, lastPositionSeconds: 870 },
-            },
-            lastAccessedAt: '2025-04-16T14:20:00Z',
-          },
-          'RMUTI-002': {
-            userId: initialCurrentUser.id,
-            lessonId: 'lsn-002',
-            assignedVersionId: 'ver-002-v1',
-            status: 'passed',
-            progressPercent: 100,
-            isPreTestCompleted: true,
-            preTestScore: { score: 7, max: 10, percent: 70 },
-            isPostTestUnlocked: true,
-            bestPostTestScorePercent: 80,
-            postTestAttempts: [],
-            preTestAttempts: [],
-            watchedVideos: {},
-            lastAccessedAt: '2025-04-14T11:00:00Z',
-          },
-          'RMUTI-003': {
-            userId: initialCurrentUser.id,
-            lessonId: 'lsn-003',
-            assignedVersionId: 'ver-003-v1',
-            status: 'in_progress',
-            progressPercent: 60, // 3 จาก 5 วิดีโอ
-            isPreTestCompleted: true,
-            preTestScore: { score: 8, max: 10, percent: 80 },
-            isPostTestUnlocked: false,
-            postTestAttempts: [],
-            preTestAttempts: [],
-            watchedVideos: {
-              'vid-3-1': { progressPercent: 100, isCompleted: true, watchedSeconds: 755, lastPositionSeconds: 755 },
-              'vid-3-2': { progressPercent: 100, isCompleted: true, watchedSeconds: 620, lastPositionSeconds: 620 },
-              'vid-3-3': { progressPercent: 100, isCompleted: true, watchedSeconds: 910, lastPositionSeconds: 910 },
-            },
-            lastAccessedAt: '2025-04-18T10:00:00Z',
-          },
-          'RMUTI-005': {
-            userId: initialCurrentUser.id,
-            lessonId: 'lsn-005',
-            assignedVersionId: 'ver-005-v1',
-            status: 'passed',
-            progressPercent: 100,
-            isPreTestCompleted: true,
-            isPostTestUnlocked: true,
-            postTestAttempts: [],
-            preTestAttempts: [],
-            watchedVideos: {},
-            lastAccessedAt: '2025-04-10T15:00:00Z',
-          },
-          'RMUTI-006': {
-            userId: initialCurrentUser.id,
-            lessonId: 'lsn-006',
-            assignedVersionId: 'ver-006-v1',
-            status: 'in_progress',
-            progressPercent: 40,
-            isPreTestCompleted: true,
-            isPostTestUnlocked: false,
-            postTestAttempts: [],
-            preTestAttempts: [],
-            watchedVideos: {},
-            lastAccessedAt: '2025-04-12T09:30:00Z',
-          },
-          'RMUTI-007': {
-            userId: initialCurrentUser.id,
-            lessonId: 'lsn-007',
-            assignedVersionId: 'ver-007-v1',
-            status: 'content_completed', // ดูครบแล้ว รอทำแบบทดสอบ
-            progressPercent: 100,
-            isPreTestCompleted: true,
-            isPostTestUnlocked: true,
-            postTestAttempts: [],
-            preTestAttempts: [],
-            watchedVideos: {},
-            lastAccessedAt: '2025-04-11T16:00:00Z',
-          },
-        };
-        setProgressMap(defaultProgress);
+        setProgressMap({});
       }
     } catch (e) {
       console.error('Error loading store from localStorage:', e);
@@ -600,9 +493,12 @@ export function useAppStore() {
   const logout = () => {
     try {
       localStorage.removeItem(STORAGE_KEYS.USER);
+      localStorage.removeItem(STORAGE_KEYS.LEARNER_PROGRESS);
     } catch (e) {
       console.error('Error removing user from localStorage:', e);
     }
+    setCurrentUser(emptyGuestUser);
+    setProgressMap({});
   };
 
   // ฟังก์ชันสลับ Role (คงไว้สำหรับกรณีจำเป็นในการทดสอบหลังบ้าน)

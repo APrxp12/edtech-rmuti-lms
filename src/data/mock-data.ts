@@ -14,7 +14,21 @@ export const developerUser: UserProfile = {
   avatarUrl: '',
 };
 
-export const initialCurrentUser: UserProfile = developerUser;
+export const emptyGuestUser: UserProfile = {
+  id: '',
+  email: '',
+  displayName: '',
+  fullName: '',
+  studentId: '',
+  role: 'student',
+  status: 'inactive',
+  isProfileCompleted: false,
+  firstLoginAt: '',
+  lastLoginAt: '',
+  avatarUrl: '',
+};
+
+export const initialCurrentUser: UserProfile = emptyGuestUser;
 export const initialAdminUser: UserProfile = developerUser;
 
 export const mockUsersList: UserProfile[] = [

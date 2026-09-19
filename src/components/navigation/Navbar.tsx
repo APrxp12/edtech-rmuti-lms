@@ -94,12 +94,21 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* User Profile Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-full sm:rounded-xl hover:bg-slate-50 transition border border-transparent sm:border-slate-200 cursor-pointer"
+            {/* User Profile Dropdown or Login Button */}
+            {!currentUser?.email ? (
+              <Link
+                href="/login"
+                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5"
               >
+                <User className="w-3.5 h-3.5" />
+                <span>เข้าสู่ระบบ</span>
+              </Link>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 p-1.5 rounded-full sm:rounded-xl hover:bg-slate-50 transition border border-transparent sm:border-slate-200 cursor-pointer"
+                >
                 <UserAvatar
                   src={currentUser.avatarUrl}
                   name={currentUser.fullName || currentUser.displayName}
@@ -250,6 +259,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+          )}
 
           </div>
         </div>
