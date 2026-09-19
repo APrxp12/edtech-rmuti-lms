@@ -46,41 +46,48 @@ export default function LoginPage() {
   const [hasGoogleClientId, setHasGoogleClientId] = useState(false);
 
   const googleBtnContainerRef = useRef<HTMLDivElement>(null);
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '673577931640-pte3gf8lh69ttmamh0gcsahohir9aq42.apps.googleusercontent.com';
 
   const initGoogleSignIn = () => {
-    if (typeof window !== 'undefined' && window.google?.accounts?.id) {
-      if (googleClientId) {
-        setHasGoogleClientId(true);
-        try {
-          window.google.accounts.id.initialize({
-            client_id: googleClientId,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false,
-          });
+    if (typeof window !== 'undefined' && window.google?.accounts?.id && googleClientId) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
 
-          if (googleBtnContainerRef.current) {
-            googleBtnContainerRef.current.innerHTML = '';
-            window.google.accounts.id.renderButton(googleBtnContainerRef.current, {
-              theme: 'filled_blue',
-              size: 'large',
-              text: 'signin_with',
-              shape: 'pill',
-              width: 340,
-              logo_alignment: 'left',
-            });
-          }
-        } catch (err) {
-          console.error('Error initializing Google Sign-In:', err);
+        if (googleBtnContainerRef.current) {
+          googleBtnContainerRef.current.innerHTML = '';
+          window.google.accounts.id.renderButton(googleBtnContainerRef.current, {
+            theme: 'filled_blue',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'pill',
+            width: 340,
+            locale: 'th',
+            logo_alignment: 'left',
+          });
+          setHasGoogleClientId(true);
         }
+      } catch (err) {
+        console.error('Error initializing Google Sign-In:', err);
       }
     }
   };
 
   useEffect(() => {
-    if (googleClientId && window.google?.accounts?.id) {
+    if (window.google?.accounts?.id) {
       initGoogleSignIn();
     }
+    const timer = setInterval(() => {
+      if (window.google?.accounts?.id) {
+        initGoogleSignIn();
+        clearInterval(timer);
+      }
+    }, 300);
+    return () => clearInterval(timer);
   }, [googleClientId]);
 
   // จัดการ Credential ตอบกลับจาก Google OAuth (JWT)
