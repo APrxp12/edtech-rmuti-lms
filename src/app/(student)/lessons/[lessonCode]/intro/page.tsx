@@ -180,16 +180,16 @@ export default function LessonIntroPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <div className="space-y-2.5 pt-1">
           {learningObjectives && learningObjectives.length > 0 ? (
             learningObjectives.map((obj, i) => (
-              <div key={i} className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-blue-50/40 border border-blue-100/80 text-xs sm:text-sm text-slate-700 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div key={i} className="flex items-start gap-3 p-3.5 sm:p-4 rounded-2xl bg-blue-50/40 border border-blue-100/80 text-xs sm:text-sm text-slate-800 font-medium">
+                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{obj}</span>
               </div>
             ))
           ) : (
-            <div className="col-span-2 p-4 rounded-xl bg-slate-50 text-slate-500 text-xs text-center">
+            <div className="p-4 rounded-xl bg-slate-50 text-slate-500 text-xs text-center">
               ยังไม่มีการระบุจุดประสงค์การเรียนรู้สำหรับบทเรียนนี้
             </div>
           )}

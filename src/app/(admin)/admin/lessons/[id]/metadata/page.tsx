@@ -238,11 +238,11 @@ export default function LessonMetadataEditorPage() {
                   {objectivesText.split('\n').filter(s => s.trim()).length} ข้อ
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="space-y-2">
                 {objectivesText.split('\n').filter(s => s.trim()).map((obj, idx) => (
-                  <div key={idx} className="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-blue-200/80 text-[11px] text-slate-800 shadow-2xs">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug">{obj}</span>
+                  <div key={idx} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-blue-200/80 text-xs text-slate-800 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="leading-relaxed">{obj}</span>
                   </div>
                 ))}
               </div>
