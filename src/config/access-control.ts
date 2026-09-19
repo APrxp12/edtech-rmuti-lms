@@ -15,22 +15,15 @@ export interface AccessRuleConfig {
 }
 
 export const defaultAccessControlConfig: AccessRuleConfig = {
-  // โดเมนที่อนุญาตเข้าใช้งานอัตโนมัติเมื่อล็อกอินด้วย Google
-  allowedDomains: [
-    'rmuti.ac.th',
-    'kkc.rmuti.ac.th',
-  ],
+  // โดเมนที่อนุญาตเข้าใช้งาน (ให้ใช้กฎไดนามิกจากระบบจัดการสิทธิ์ /admin/access-rules เป็นหลัก)
+  allowedDomains: [],
 
-  // รายชื่ออีเมลที่ได้รับอนุญาตพิเศษ (ผู้พัฒนา และแอดมิน)
+  // รายชื่ออีเมลผู้พัฒนาหลัก (Master Admin - ป้องกันระบบล็อกตัวเอง)
   emailWhitelist: [
-    { email: 'bugzonvazan@gmail.com', role: 'admin', name: 'นายพีรพล น้อยโนนงิ้ว', note: 'ผู้พัฒนา (Developer)' },
-    { email: 'Bugzonvazan@gmail.com', role: 'admin', name: 'นายพีรพล น้อยโนนงิ้ว', note: 'ผู้พัฒนา (Developer)' },
-    { email: 'admin@rmuti.ac.th', role: 'admin', name: 'ผู้ดูแลระบบ', note: 'ผู้ดูแลระบบหลัก (Admin)' },
+    { email: 'bugzonvazan@gmail.com', role: 'admin', name: 'Lamut (ผู้พัฒนา)', note: 'ผู้พัฒนา (Developer)' },
+    { email: 'Bugzonvazan@gmail.com', role: 'admin', name: 'Lamut (ผู้พัฒนา)', note: 'ผู้พัฒนา (Developer)' },
   ],
 
   // บัญชีที่ถูกระงับการใช้งาน
-  blockedEmails: [
-    'kamonwan.j@rmuti.ac.th',
-    'blocked@rmuti.ac.th',
-  ],
+  blockedEmails: [],
 };

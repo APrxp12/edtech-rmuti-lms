@@ -377,67 +377,108 @@ export function useAppStore() {
   };
 
   // ฟังก์ชันเข้าสู่ระบบด้วย Google Account หรืออีเมลพร้อมตรวจสอบสิทธิ์ทางการ
-  const loginUser = (params: {
+  const loginUser = async (params: {
     email: string;
     fullName?: string;
     displayName?: string;
     avatarUrl?: string;
     studentId?: string;
-  }): { success: boolean; message?: string; role?: 'student' | 'admin'; user?: UserProfile } => {
+  }): Promise<{ success: boolean; message?: string; role?: 'student' | 'admin'; user?: UserProfile }> => {
     const cleanEmail = params.email.trim().toLowerCase();
     const domain = cleanEmail.split('@')[1];
 
-    // 1. ตรวจสอบกฎการปฏิเสธใน accessRules (Dynamic Deny) หรือ blockedEmails
-    const dynamicDenyEmail = accessRules.find(
-      (r) => r.isActive && r.type === 'email' && r.value.toLowerCase() === cleanEmail && r.decision === 'deny'
-    );
-    const dynamicDenyDomain = domain
-      ? accessRules.find(
-          (r) => r.isActive && r.type === 'domain' && r.value.toLowerCase() === domain && r.decision === 'deny'
-        )
-      : null;
+    // 0. ดึงกฎ Access Rules ล่าสุดสดๆ จาก Supabase Cloud หรือ LocalStorage ทันที
+    let activeRules: AccessRule[] = accessRules;
+    if (isSupabaseConfigured()) {
+      try {
+        const cloudRules = await dbFetchAccessRules();
+        if (cloudRules && Array.isArray(cloudRules)) {
+          activeRules = cloudRules;
+          setAccessRules(cloudRules);
+          try {
+            localStorage.setItem(STORAGE_KEYS.ACCESS_RULES, JSON.stringify(cloudRules));
+          } catch (e) {}
+        }
+      } catch (err) {
+        console.warn('[loginUser] Failed to fetch live access rules:', err);
+      }
+    }
 
-    // อีเมล Whitelist มีลำดับความสำคัญสูงกว่า Deny Domain
-    const dynamicAllowEmail = accessRules.find(
-      (r) => r.isActive && r.type === 'email' && r.value.toLowerCase() === cleanEmail && r.decision === 'allow'
-    );
-    const whitelisted = defaultAccessControlConfig.emailWhitelist.find(
-      (w) => w.email.toLowerCase() === cleanEmail
-    );
-
-    if (
-      defaultAccessControlConfig.blockedEmails.includes(cleanEmail) ||
-      dynamicDenyEmail ||
-      (dynamicDenyDomain && !dynamicAllowEmail && !whitelisted)
-    ) {
-      return { success: false, message: 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
+    if ((!activeRules || activeRules.length === 0) && typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEYS.ACCESS_RULES);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) activeRules = parsed;
+        }
+      } catch (e) {}
     }
 
     let role: 'student' | 'admin' = 'student';
     let name = params.fullName || params.displayName || cleanEmail.split('@')[0];
 
-    // 2. ตรวจสอบสิทธิ์อนุญาต: Email Whitelist ก่อนเสมอ
-    if (dynamicAllowEmail) {
-      role = dynamicAllowEmail.defaultRole;
-    } else if (whitelisted) {
-      role = whitelisted.role;
-      if (whitelisted.name && !params.fullName) {
-        name = whitelisted.name;
-      }
-    } else if (
-      domain &&
-      (defaultAccessControlConfig.allowedDomains.includes(domain) ||
-        accessRules.some((r) => r.isActive && r.type === 'domain' && r.value.toLowerCase() === domain && r.decision === 'allow'))
-    ) {
-      const matchedDomainRule = accessRules.find(
-        (r) => r.isActive && r.type === 'domain' && r.value.toLowerCase() === domain && r.decision === 'allow'
-      );
-      role = matchedDomainRule?.defaultRole || 'student';
+    // 1. บัญชีผู้พัฒนาหลัก (Master Admin) ได้รับอนุญาตสูงสุดเสมอ เพื่อป้องกันระบบล็อกตัวเอง
+    const isMasterDev = cleanEmail === 'bugzonvazan@gmail.com';
+    if (isMasterDev) {
+      role = 'admin';
+      name = 'Lamut (ผู้พัฒนา)';
     } else {
-      return {
-        success: false,
-        message: `บัญชี "${cleanEmail}" ไม่ได้รับอนุญาตให้เข้าใช้งาน กรุณาใช้บัญชี @rmuti.ac.th หรือติดต่ออาจารย์ผู้สอนเพื่อเพิ่มใน Whitelist`,
+      // ฟังก์ชันช่วยเปรียบเทียบโดเมน (รองรับทั้งตรงกันเป๊ะ และ subdomain เช่น kkc.rmuti.ac.th กับ rmuti.ac.th)
+      const matchDomainRule = (ruleVal: string, targetDomain: string) => {
+        const cleanRule = ruleVal.toLowerCase().replace(/^@/, '').trim();
+        const cleanTarget = targetDomain.toLowerCase().replace(/^@/, '').trim();
+        return cleanTarget === cleanRule || cleanTarget.endsWith('.' + cleanRule);
       };
+
+      // 2. ตรวจสอบกฎการปฏิเสธระดับอีเมล (Specific Email Deny)
+      const dynamicDenyEmail = activeRules.find(
+        (r) => r.isActive && r.type === 'email' && r.value.toLowerCase().trim() === cleanEmail && r.decision === 'deny'
+      );
+      if (dynamicDenyEmail || defaultAccessControlConfig.blockedEmails.map((e) => e.toLowerCase()).includes(cleanEmail)) {
+        return { success: false, message: 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
+      }
+
+      // 3. ตรวจสอบกฎการอนุญาตระดับอีเมล (Specific Email Allow / Whitelist)
+      const dynamicAllowEmail = activeRules.find(
+        (r) => r.isActive && r.type === 'email' && r.value.toLowerCase().trim() === cleanEmail && r.decision === 'allow'
+      );
+
+      // 4. ตรวจสอบกฎการปฏิเสธระดับโดเมน (Domain Deny)
+      const dynamicDenyDomain = domain
+        ? activeRules.find(
+            (r) => r.isActive && r.type === 'domain' && matchDomainRule(r.value, domain) && r.decision === 'deny'
+          )
+        : null;
+
+      // ถ้าโดเมนถูกระบุให้ปฏิเสธ (Deny) และไม่มีกฎอนุญาตรายอีเมล (Email Whitelist) ยกเว้นไว้ -> ต้องปฏิเสธทันที!
+      if (dynamicDenyDomain && !dynamicAllowEmail) {
+        return { 
+          success: false, 
+          message: `โดเมน "@${domain}" ถูกระงับการเข้าใช้งานตามนโยบายของระบบ กรุณาติดต่อผู้ดูแลระบบ` 
+        };
+      }
+
+      // 5. ตรวจสอบสิทธิ์อนุญาต (Allow Evaluation)
+      if (dynamicAllowEmail) {
+        role = dynamicAllowEmail.defaultRole;
+      } else {
+        // ตรวจสอบกฎอนุญาตระดับโดเมน (Domain Allow)
+        const dynamicAllowDomain = domain
+          ? activeRules.find(
+              (r) => r.isActive && r.type === 'domain' && matchDomainRule(r.value, domain) && r.decision === 'allow'
+            )
+          : null;
+
+        if (dynamicAllowDomain) {
+          role = dynamicAllowDomain.defaultRole || 'student';
+        } else {
+          // ถ้าไม่มีกฎอนุญาตใดๆ ตรงกับอีเมลหรือโดเมนนี้เลย
+          return {
+            success: false,
+            message: `บัญชี "${cleanEmail}" ไม่ได้รับอนุญาตให้เข้าใช้งาน กรุณาติดต่อผู้ดูแลระบบเพื่อขอรับสิทธิ์เข้าใช้งาน`,
+          };
+        }
+      }
     }
 
     // สกัดรหัสนักศึกษาถ้ามี

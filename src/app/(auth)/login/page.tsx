@@ -110,7 +110,7 @@ export default function LoginPage() {
   }, [googleClientId]);
 
   // จัดการ Credential ตอบกลับจาก Google OAuth (JWT)
-  const handleGoogleCredentialResponse = (response: any) => {
+  const handleGoogleCredentialResponse = async (response: any) => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -121,7 +121,7 @@ export default function LoginPage() {
       return;
     }
 
-    const result = loginUser({
+    const result = await loginUser({
       email: payload.email,
       fullName: payload.name || payload.email.split('@')[0],
       displayName: payload.name || payload.email.split('@')[0],
