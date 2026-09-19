@@ -131,33 +131,33 @@ export default function AnnouncementsPage() {
       </div>
 
       {/* Official Course & Announcement Hero Banner (Soft Luminous Pastel Theme) */}
-      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-7 border border-blue-100/90 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-8 border border-blue-100/90 shadow-sm relative overflow-hidden">
         {/* Ambient soft pastel orbs */}
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 rounded-full blur-2xl pointer-events-none"></div>
         <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 rounded-full blur-2xl pointer-events-none"></div>
 
-        <div className="relative z-10 space-y-4">
+        <div className="relative z-10 space-y-5">
           
           {/* Top Row: Meta Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold bg-white/95 text-blue-800 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-xs sm:text-sm font-bold bg-white/95 text-blue-800 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
+                <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>{courseInfo.curriculum}</span>
               </span>
-              <span className="text-xs text-slate-600 font-medium">
+              <span className="text-xs sm:text-sm text-slate-600 font-medium">
                 • {courseInfo.semester}
               </span>
             </div>
-            <span className="text-xs font-mono font-bold bg-white/95 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
+            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
               ศูนย์ข้อมูลข่าวสารรายวิชา
             </span>
           </div>
 
-          {/* Course Title */}
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900 leading-tight">
+          {/* Course Title - Matching exact size and line behavior of my-lessons */}
+          <div className="space-y-1.5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[30px] font-bold tracking-tight text-slate-900 break-keep whitespace-normal xl:whitespace-nowrap">
               {courseInfo.title}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
@@ -167,14 +167,14 @@ export default function AnnouncementsPage() {
           </div>
 
           {/* Bottom Row: Instructor & Category Highlights */}
-          <div className="pt-3.5 border-t border-blue-100/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="pt-4 border-t border-blue-100/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
                 <User className="w-4 h-4" />
               </div>
               <div>
                 <span className="text-[11px] text-slate-500 font-medium block">อาจารย์ผู้สอนประจำวิชา</span>
-                <span className="text-sm font-bold text-slate-900">{courseInfo.instructor}</span>
+                <span className="text-sm sm:text-base font-bold text-slate-900">{courseInfo.instructor}</span>
               </div>
             </div>
 
