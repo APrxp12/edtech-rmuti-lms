@@ -227,38 +227,35 @@ export default function StudentProfilePage() {
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               
-              {/* Prefix & First Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                {/* Prefix Dropdown */}
-                <div className="sm:col-span-4">
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    คำนำหน้าชื่อ <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={titlePrefix}
-                    onChange={(e) => setTitlePrefix(e.target.value)}
-                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition cursor-pointer font-medium text-slate-800"
-                  >
-                    <option value="นาย">นาย</option>
-                    <option value="นางสาว">นางสาว</option>
-                    <option value="นาง">นาง</option>
-                  </select>
-                </div>
+              {/* Prefix Dropdown */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  คำนำหน้าชื่อ <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={titlePrefix}
+                  onChange={(e) => setTitlePrefix(e.target.value)}
+                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition cursor-pointer font-medium text-slate-800"
+                >
+                  <option value="นาย">นาย</option>
+                  <option value="นางสาว">นางสาว</option>
+                  <option value="นาง">นาง</option>
+                </select>
+              </div>
 
-                {/* First Name */}
-                <div className="sm:col-span-8">
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    ชื่อ <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="เช่น พีรพล"
-                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
-                    required
-                  />
-                </div>
+              {/* First Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  ชื่อ <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="เช่น พีรพล"
+                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+                  required
+                />
               </div>
 
               {/* Last Name */}
