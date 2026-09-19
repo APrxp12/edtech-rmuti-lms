@@ -320,179 +320,152 @@ export default function AdminLessonsPage() {
 
       </div>
 
-      {/* Table: Lessons with Versioning & Quick Action Buttons */}
+      {/* Table: Lessons with Clean Compact Layout - No Horizontal Scroll */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+        <table className="w-full text-left text-xs">
+          <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+            <tr>
+              <th className="py-3.5 px-3.5 whitespace-nowrap w-24 sm:w-28">รหัสบทเรียน</th>
+              <th className="py-3.5 px-3 min-w-0">ชื่อบทเรียน</th>
+              <th className="py-3.5 px-2.5 whitespace-nowrap text-center w-28">สถานะ</th>
+              <th className="py-3.5 px-2.5 whitespace-nowrap text-center w-24 hidden sm:table-cell">สื่อการสอน</th>
+              <th className="py-3.5 px-2.5 whitespace-nowrap text-center w-20 hidden lg:table-cell">เวอร์ชัน</th>
+              <th className="py-3.5 px-3 text-center whitespace-nowrap w-56 sm:w-64">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {filtered.length === 0 ? (
               <tr>
-                <th className="py-3.5 px-4 whitespace-nowrap">รหัสบทเรียน</th>
-                <th className="py-3.5 px-4 min-w-[260px]">ชื่อบทเรียน</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">สถานะ</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">เวอร์ชัน</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">สื่อการสอน</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">ผู้เรียน</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">อัปเดตล่าสุด</th>
-                <th className="py-3.5 px-4 text-center whitespace-nowrap min-w-[280px]">การจัดการด่วน (Quick Actions)</th>
+                <td colSpan={6} className="py-12 text-center text-slate-400">
+                  <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm font-semibold text-slate-600">ไม่พบบทเรียนที่ตรงกับเงื่อนไข</p>
+                  <p className="text-xs text-slate-400 mt-0.5">ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองสถานะเป็น ทั้งหมด</p>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm font-semibold text-slate-600">ไม่พบบทเรียนที่ตรงกับเงื่อนไข</p>
-                    <p className="text-xs text-slate-400 mt-0.5">ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองสถานะเป็น ทั้งหมด</p>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((l) => {
-                  const activeVer = l.versions[0];
-                  const hasDraft = l.currentDraftVersionId || l.code === 'RMUTI-003';
-                  const videoCount = activeVer?.videos?.length || 0;
-                  const resourceCount = activeVer?.resources?.length || 0;
+            ) : (
+              filtered.map((l) => {
+                const activeVer = l.versions[0];
+                const hasDraft = l.currentDraftVersionId || l.code === 'RMUTI-003';
+                const videoCount = activeVer?.videos?.length || 0;
+                const resourceCount = activeVer?.resources?.length || 0;
 
-                  return (
-                    <tr key={l.id} className="hover:bg-blue-50/30 transition">
-                      
-                      {/* Code */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-blue-700 whitespace-nowrap">
-                        {l.code}
-                      </td>
+                return (
+                  <tr key={l.id} className="hover:bg-blue-50/30 transition">
+                    
+                    {/* Code */}
+                    <td className="py-3.5 px-3.5 font-mono font-bold text-blue-700 whitespace-nowrap">
+                      {l.code}
+                    </td>
 
-                      {/* Title & Cover Thumbnail */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          {l.coverImageUrl ? (
-                            <img
-                              src={l.coverImageUrl}
-                              alt={l.title}
-                              className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 font-bold">
-                              {l.sortOrder}
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <div className="font-bold text-slate-900 truncate max-w-xs sm:max-w-sm">
-                              {l.title.startsWith('บทที่') ? l.title : `บทที่ ${l.sortOrder} ${l.title}`}
-                            </div>
-                            <div className="text-[11px] text-slate-500 truncate max-w-xs">
-                              {l.description || 'รายวิชาการเรียนรู้แบบกำกับตนเอง'}
-                            </div>
-                          </div>
+                    {/* Title only - NO preview image */}
+                    <td className="py-3.5 px-3 min-w-0">
+                      <div className="font-bold text-slate-900 text-xs sm:text-sm leading-snug">
+                        {l.title.startsWith('บทที่') ? l.title : `บทที่ ${l.sortOrder} ${l.title}`}
+                      </div>
+                      {l.description && (
+                        <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 max-w-lg">
+                          {l.description}
                         </div>
-                      </td>
-                      
-                      {/* Status */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        {l.status === 'published' ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>เผยแพร่แล้ว</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            <span>ฉบับร่าง</span>
+                      )}
+                    </td>
+                    
+                    {/* Status */}
+                    <td className="py-3.5 px-2.5 whitespace-nowrap text-center">
+                      {l.status === 'published' ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-emerald-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span>เผยแพร่แล้ว</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-amber-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          <span>ฉบับร่าง</span>
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Media Breakdown */}
+                    <td className="py-3.5 px-2.5 whitespace-nowrap text-center hidden sm:table-cell">
+                      <div className="inline-flex items-center gap-2 text-slate-600 font-medium text-[11px]">
+                        <span className="flex items-center gap-1" title="คลิปวิดีโอ">
+                          <Video className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{videoCount}</span>
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="flex items-center gap-1" title="เอกสาร/สื่อ">
+                          <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>{resourceCount}</span>
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Version Tag */}
+                    <td className="py-3.5 px-2.5 whitespace-nowrap text-center hidden lg:table-cell">
+                      <div className="inline-flex items-center gap-1">
+                        <span className="font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 text-[11px]">
+                          {activeVer ? activeVer.versionTag : 'v1.0'}
+                        </span>
+                        {hasDraft && (
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
+                            Draft
                           </span>
                         )}
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Version Tag */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 text-[11px]">
-                            {activeVer ? activeVer.versionTag : 'v1.0'}
-                          </span>
-                          {hasDraft && (
-                            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
-                              Draft
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                    {/* Quick Actions */}
+                    <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1 sm:gap-1.5">
+                        
+                        {/* Live Student View Button */}
+                        <Link
+                          href={`/lessons/${l.code}/intro`}
+                          target="_blank"
+                          className="px-2 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1"
+                          title="เปิดดูมุมมองนักศึกษา"
+                        >
+                          <Eye className="w-3 h-3 text-slate-500" />
+                          <span>ดู</span>
+                        </Link>
 
-                      {/* Media Breakdown */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-slate-600 font-medium">
-                          <span className="flex items-center gap-1" title="คลิปวิดีโอ">
-                            <Video className="w-3.5 h-3.5 text-blue-600" />
-                            <span>{videoCount}</span>
-                          </span>
-                          <span className="text-slate-300">•</span>
-                          <span className="flex items-center gap-1" title="เอกสาร/สื่อ">
-                            <FileText className="w-3.5 h-3.5 text-indigo-600" />
-                            <span>{resourceCount}</span>
-                          </span>
-                        </div>
-                      </td>
+                        {/* Edit Metadata Button */}
+                        <Link
+                          href={`/admin/lessons/${l.id}/metadata`}
+                          className="px-2 py-1 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition flex items-center gap-1 border border-blue-200/80"
+                          title="แก้ไขชื่อ คำอธิบาย ข้อมูลบทเรียน"
+                        >
+                          <Edit className="w-3 h-3 text-blue-600" />
+                          <span>ข้อมูล</span>
+                        </Link>
 
-                      {/* Learners Count */}
-                      <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
-                        {activeVer ? activeVer.learnerCount : 0} คน
-                      </td>
+                        {/* Edit Videos & Resources Button */}
+                        <Link
+                          href={`/admin/lessons/${l.id}/content`}
+                          className="px-2 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition flex items-center gap-1 border border-indigo-200/80"
+                          title="จัดการวิดีโอและสื่อประกอบ"
+                        >
+                          <Video className="w-3 h-3 text-indigo-600" />
+                          <span>สื่อ</span>
+                        </Link>
 
-                      {/* Last Updated */}
-                      <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
-                        {new Date(l.updatedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </td>
+                        {/* Quizzes Button */}
+                        <Link
+                          href={`/admin/quizzes/${l.code}`}
+                          className="px-2 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition flex items-center gap-1 border border-emerald-200/80"
+                          title="จัดการแบบทดสอบ Pre/Post Test"
+                        >
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>ข้อสอบ</span>
+                        </Link>
 
-                      {/* Quick Actions Set */}
-                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1.5">
-                          
-                          {/* Live Student View Button */}
-                          <Link
-                            href={`/lessons/${l.code}/intro`}
-                            target="_blank"
-                            className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1"
-                            title="เปิดดูมุมมองนักศึกษา"
-                          >
-                            <Eye className="w-3 h-3 text-slate-500" />
-                            <span>ดูหน้าเรียน</span>
-                          </Link>
-
-                          {/* Edit Metadata Button */}
-                          <Link
-                            href={`/admin/lessons/${l.id}/metadata`}
-                            className="px-2.5 py-1 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition flex items-center gap-1 border border-blue-200/80"
-                            title="แก้ไขชื่อ คำอธิบาย ข้อมูลบทเรียน"
-                          >
-                            <Edit className="w-3 h-3 text-blue-600" />
-                            <span>ข้อมูลวิชา</span>
-                          </Link>
-
-                          {/* Edit Videos & Resources Button */}
-                          <Link
-                            href={`/admin/lessons/${l.id}/content`}
-                            className="px-2.5 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition flex items-center gap-1 border border-indigo-200/80"
-                            title="จัดการวิดีโอและสื่อประกอบ"
-                          >
-                            <Video className="w-3 h-3 text-indigo-600" />
-                            <span>สื่อ/วิดีโอ</span>
-                          </Link>
-
-                          {/* Quizzes Button */}
-                          <Link
-                            href={`/admin/quizzes/${l.code}`}
-                            className="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition flex items-center gap-1 border border-emerald-200/80"
-                            title="จัดการแบบทดสอบ Pre/Post Test"
-                          >
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>ข้อสอบ</span>
-                          </Link>
-
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
 
     </div>
