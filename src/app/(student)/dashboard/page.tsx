@@ -648,53 +648,53 @@ export default function StudentDashboardPage() {
                         <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
                           <Link
                             href={`/lessons/${lesson.code}/intro?mode=review`}
-                            className="py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-emerald-200 transition active:scale-95"
+                            className="py-2.5 px-2 sm:px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-emerald-200 transition shadow-2xs active:scale-95 whitespace-nowrap"
                           >
-                            <BookOpen className="w-4 h-4" />
-                            ทบทวน
+                            <BookOpen className="w-4 h-4 shrink-0 text-emerald-600" />
+                            <span>ทบทวน</span>
                           </Link>
                           <Link
                             href={`/lessons/${lesson.code}/result`}
-                            className="py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
+                            className="py-2.5 px-2 sm:px-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border border-blue-200 transition shadow-2xs active:scale-95 whitespace-nowrap"
                           >
-                            <Award className="w-4 h-4 text-blue-600" />
-                            ดูผลคะแนน
+                            <Award className="w-4 h-4 shrink-0 text-blue-600" />
+                            <span>ดูผล</span>
                           </Link>
                         </div>
                       ) : isInProgress ? (
                         <Link
                           href={`/lessons/${lesson.code}/learn`}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95"
+                          className="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap"
                         >
-                          <Play className="w-4 h-4 fill-white" />
-                          เรียนต่อ
+                          <Play className="w-4 h-4 fill-white shrink-0" />
+                          <span>เรียนต่อ</span>
                         </Link>
                       ) : isReadyForPostTest ? (
                         <Link
                           href={`/lessons/${lesson.code}/post-test`}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-full py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95"
+                          className="w-full py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition shadow-xs active:scale-95 whitespace-nowrap"
                         >
-                          <FileText className="w-4 h-4" />
-                          ทำแบบทดสอบหลังเรียน
+                          <FileText className="w-4 h-4 shrink-0" />
+                          <span>ทำแบบทดสอบหลังเรียน</span>
                         </Link>
                       ) : isLocked ? (
                         <button
                           disabled
-                          className="w-full py-2.5 px-4 rounded-2xl bg-slate-100 text-slate-400 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+                          className="w-full py-2.5 px-4 rounded-2xl bg-slate-100 text-slate-400 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed whitespace-nowrap"
                         >
-                          <Lock className="w-4 h-4" />
-                          ยังไม่เปิดเรียน
+                          <Lock className="w-4 h-4 shrink-0" />
+                          <span>ยังไม่เปิดเรียน</span>
                         </button>
                       ) : (
                         <Link
                           href={`/lessons/${lesson.code}/intro`}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-full py-2.5 px-4 rounded-2xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition active:scale-95"
+                          className="w-full py-2.5 px-4 rounded-2xl border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition active:scale-95 whitespace-nowrap"
                         >
-                          <Play className="w-4 h-4 fill-blue-600" />
-                          เริ่มเรียน
+                          <Play className="w-4 h-4 fill-blue-600 shrink-0" />
+                          <span>เริ่มเรียน</span>
                         </Link>
                       )}
                     </div>
