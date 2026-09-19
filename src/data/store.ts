@@ -251,21 +251,21 @@ export function useAppStore() {
         const cloudRules = results[1].status === 'fulfilled' ? results[1].value : null;
         const cloudAnnouncements = results[2].status === 'fulfilled' ? results[2].value : null;
 
-        if (cloudUsers && cloudUsers.length > 0) {
+        if (cloudUsers !== null && Array.isArray(cloudUsers)) {
           setUsersList(cloudUsers);
           try {
             localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(cloudUsers));
           } catch (e) {}
         }
 
-        if (cloudRules && cloudRules.length > 0) {
+        if (cloudRules !== null && Array.isArray(cloudRules)) {
           setAccessRules(cloudRules);
           try {
             localStorage.setItem(STORAGE_KEYS.ACCESS_RULES, JSON.stringify(cloudRules));
           } catch (e) {}
         }
 
-        if (cloudAnnouncements && cloudAnnouncements.length > 0) {
+        if (cloudAnnouncements !== null && Array.isArray(cloudAnnouncements)) {
           setAnnouncements(cloudAnnouncements);
           try {
             localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(cloudAnnouncements));
@@ -293,19 +293,19 @@ export function useAppStore() {
         dbFetchAnnouncements(),
       ]);
 
-      if (cloudUsers && cloudUsers.length > 0) {
+      if (cloudUsers !== null && Array.isArray(cloudUsers)) {
         setUsersList(cloudUsers);
         try {
           localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(cloudUsers));
         } catch (e) {}
       }
-      if (cloudRules && cloudRules.length > 0) {
+      if (cloudRules !== null && Array.isArray(cloudRules)) {
         setAccessRules(cloudRules);
         try {
           localStorage.setItem(STORAGE_KEYS.ACCESS_RULES, JSON.stringify(cloudRules));
         } catch (e) {}
       }
-      if (cloudAnnouncements && cloudAnnouncements.length > 0) {
+      if (cloudAnnouncements !== null && Array.isArray(cloudAnnouncements)) {
         setAnnouncements(cloudAnnouncements);
         try {
           localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(cloudAnnouncements));
