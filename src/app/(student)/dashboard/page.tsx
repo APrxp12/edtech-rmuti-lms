@@ -162,7 +162,7 @@ export default function StudentDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         
         {/* Card 1: Greeting Hero with Real-Time Flair */}
-        <div className="lg:col-span-5 bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 rounded-3xl p-6 sm:p-7 text-white relative overflow-hidden shadow-lg flex flex-col justify-between border border-blue-600/30">
+        <div className="lg:col-span-4 bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 rounded-3xl p-5 sm:p-6 text-white relative overflow-hidden shadow-lg flex flex-col justify-between border border-blue-600/30">
           <div className="relative z-10 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-blue-50 flex items-center gap-1.5 border border-white/10 shadow-xs">
@@ -175,12 +175,12 @@ export default function StudentDashboardPage() {
             </div>
 
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black leading-tight tracking-tight">
                 สวัสดีคุณ <span className="text-amber-300">
                   {(currentUser.displayName || currentUser.fullName || 'นักศึกษา').replace(/^(นาย|นางสาว|นาง)\s*/i, '').trim() || 'นักศึกษา'}
                 </span>
               </h1>
-              <p className="text-sm text-blue-100/90 mt-1 font-medium">
+              <p className="text-xs sm:text-sm text-blue-100/90 mt-1 font-medium leading-relaxed">
                 ยินดีต้อนรับสู่ระบบการเรียนรู้วิชานวัตกรรมและเทคโนโลยีดิจิทัลเพื่อการจัดการเรียนรู้
               </p>
             </div>
@@ -188,10 +188,10 @@ export default function StudentDashboardPage() {
 
           {/* Quick Resume Button */}
           {stats.activeLesson && (
-            <div className="relative z-10 pt-6 mt-4 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="relative z-10 pt-5 mt-4 border-t border-white/15 flex flex-col sm:flex-row lg:flex-col xl:flex-row lg:items-start xl:items-center justify-between gap-3">
               <div className="min-w-0">
-                <span className="text-xs text-blue-200 font-semibold block">บทเรียนถัดไปสำหรับคุณ:</span>
-                <p className="text-sm font-bold text-white truncate max-w-xs">
+                <span className="text-[11px] text-blue-200 font-semibold block">บทเรียนถัดไปสำหรับคุณ:</span>
+                <p className="text-xs sm:text-sm font-bold text-white truncate max-w-xs">
                   {stats.activeLesson.title.startsWith('บทที่')
                     ? stats.activeLesson.title
                     : `บทที่ ${stats.activeLesson.sortOrder} ${stats.activeLesson.title}`}
@@ -199,10 +199,10 @@ export default function StudentDashboardPage() {
               </div>
               <Link
                 href={`/lessons/${stats.activeLesson.code}/intro`}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-blue-900 hover:bg-amber-300 hover:text-slate-900 text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition active:scale-95 shrink-0"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white text-blue-900 hover:bg-amber-300 hover:text-slate-900 text-xs font-bold shadow-md hover:shadow-lg transition active:scale-95 shrink-0 whitespace-nowrap w-full sm:w-auto lg:w-full xl:w-auto"
               >
                 <span>เข้าสู่บทเรียน</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
@@ -213,7 +213,7 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Card 2: Overall Progress Card (Elevated & Live Calc) */}
-        <div className="lg:col-span-4 bg-gradient-to-br from-emerald-50/70 via-white to-white rounded-3xl p-6 sm:p-7 border border-emerald-100 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-gradient-to-br from-emerald-50/70 via-white to-white rounded-3xl p-5 sm:p-6 border border-emerald-100 shadow-sm hover:shadow-md transition flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
@@ -284,62 +284,79 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
-        {/* Card 3: Quick Stats Counters (Elevated with colorful chips) */}
-        <div className="lg:col-span-3 bg-gradient-to-br from-indigo-50/60 via-white to-white rounded-3xl p-6 sm:p-7 border border-indigo-100 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-              <CheckCircle2 className="w-4 h-4" />
+        {/* Card 3: Quick Stats Counters (Elevated & Perfectly Aligned) */}
+        <div className="lg:col-span-4 bg-gradient-to-br from-indigo-50/50 via-white to-white rounded-3xl p-5 sm:p-6 border border-indigo-100/80 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-indigo-100/80 text-indigo-700 flex items-center justify-center font-bold shadow-2xs">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-none">สรุปกิจกรรมของฉัน</h3>
+                <span className="text-xs text-slate-400 mt-1 block">สถิติการเรียนรู้สะสม</span>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-800">สรุปกิจกรรมของฉัน</h3>
-              <span className="text-xs text-slate-500">สถิติการเรียนรู้</span>
-            </div>
+            <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+              สถิติล่าสุด
+            </span>
           </div>
           
-          <div className="space-y-3.5 my-auto py-1">
-            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white border border-slate-100 shadow-2xs">
-              <span className="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+          <div className="space-y-2.5 my-3">
+            {/* 1. วิดีโอที่รับชมแล้ว */}
+            <div className="flex items-center justify-between p-2.5 sm:px-3 rounded-2xl bg-white hover:bg-slate-50/80 border border-slate-100 shadow-2xs hover:shadow-xs transition group">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
                   <Play className="w-3.5 h-3.5 fill-blue-600" />
                 </div>
-                วิดีโอที่รับชมแล้ว
-              </span>
-              <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
-                {stats.completed * 2} / {stats.totalVideos}
-              </span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-700 whitespace-nowrap">
+                  วิดีโอที่รับชมแล้ว
+                </span>
+              </div>
+              <div className="flex items-baseline gap-0.5 font-mono shrink-0 ml-2 bg-blue-50/80 px-2.5 py-1 rounded-xl border border-blue-100/80 whitespace-nowrap shadow-2xs">
+                <span className="text-xs sm:text-sm font-black text-blue-700">{stats.completed * 2}</span>
+                <span className="text-[11px] font-bold text-blue-400">/{stats.totalVideos}</span>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white border border-slate-100 shadow-2xs">
-              <span className="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+            {/* 2. แบบทดสอบที่ทำแล้ว */}
+            <div className="flex items-center justify-between p-2.5 sm:px-3 rounded-2xl bg-white hover:bg-slate-50/80 border border-slate-100 shadow-2xs hover:shadow-xs transition group">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                  <CheckCircle2 className="w-4 h-4" />
                 </div>
-                แบบทดสอบที่ทำแล้ว
-              </span>
-              <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
-                {stats.completed * 2} / {stats.total * 2}
-              </span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-700 whitespace-nowrap">
+                  แบบทดสอบที่ทำแล้ว
+                </span>
+              </div>
+              <div className="flex items-baseline gap-0.5 font-mono shrink-0 ml-2 bg-emerald-50/80 px-2.5 py-1 rounded-xl border border-emerald-100/80 whitespace-nowrap shadow-2xs">
+                <span className="text-xs sm:text-sm font-black text-emerald-700">{stats.completed * 2}</span>
+                <span className="text-[11px] font-bold text-emerald-400">/{stats.total * 2}</span>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white border border-slate-100 shadow-2xs">
-              <span className="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
-                <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                  <Award className="w-3.5 h-3.5 text-amber-600" />
+            {/* 3. บทเรียนที่ผ่านเกณฑ์ */}
+            <div className="flex items-center justify-between p-2.5 sm:px-3 rounded-2xl bg-white hover:bg-slate-50/80 border border-slate-100 shadow-2xs hover:shadow-xs transition group">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                  <Award className="w-4 h-4 text-amber-600" />
                 </div>
-                บทเรียนที่ผ่านเกณฑ์
-              </span>
-              <span className="text-xs sm:text-sm font-black text-emerald-600 font-mono">
-                {stats.completed} / {stats.total}
-              </span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-700 whitespace-nowrap">
+                  บทเรียนที่ผ่านเกณฑ์
+                </span>
+              </div>
+              <div className="flex items-baseline gap-0.5 font-mono shrink-0 ml-2 bg-amber-50/80 px-2.5 py-1 rounded-xl border border-amber-100/80 whitespace-nowrap shadow-2xs">
+                <span className="text-xs sm:text-sm font-black text-amber-700">{stats.completed}</span>
+                <span className="text-[11px] font-bold text-amber-400">/{stats.total}</span>
+              </div>
             </div>
           </div>
 
           <Link
             href="/my-progress"
-            className="mt-2 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1 transition pt-2 border-t border-slate-100"
+            className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1.5 transition pt-3 border-t border-slate-100 group"
           >
             <span>ดูตารางความก้าวหน้าละเอียด</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition" />
           </Link>
         </div>
 
