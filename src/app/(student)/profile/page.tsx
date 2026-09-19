@@ -344,18 +344,7 @@ export default function StudentProfilePage() {
 
             <div className="p-6 divide-y divide-slate-100 text-xs sm:text-sm">
               
-              {/* รหัสวิชา */}
-              <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <span className="text-slate-500 font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-indigo-600 shrink-0" />
-                  รหัสวิชา
-                </span>
-                <span className="font-mono font-bold text-indigo-900 text-right text-sm sm:text-base">
-                  30-401-001-204
-                </span>
-              </div>
-
-              {/* รายวิชาที่ลงทะเบียน */}
+              {/* 1. รายวิชาที่ลงทะเบียน */}
               <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="text-slate-500 font-medium flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-blue-600 shrink-0" />
@@ -366,18 +355,29 @@ export default function StudentProfilePage() {
                 </span>
               </div>
 
-              {/* อาจารย์ผู้สอน */}
+              {/* 2. รหัสวิชา */}
+              <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <span className="text-slate-500 font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-indigo-600 shrink-0" />
+                  รหัสวิชา
+                </span>
+                <span className="font-mono font-bold text-indigo-900 text-right text-sm sm:text-base">
+                  30-401-001-204
+                </span>
+              </div>
+
+              {/* 3. อาจารย์ผู้สอนประจำวิชา */}
               <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="text-slate-500 font-medium flex items-center gap-2">
                   <User className="w-4 h-4 text-slate-400 shrink-0" />
                   อาจารย์ผู้สอนประจำวิชา
                 </span>
                 <span className="font-bold text-slate-800 text-right">
-                  อาจารย์ประจำสาขาวิชาเทคโนโลยีการศึกษา
+                  ผศ.ดร.เฉลิมพล บุญทศ
                 </span>
               </div>
 
-              {/* ภาคการศึกษา / ปีการศึกษา */}
+              {/* 4. ภาคการศึกษา / ปีการศึกษา */}
               <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="text-slate-500 font-medium flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
@@ -388,7 +388,7 @@ export default function StudentProfilePage() {
                 </span>
               </div>
 
-              {/* คณะ / สาขาวิชา */}
+              {/* 5. หลักสูตรการศึกษา */}
               <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="text-slate-500 font-medium flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-slate-400 shrink-0" />
@@ -399,7 +399,7 @@ export default function StudentProfilePage() {
                 </span>
               </div>
 
-              {/* สถานะความก้าวหน้าโดยรวม */}
+              {/* 6. สถานะความก้าวหน้าโดยรวม */}
               <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="text-slate-500 font-medium flex items-center gap-2">
                   <FileCheck className="w-4 h-4 text-emerald-600 shrink-0" />
