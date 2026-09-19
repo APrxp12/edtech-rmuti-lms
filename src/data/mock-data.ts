@@ -11,7 +11,7 @@ export const developerUser: UserProfile = {
   isProfileCompleted: true,
   firstLoginAt: '2026-09-19T08:00:00Z',
   lastLoginAt: '2026-09-19T08:00:00Z',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+  avatarUrl: '',
 };
 
 export const initialCurrentUser: UserProfile = developerUser;

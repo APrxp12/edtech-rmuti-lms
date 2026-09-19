@@ -53,10 +53,26 @@ export function useAppStore() {
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
-      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+      if (savedUser) {
+        const parsedUser: UserProfile = JSON.parse(savedUser);
+        if (parsedUser.avatarUrl && parsedUser.avatarUrl.includes('images.unsplash.com') && parsedUser.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
+          parsedUser.avatarUrl = '';
+          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+        }
+        setCurrentUser(parsedUser);
+      }
 
       const savedUsersList = localStorage.getItem(STORAGE_KEYS.USERS_LIST);
-      if (savedUsersList) setUsersList(JSON.parse(savedUsersList));
+      if (savedUsersList) {
+        const parsedList: UserProfile[] = JSON.parse(savedUsersList);
+        const cleanedList = parsedList.map((u) => {
+          if (u.avatarUrl && u.avatarUrl.includes('images.unsplash.com') && u.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
+            return { ...u, avatarUrl: '' };
+          }
+          return u;
+        });
+        setUsersList(cleanedList);
+      }
 
       const savedLessons = localStorage.getItem(STORAGE_KEYS.LESSONS);
       if (savedLessons) setLessons(JSON.parse(savedLessons));
@@ -249,18 +265,26 @@ export function useAppStore() {
     // สกัดรหัสนักศึกษาถ้ามี
     const extractedStudentId = params.studentId || (role === 'admin' ? '-' : (/^\d+$/.test(cleanEmail.split('@')[0]) ? cleanEmail.split('@')[0] : '65123456789'));
 
+    // ค้นหาผู้ใช้เดิมใน usersList ถ้ามี
+    const existingUser = usersList.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    // กำหนดรูปโปรไฟล์: ใช้รูปจริงจาก Google (params.avatarUrl) เป็นอันดับแรกสุดเสมอ
+    const resolvedAvatar = params.avatarUrl
+      ? params.avatarUrl
+      : (existingUser?.avatarUrl && !existingUser.avatarUrl.includes('images.unsplash.com') ? existingUser.avatarUrl : '');
+
     const newUser: UserProfile = {
-      id: `usr-${Date.now()}`,
+      id: existingUser ? existingUser.id : `usr-${Date.now()}`,
       email: cleanEmail,
       fullName: name,
-      displayName: params.displayName || name,
-      studentId: extractedStudentId,
+      displayName: params.displayName || (existingUser?.displayName || name),
+      studentId: existingUser?.studentId && existingUser.studentId !== '-' ? existingUser.studentId : extractedStudentId,
       role,
       status: 'active',
       isProfileCompleted: true,
-      firstLoginAt: new Date().toISOString(),
+      firstLoginAt: existingUser ? existingUser.firstLoginAt : new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
-      avatarUrl: params.avatarUrl || (role === 'admin' ? initialAdminUser.avatarUrl : initialCurrentUser.avatarUrl),
+      avatarUrl: resolvedAvatar,
     };
 
     setCurrentUser(newUser);
@@ -269,6 +293,20 @@ export function useAppStore() {
     } catch (e) {
       console.error('Error saving user to localStorage:', e);
     }
+
+    // ซิงค์เข้า usersList ทันที เพื่อให้ /admin/users แสดงรูปโปรไฟล์ Google จริง
+    setUsersList((prevList) => {
+      const exists = prevList.some((u) => u.email.toLowerCase() === cleanEmail);
+      const updated = exists
+        ? prevList.map((u) => (u.email.toLowerCase() === cleanEmail ? { ...u, ...newUser } : u))
+        : [newUser, ...prevList];
+      try {
+        localStorage.setItem(STORAGE_KEYS.USERS_LIST, JSON.stringify(updated));
+      } catch (e) {
+        console.error('Error saving usersList to localStorage:', e);
+      }
+      return updated;
+    });
 
     return { success: true, role, user: newUser };
   };

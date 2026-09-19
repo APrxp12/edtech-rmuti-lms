@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { UserProfile, UserRole, UserStatus } from '@/types';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 
 export default function AdminUsersPage() {
   const { usersList, setUsersList } = useAppStore();
@@ -155,7 +156,7 @@ export default function AdminUsersPage() {
         isProfileCompleted: true,
         firstLoginAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
-        avatarUrl: `https://images.unsplash.com/photo-${1534528741775 + (users.length % 5)}?auto=format&fit=crop&q=80&w=200`,
+        avatarUrl: '',
       };
       saveAndSyncUsers([newUser, ...users], `เพิ่มผู้ใช้งานใหม่ "${newUser.fullName}" สำเร็จเรียบร้อย`);
     }
@@ -454,10 +455,14 @@ export default function AdminUsersPage() {
                   {/* User Profile Info */}
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
-                        alt={user.fullName}
-                        className="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                      <UserAvatar
+                        src={user.avatarUrl}
+                        name={user.fullName || user.displayName}
+                        email={user.email}
+                        size="sm"
+                        rounded="rounded-xl"
+                        showGoogleBadge={true}
+                        className="w-9 h-9 border border-slate-200 shadow-2xs shrink-0"
                       />
                       <div className="min-w-0 space-y-0.5">
                         <p className="font-bold text-slate-900 leading-snug truncate max-w-[180px] sm:max-w-xs" title={user.fullName}>

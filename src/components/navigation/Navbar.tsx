@@ -7,6 +7,7 @@ import { useAppStore } from '@/data/store';
 import { 
   Bell, BookOpen, User, LogOut, Shield, GraduationCap, ChevronDown, CheckCircle2, Megaphone, HelpCircle
 } from 'lucide-react';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 
 export default function Navbar() {
   const router = useRouter();
@@ -23,45 +24,69 @@ export default function Navbar() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           
-          {/* Logo & University Title */}
+          {/* Logo & Course Badge */}
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-3 group transition">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition">
-                <BookOpen className="w-6 h-6 text-amber-400" />
+            <Link href={currentUser.role === 'admin' ? '/admin/lessons' : '/dashboard'} className="flex items-center gap-3 group">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition">
+                <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
               </div>
-              <div className="hidden sm:block">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-slate-900 text-sm sm:text-base leading-tight">
+                    ระบบการสอนออนไลน์
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                    EDTech
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-blue-900 tracking-tight group-hover:text-blue-700 transition">EDTech</span>
-                </div>
-              </div>
-              <div className="sm:hidden flex flex-col">
-                <span className="text-lg font-black text-blue-900">EDTech</span>
-                <span className="text-[10px] text-slate-500">มทร.อีสาน ขอนแก่น</span>
+                <span className="text-xs text-slate-500 leading-tight">
+                  มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
+                </span>
               </div>
             </Link>
+
+            {/* Quick Mode Switcher Indicator for Admin */}
+            {currentUser.role === 'admin' && (
+              <div className="hidden lg:flex items-center ml-4 pl-4 border-l border-slate-200">
+                <Link
+                  href="/admin/lessons"
+                  className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-900 border border-amber-500/20 flex items-center gap-1.5 hover:bg-amber-500/20 transition"
+                >
+                  <Shield className="w-3.5 h-3.5 text-amber-600" />
+                  <span>โหมดผู้ดูแลระบบ (Admin)</span>
+                </Link>
+              </div>
+            )}
           </div>
 
-          {/* Actions & Profile */}
+          {/* Right Header Navigation Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* If Admin, show official button to toggle to Admin Panel */}
-            {currentUser.role === 'admin' && (
-              <Link
-                href="/admin/lessons"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 transition shadow-xs"
-              >
-                <Shield className="w-3.5 h-3.5 text-amber-600" />
-                <span>แผงผู้ดูแลระบบ (Admin)</span>
-              </Link>
-            )}
+            
+            {/* Quick Link to Announcements (Dedicated Page) */}
+            <Link
+              href="/announcements"
+              className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition border border-transparent hover:border-slate-200 flex items-center gap-1.5 text-xs font-medium"
+              title="ดูประกาศและข่าวสารทั้งหมด"
+            >
+              <Megaphone className="w-4 h-4 text-blue-600" />
+              <span className="hidden md:inline">ข่าวประกาศ</span>
+            </Link>
 
-            {/* Notification Bell */}
+            {/* Quick Link to FAQ (Dedicated Page) */}
+            <Link
+              href="/faq"
+              className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition border border-transparent hover:border-slate-200 flex items-center gap-1.5 text-xs font-medium"
+              title="คำถามที่พบบ่อย (FAQ)"
+            >
+              <HelpCircle className="w-4 h-4 text-emerald-600" />
+              <span className="hidden md:inline">คำถามที่พบบ่อย</span>
+            </Link>
+
+            {/* Notifications Alert Bell */}
             <div className="relative">
               <Link
                 href="/announcements"
-                className="p-2 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition relative block"
+                className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition relative block border border-transparent hover:border-slate-200"
                 title="ข่าวประกาศและแจ้งเตือน"
               >
                 <Bell className="w-5 h-5" />
@@ -73,15 +98,17 @@ export default function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-full sm:rounded-xl hover:bg-slate-50 transition border border-transparent sm:border-slate-200"
+                className="flex items-center gap-2 p-1.5 rounded-full sm:rounded-xl hover:bg-slate-50 transition border border-transparent sm:border-slate-200 cursor-pointer"
               >
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-800 font-bold border border-blue-200 overflow-hidden">
-                  {currentUser.avatarUrl ? (
-                    <img src={currentUser.avatarUrl} alt={currentUser.displayName} className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-4 h-4" />
-                  )}
-                </div>
+                <UserAvatar
+                  src={currentUser.avatarUrl}
+                  name={currentUser.fullName || currentUser.displayName}
+                  email={currentUser.email}
+                  size="sm"
+                  rounded="rounded-full sm:rounded-xl"
+                  showGoogleBadge={true}
+                  className="w-8 h-8 sm:w-9 sm:h-9 border border-blue-200 shrink-0"
+                />
                 <div className="hidden sm:flex flex-col text-left">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-bold text-slate-800">{currentUser.fullName || currentUser.displayName}</span>
@@ -100,15 +127,26 @@ export default function Navbar() {
 
               {/* Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-slate-100 sm:hidden">
-                    <p className="text-xs font-bold text-slate-800">{currentUser.fullName}</p>
-                    <p className="text-[11px] text-slate-500">{currentUser.email}</p>
-                    <span className={`inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      currentUser.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {currentUser.role === 'admin' ? 'ผู้ดูแลระบบ' : 'นักศึกษา'}
-                    </span>
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
+                  <div className="px-4 py-2.5 border-b border-slate-100 flex items-center gap-2.5">
+                    <UserAvatar
+                      src={currentUser.avatarUrl}
+                      name={currentUser.fullName || currentUser.displayName}
+                      email={currentUser.email}
+                      size="sm"
+                      rounded="rounded-xl"
+                      showGoogleBadge={true}
+                      className="w-9 h-9 border border-slate-200 shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-slate-800 truncate">{currentUser.fullName || currentUser.displayName}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{currentUser.email}</p>
+                      <span className={`inline-block mt-0.5 text-[9px] font-semibold px-2 py-0.5 rounded-full ${
+                        currentUser.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {currentUser.role === 'admin' ? 'ผู้ดูแลระบบ' : 'นักศึกษา'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="px-2 py-1">
