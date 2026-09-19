@@ -8,11 +8,13 @@ import {
   CheckCircle2, AlertTriangle, ExternalLink, Image as ImageIcon,
   FileCode, Layers, Sparkles, Video, ArrowUp, ArrowDown, Eye,
   Building2, User, Clock, Check, X, Film, Info, HelpCircle,
-  FolderOpen, Shield, ChevronRight, Copy, ArrowLeftRight, ArrowRight
+  FolderOpen, Shield, ChevronRight, Copy, ArrowLeftRight, ArrowRight,
+  RefreshCw
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { LessonVideo, LessonResource } from '@/types';
 import { FileUploadBox } from '@/components/shared/FileUploadBox';
+import { dbUpsertLesson } from '@/lib/dbService';
 
 // Helper to extract clean 11-char YouTube ID from various URL formats
 function extractYouTubeId(urlOrId: string): string {
@@ -30,7 +32,7 @@ export default function LessonContentEditorPage() {
   const router = useRouter();
   const params = useParams();
   const lessonId = params.id as string;
-  const { lessons, setLessons } = useAppStore();
+  const { lessons, setLessons, isSupabaseLive } = useAppStore();
 
   // Course Information Constants matching the official syllabus
   const courseInfo = {
@@ -167,32 +169,44 @@ export default function LessonContentEditorPage() {
   };
 
   // Save All Changes
-  const handleSaveAll = () => {
-    const updatedLessons = lessons.map((l) => {
-      if (l.id === lesson.id) {
-        return {
-          ...l,
-          updatedAt: new Date().toISOString(),
-          versions: l.versions.map((ver, idx) => {
-            if (idx === 0) {
-              return {
-                ...ver,
-                videos: videos,
-                resources: resources,
-                updatedAt: new Date().toISOString(),
-              };
-            }
-            return ver;
-          }),
-        };
-      }
-      return l;
-    });
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveAll = async () => {
+    setIsSaving(true);
+    const updatedTargetLesson = {
+      ...lesson,
+      updatedAt: new Date().toISOString(),
+      versions: lesson.versions.map((ver, idx) => {
+        if (idx === 0) {
+          return {
+            ...ver,
+            videos: videos,
+            resources: resources,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return ver;
+      }),
+    };
+
+    const updatedLessons = lessons.map((l) => (l.id === lesson.id ? updatedTargetLesson : l));
 
     setLessons(updatedLessons);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('edtech_lessons', JSON.stringify(updatedLessons));
+      try {
+        localStorage.setItem('edtech_lessons', JSON.stringify(updatedLessons));
+      } catch (e) {}
     }
+
+    if (isSupabaseLive) {
+      try {
+        await dbUpsertLesson(updatedTargetLesson);
+      } catch (e) {
+        console.warn('[Supabase] Failed to upsert lesson:', e);
+      }
+    }
+
+    setIsSaving(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3500);
   };
@@ -242,6 +256,19 @@ export default function LessonContentEditorPage() {
 
         {/* Global Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
           <Link
             href={`/lessons/${lesson.code}/learn`}
             target="_blank"
@@ -254,11 +281,16 @@ export default function LessonContentEditorPage() {
           </Link>
 
           <button
+            disabled={isSaving}
             onClick={handleSaveAll}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
           >
-            <Save className="w-4 h-4" />
-            <span>บันทึกข้อมูลทั้งหมด</span>
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกข้อมูลทั้งหมด'}</span>
           </button>
         </div>
       </div>

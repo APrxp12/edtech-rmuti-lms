@@ -36,6 +36,12 @@ import {
   dbUpsertSystemSettings,
   dbFetchUserProgress,
   dbUpsertUserProgress,
+  dbFetchLessons,
+  dbUpsertLesson,
+  dbSaveAllLessons,
+  dbFetchQuizzes,
+  dbUpsertQuiz,
+  dbSaveAllQuizzes,
 } from '../lib/dbService';
 
 const STORAGE_KEYS = {
@@ -248,6 +254,8 @@ export function useAppStore() {
           dbFetchAccessRules(),
           dbFetchAnnouncements(),
           dbFetchSystemSettings(),
+          dbFetchLessons(),
+          dbFetchQuizzes(),
         ]);
 
         if (!isMounted) return;
@@ -256,6 +264,8 @@ export function useAppStore() {
         const cloudRules = results[1].status === 'fulfilled' ? results[1].value : null;
         const cloudAnnouncements = results[2].status === 'fulfilled' ? results[2].value : null;
         const cloudSettings = results[3].status === 'fulfilled' ? results[3].value : null;
+        const cloudLessons = results[4].status === 'fulfilled' ? results[4].value : null;
+        const cloudQuizzes = results[5].status === 'fulfilled' ? results[5].value : null;
 
         if (cloudUsers !== null && Array.isArray(cloudUsers)) {
           setUsersList(cloudUsers);
@@ -284,6 +294,20 @@ export function useAppStore() {
             localStorage.setItem(STORAGE_KEYS.SYSTEM_SETTINGS, JSON.stringify(cloudSettings));
           } catch (e) {}
         }
+
+        if (cloudLessons !== null && Array.isArray(cloudLessons) && cloudLessons.length > 0) {
+          setLessons(cloudLessons);
+          try {
+            localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(cloudLessons));
+          } catch (e) {}
+        }
+
+        if (cloudQuizzes !== null && Array.isArray(cloudQuizzes) && cloudQuizzes.length > 0) {
+          setQuizzes(cloudQuizzes);
+          try {
+            localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(cloudQuizzes));
+          } catch (e) {}
+        }
       } catch (err) {
         console.warn('[Supabase Sync Error]:', err);
       }
@@ -300,11 +324,13 @@ export function useAppStore() {
   const refreshFromCloud = async (): Promise<boolean> => {
     if (!isSupabaseConfigured()) return false;
     try {
-      const [cloudUsers, cloudRules, cloudAnnouncements, cloudSettings] = await Promise.all([
+      const [cloudUsers, cloudRules, cloudAnnouncements, cloudSettings, cloudLessons, cloudQuizzes] = await Promise.all([
         dbFetchUsers(),
         dbFetchAccessRules(),
         dbFetchAnnouncements(),
         dbFetchSystemSettings(),
+        dbFetchLessons(),
+        dbFetchQuizzes(),
       ]);
 
       if (cloudUsers !== null && Array.isArray(cloudUsers)) {
@@ -329,6 +355,18 @@ export function useAppStore() {
         setSettings(cloudSettings);
         try {
           localStorage.setItem(STORAGE_KEYS.SYSTEM_SETTINGS, JSON.stringify(cloudSettings));
+        } catch (e) {}
+      }
+      if (cloudLessons !== null && Array.isArray(cloudLessons) && cloudLessons.length > 0) {
+        setLessons(cloudLessons);
+        try {
+          localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(cloudLessons));
+        } catch (e) {}
+      }
+      if (cloudQuizzes !== null && Array.isArray(cloudQuizzes) && cloudQuizzes.length > 0) {
+        setQuizzes(cloudQuizzes);
+        try {
+          localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(cloudQuizzes));
         } catch (e) {}
       }
       return true;
@@ -638,6 +676,63 @@ export function useAppStore() {
     });
   };
 
+  // ฟังก์ชันบันทึกบทเรียนเดี่ยวและซิงก์ Cloud
+  const saveLesson = (lesson: Lesson) => {
+    setLessons((prev) => {
+      const next = prev.map((l) => (l.id === lesson.id ? lesson : l));
+      try {
+        localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(next));
+      } catch (e) {}
+      if (isSupabaseConfigured()) {
+        dbUpsertLesson(lesson).catch((err) => {
+          console.warn('[Supabase] Failed to save lesson:', err);
+        });
+      }
+      return next;
+    });
+  };
+
+  // ฟังก์ชันบันทึกบทเรียนทั้งหมดและซิงก์ Cloud
+  const saveAllLessons = async (allLessons: Lesson[]): Promise<boolean> => {
+    setLessons(allLessons);
+    try {
+      localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(allLessons));
+    } catch (e) {}
+    if (isSupabaseConfigured()) {
+      return await dbSaveAllLessons(allLessons);
+    }
+    return true;
+  };
+
+  // ฟังก์ชันบันทึกแบบทดสอบเดี่ยวและซิงก์ Cloud
+  const saveQuiz = (quiz: Quiz) => {
+    setQuizzes((prev) => {
+      const idx = prev.findIndex((q) => q.id === quiz.id);
+      const next = idx >= 0 ? prev.map((q) => (q.id === quiz.id ? quiz : q)) : [...prev, quiz];
+      try {
+        localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(next));
+      } catch (e) {}
+      if (isSupabaseConfigured()) {
+        dbUpsertQuiz(quiz).catch((err) => {
+          console.warn('[Supabase] Failed to save quiz:', err);
+        });
+      }
+      return next;
+    });
+  };
+
+  // ฟังก์ชันบันทึกแบบทดสอบทั้งหมดและซิงก์ Cloud
+  const saveAllQuizzes = async (allQuizzes: Quiz[]): Promise<boolean> => {
+    setQuizzes(allQuizzes);
+    try {
+      localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(allQuizzes));
+    } catch (e) {}
+    if (isSupabaseConfigured()) {
+      return await dbSaveAllQuizzes(allQuizzes);
+    }
+    return true;
+  };
+
   return {
     isLoaded,
     currentUser,
@@ -664,5 +759,10 @@ export function useAppStore() {
     isSupabaseLive: isSupabaseConfigured(),
     refreshFromCloud,
     saveUserLessonProgress,
+    saveLesson,
+    saveAllLessons,
+    saveQuiz,
+    saveAllQuizzes,
   };
 }
+

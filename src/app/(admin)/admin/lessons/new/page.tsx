@@ -10,10 +10,11 @@ import {
 import { useAppStore } from '@/data/store';
 import { LessonVideo, LessonResource } from '@/types';
 import { FileUploadBox, ImageUploadField } from '@/components/shared/FileUploadBox';
+import { dbUpsertLesson } from '@/lib/dbService';
 
 export default function AddLessonPage() {
   const router = useRouter();
-  const { lessons, setLessons } = useAppStore();
+  const { lessons, setLessons, isSupabaseLive } = useAppStore();
 
   const [code, setCode] = useState('');
   const [title, setTitle] = useState('');
@@ -144,7 +145,18 @@ export default function AddLessonPage() {
         ],
       };
 
-      setLessons([...lessons, newLesson]);
+      const updated = [...lessons, newLesson];
+      setLessons(updated);
+      try {
+        localStorage.setItem('edtech_lessons', JSON.stringify(updated));
+      } catch (e) {}
+
+      if (isSupabaseLive) {
+        dbUpsertLesson(newLesson).catch((err) => {
+          console.warn('[Supabase] Failed to upsert new lesson:', err);
+        });
+      }
+
       setIsSubmitting(false);
       setShowSuccessToast(true);
 

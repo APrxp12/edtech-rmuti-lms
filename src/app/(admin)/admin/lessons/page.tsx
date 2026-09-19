@@ -6,15 +6,17 @@ import {
   BookOpen, Plus, RefreshCw, Search, Filter, Eye, Edit, Video,
   FileText, CheckCircle2, Clock, Archive, Sparkles, Building2, 
   User, HelpCircle, ArrowLeft, ArrowRight, X, ExternalLink, Layers,
-  BarChart3, Shield
+  BarChart3, Shield, Save
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 
 export default function AdminLessonsPage() {
-  const { lessons, quizzes } = useAppStore();
+  const { lessons, quizzes, isSupabaseLive, refreshFromCloud, saveAllLessons, saveAllQuizzes } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // Course Information Constants
   const courseInfo = {
@@ -69,9 +71,36 @@ export default function AdminLessonsPage() {
     });
   }, [lessons, searchQuery, statusFilter]);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
+    if (isSupabaseLive) {
+      await refreshFromCloud();
+    }
     setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  // ปุ่มซิงค์ข้อมูลบทเรียนและแบบทดสอบขึ้น Supabase Cloud
+  const handleManualSyncCloud = async () => {
+    setIsSaving(true);
+    try {
+      if (isSupabaseLive) {
+        const okLessons = await saveAllLessons(lessons);
+        const okQuizzes = await saveAllQuizzes(quizzes);
+        if (okLessons && okQuizzes) {
+          setToastMsg('ซิงค์ข้อมูลบทเรียนและแบบทดสอบทั้งหมดขึ้น Supabase Cloud สำเร็จแล้ว');
+        } else {
+          setToastMsg('ข้อมูลบทเรียนถูกบันทึกลงในระบบเรียบร้อยแล้ว');
+        }
+      } else {
+        setToastMsg('บันทึกข้อมูลบทเรียนลงในเครื่องเรียบร้อยแล้ว');
+      }
+    } catch (e) {
+      console.warn('Sync error:', e);
+      setToastMsg('เกิดข้อผิดพลาดในการซิงค์ข้อมูล');
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setToastMsg(null), 3500);
+    }
   };
 
   return (
@@ -98,7 +127,36 @@ export default function AdminLessonsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
+          {/* ปุ่มซิงค์ข้อมูลขึ้น Cloud */}
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={handleManualSyncCloud}
+            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+            title="ซิงค์และบันทึกเนื้อหาบทเรียนและข้อสอบทั้งหมดขึ้น Cloud"
+          >
+            {isSaving ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Save className="w-3.5 h-3.5" />
+            )}
+            <span>{isSaving ? 'กำลังซิงค์...' : 'ซิงค์ขึ้น Cloud'}</span>
+          </button>
+
           <Link
             href="/dashboard"
             className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
@@ -128,6 +186,14 @@ export default function AdminLessonsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Toast Alert Feedback */}
+      {toastMsg && (
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-xs transition-all animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
 
       {/* Official Course Syllabus Hero Banner (Soft Luminous Pastel Theme) */}
       <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-7 border border-blue-100/90 shadow-sm relative overflow-hidden">

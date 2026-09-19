@@ -1,5 +1,5 @@
 import { getSupabase, isSupabaseConfigured } from './supabaseClient';
-import { UserProfile, Announcement, AccessRule, UserLessonProgress } from '@/types';
+import { UserProfile, Announcement, AccessRule, UserLessonProgress, Lesson, Quiz } from '@/types';
 import { SystemSettings } from '@/config/system-settings';
 
 /**
@@ -531,3 +531,248 @@ export async function dbUpsertSystemSettings(settings: SystemSettings): Promise<
     return false;
   }
 }
+
+// ==========================================
+// 7. LESSONS TABLE
+// ==========================================
+
+export async function dbFetchLessons(): Promise<Lesson[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+
+  try {
+    const { data, error } = await sb
+      .from('lessons')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.warn('[Supabase] Error fetching lessons:', error.message);
+      return null;
+    }
+
+    if (!data || data.length === 0) return [];
+
+    return data.map((l: any) => ({
+      id: l.id,
+      code: l.code,
+      title: l.title,
+      description: l.description || '',
+      sortOrder: Number(l.sort_order) || 1,
+      countsInCourseProgress: l.counts_in_course_progress ?? true,
+      coverImageUrl: l.cover_image_url || undefined,
+      introInfographicUrl: l.intro_infographic_url || undefined,
+      status: l.status || 'published',
+      currentPublishedVersionId: l.current_published_version_id || undefined,
+      currentDraftVersionId: l.current_draft_version_id || undefined,
+      versions: Array.isArray(l.versions) ? l.versions : [],
+      updatedAt: l.updated_at || new Date().toISOString(),
+    }));
+  } catch (err) {
+    console.warn('[Supabase] Exception fetching lessons:', err);
+    return null;
+  }
+}
+
+export async function dbUpsertLesson(lesson: Lesson): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const row = {
+      id: lesson.id,
+      code: lesson.code,
+      title: lesson.title,
+      description: lesson.description || '',
+      sort_order: lesson.sortOrder,
+      counts_in_course_progress: lesson.countsInCourseProgress,
+      cover_image_url: lesson.coverImageUrl || null,
+      intro_infographic_url: lesson.introInfographicUrl || null,
+      status: lesson.status,
+      current_published_version_id: lesson.currentPublishedVersionId || null,
+      current_draft_version_id: lesson.currentDraftVersionId || null,
+      versions: lesson.versions || [],
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await sb.from('lessons').upsert(row, { onConflict: 'id' });
+    if (error) {
+      console.warn('[Supabase] Error upserting lesson:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception upserting lesson:', err);
+    return false;
+  }
+}
+
+export async function dbDeleteLesson(lessonId: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const { error } = await sb.from('lessons').delete().eq('id', lessonId);
+    if (error) {
+      console.warn('[Supabase] Error deleting lesson:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception deleting lesson:', err);
+    return false;
+  }
+}
+
+export async function dbSaveAllLessons(lessons: Lesson[]): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const { error: delErr } = await sb.from('lessons').delete().neq('id', '___never___');
+    if (delErr) console.warn('[Supabase] Error clearing lessons:', delErr.message);
+
+    if (lessons.length === 0) return true;
+
+    const rows = lessons.map((l) => ({
+      id: l.id,
+      code: l.code,
+      title: l.title,
+      description: l.description || '',
+      sort_order: l.sortOrder,
+      counts_in_course_progress: l.countsInCourseProgress,
+      cover_image_url: l.coverImageUrl || null,
+      intro_infographic_url: l.introInfographicUrl || null,
+      status: l.status,
+      current_published_version_id: l.currentPublishedVersionId || null,
+      current_draft_version_id: l.currentDraftVersionId || null,
+      versions: l.versions || [],
+      updated_at: l.updatedAt || new Date().toISOString(),
+    }));
+
+    const { error: insErr } = await sb.from('lessons').insert(rows);
+    if (insErr) {
+      console.warn('[Supabase] Error inserting all lessons:', insErr.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception saving all lessons:', err);
+    return false;
+  }
+}
+
+// ==========================================
+// 8. QUIZZES TABLE
+// ==========================================
+
+export async function dbFetchQuizzes(): Promise<Quiz[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+
+  try {
+    const { data, error } = await sb
+      .from('quizzes')
+      .select('*')
+      .order('id', { ascending: true });
+
+    if (error) {
+      console.warn('[Supabase] Error fetching quizzes:', error.message);
+      return null;
+    }
+
+    if (!data || data.length === 0) return [];
+
+    return data.map((q: any) => ({
+      id: q.id,
+      lessonId: q.lesson_id,
+      type: q.type,
+      title: q.title,
+      currentPublishedVersionId: q.current_published_version_id || undefined,
+      currentDraftVersionId: q.current_draft_version_id || undefined,
+      versions: Array.isArray(q.versions) ? q.versions : [],
+    }));
+  } catch (err) {
+    console.warn('[Supabase] Exception fetching quizzes:', err);
+    return null;
+  }
+}
+
+export async function dbUpsertQuiz(quiz: Quiz): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const row = {
+      id: quiz.id,
+      lesson_id: quiz.lessonId,
+      type: quiz.type,
+      title: quiz.title,
+      current_published_version_id: quiz.currentPublishedVersionId || null,
+      current_draft_version_id: quiz.currentDraftVersionId || null,
+      versions: quiz.versions || [],
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await sb.from('quizzes').upsert(row, { onConflict: 'id' });
+    if (error) {
+      console.warn('[Supabase] Error upserting quiz:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception upserting quiz:', err);
+    return false;
+  }
+}
+
+export async function dbDeleteQuiz(quizId: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const { error } = await sb.from('quizzes').delete().eq('id', quizId);
+    if (error) {
+      console.warn('[Supabase] Error deleting quiz:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception deleting quiz:', err);
+    return false;
+  }
+}
+
+export async function dbSaveAllQuizzes(quizzes: Quiz[]): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+
+  try {
+    const { error: delErr } = await sb.from('quizzes').delete().neq('id', '___never___');
+    if (delErr) console.warn('[Supabase] Error clearing quizzes:', delErr.message);
+
+    if (quizzes.length === 0) return true;
+
+    const rows = quizzes.map((q) => ({
+      id: q.id,
+      lesson_id: q.lessonId,
+      type: q.type,
+      title: q.title,
+      current_published_version_id: q.currentPublishedVersionId || null,
+      current_draft_version_id: q.currentDraftVersionId || null,
+      versions: q.versions || [],
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { error: insErr } = await sb.from('quizzes').insert(rows);
+    if (insErr) {
+      console.warn('[Supabase] Error inserting all quizzes:', insErr.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Supabase] Exception saving all quizzes:', err);
+    return false;
+  }
+}
+

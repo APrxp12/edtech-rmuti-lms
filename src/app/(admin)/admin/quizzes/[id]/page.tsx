@@ -7,16 +7,18 @@ import {
   ArrowLeft, Plus, HelpCircle, Save, AlertTriangle, CheckCircle2, 
   Trash2, MoveUp, MoveDown, Shield, Eye, ExternalLink, Sparkles,
   Building2, User, Clock, Check, X, Edit3, ArrowRight, ArrowLeftRight,
-  ListChecks, Award, Settings, Shuffle, FileText, ChevronRight
+  ListChecks, Award, Settings, Shuffle, FileText, ChevronRight,
+  RefreshCw
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { Quiz, QuizVersion, QuizQuestion, QuizOption, QuizType, ScorePolicy } from '@/types';
+import { dbUpsertQuiz } from '@/lib/dbService';
 
 export default function AdminQuizBuilderPage() {
   const router = useRouter();
   const params = useParams();
   const quizParamId = params.id as string;
-  const { lessons, quizzes, setQuizzes } = useAppStore();
+  const { lessons, quizzes, setQuizzes, isSupabaseLive } = useAppStore();
 
   // Course Information Constants matching the official syllabus
   const courseInfo = {
@@ -233,8 +235,11 @@ export default function AdminQuizBuilderPage() {
     setQuestions((prev) => prev.filter((q) => q.id !== id).map((q, idx) => ({ ...q, sortOrder: idx + 1 })));
   };
 
-  // Save all Quiz Settings and Questions into store & localStorage
-  const handleSaveAllQuiz = () => {
+  // Save all Quiz Settings and Questions into store, localStorage, & Supabase Cloud
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveAllQuiz = async () => {
+    setIsSaving(true);
     const updatedQuizVersion: QuizVersion = {
       ...activeVer,
       passScorePercent: Number(passScore),
@@ -252,21 +257,18 @@ export default function AdminQuizBuilderPage() {
     );
 
     let updatedQuizzes: Quiz[];
+    let quizToSave: Quiz;
     if (existingQuizIndex >= 0) {
-      updatedQuizzes = quizzes.map((q, idx) => {
-        if (idx === existingQuizIndex) {
-          return {
-            ...q,
-            title: activeQuizType === 'pre_test'
-              ? `แบบทดสอบก่อนเรียน (Pre-test) บทที่ ${lesson.sortOrder} ${lesson.title}`
-              : `แบบทดสอบหลังเรียน (Post-test) บทที่ ${lesson.sortOrder} ${lesson.title}`,
-            versions: [updatedQuizVersion, ...(q.versions.slice(1))],
-          };
-        }
-        return q;
-      });
+      quizToSave = {
+        ...quizzes[existingQuizIndex],
+        title: activeQuizType === 'pre_test'
+          ? `แบบทดสอบก่อนเรียน (Pre-test) บทที่ ${lesson.sortOrder} ${lesson.title}`
+          : `แบบทดสอบหลังเรียน (Post-test) บทที่ ${lesson.sortOrder} ${lesson.title}`,
+        versions: [updatedQuizVersion, ...(quizzes[existingQuizIndex].versions.slice(1))],
+      };
+      updatedQuizzes = quizzes.map((q, idx) => (idx === existingQuizIndex ? quizToSave : q));
     } else {
-      const newQuiz: Quiz = {
+      quizToSave = {
         id: `quiz-${activeQuizType === 'pre_test' ? 'pre' : 'post'}-${lesson.code.toLowerCase()}`,
         lessonId: lesson.id,
         type: activeQuizType,
@@ -276,13 +278,25 @@ export default function AdminQuizBuilderPage() {
         currentPublishedVersionId: updatedQuizVersion.id,
         versions: [updatedQuizVersion],
       };
-      updatedQuizzes = [...quizzes, newQuiz];
+      updatedQuizzes = [...quizzes, quizToSave];
     }
 
     setQuizzes(updatedQuizzes);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('edtech_quizzes', JSON.stringify(updatedQuizzes));
+      try {
+        localStorage.setItem('edtech_quizzes', JSON.stringify(updatedQuizzes));
+      } catch (e) {}
     }
+
+    if (isSupabaseLive) {
+      try {
+        await dbUpsertQuiz(quizToSave);
+      } catch (e) {
+        console.warn('[Supabase] Failed to upsert quiz:', e);
+      }
+    }
+
+    setIsSaving(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3500);
   };
@@ -319,6 +333,19 @@ export default function AdminQuizBuilderPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
           <Link
             href={`/lessons/${lesson.code}/${activeQuizType === 'pre_test' ? 'pre-test' : 'post-test'}`}
             target="_blank"
@@ -331,11 +358,16 @@ export default function AdminQuizBuilderPage() {
           </Link>
 
           <button
+            disabled={isSaving}
             onClick={handleSaveAllQuiz}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
           >
-            <Save className="w-4 h-4" />
-            <span>บันทึกแบบทดสอบ</span>
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกแบบทดสอบ'}</span>
           </button>
         </div>
       </div>

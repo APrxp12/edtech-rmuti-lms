@@ -83,6 +83,37 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- 6. สร้างตาราง LESSONS (บทเรียน, โครงสร้างคลิปวิดีโอ, เอกสาร PDF, Infographic)
+CREATE TABLE IF NOT EXISTS public.lessons (
+  id TEXT PRIMARY KEY,
+  code TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 1,
+  counts_in_course_progress BOOLEAN NOT NULL DEFAULT true,
+  cover_image_url TEXT,
+  intro_infographic_url TEXT,
+  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived')),
+  current_published_version_id TEXT,
+  current_draft_version_id TEXT,
+  versions JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 7. สร้างตาราง QUIZZES (แบบทดสอบก่อนเรียนและหลังเรียน, ข้อสอบ, ชอยส์, เฉลย)
+CREATE TABLE IF NOT EXISTS public.quizzes (
+  id TEXT PRIMARY KEY,
+  lesson_id TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('pre_test', 'post_test')),
+  title TEXT NOT NULL,
+  current_published_version_id TEXT,
+  current_draft_version_id TEXT,
+  versions JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- อนุญาตให้เว็บฝั่ง Client สามารถอ่านและบันทึกข้อมูลผ่าน anon key ได้อย่างปลอดภัย
@@ -93,6 +124,8 @@ ALTER TABLE public.access_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lessons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 
 -- นโยบาย USERS
 DROP POLICY IF EXISTS "Allow public read users" ON public.users;
@@ -129,6 +162,20 @@ CREATE POLICY "Allow public read system_settings" ON public.system_settings FOR 
 DROP POLICY IF EXISTS "Allow public write system_settings" ON public.system_settings;
 CREATE POLICY "Allow public write system_settings" ON public.system_settings FOR ALL USING (true) WITH CHECK (true);
 
+-- นโยบาย LESSONS
+DROP POLICY IF EXISTS "Allow public read lessons" ON public.lessons;
+CREATE POLICY "Allow public read lessons" ON public.lessons FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public write lessons" ON public.lessons;
+CREATE POLICY "Allow public write lessons" ON public.lessons FOR ALL USING (true) WITH CHECK (true);
+
+-- นโยบาย QUIZZES
+DROP POLICY IF EXISTS "Allow public read quizzes" ON public.quizzes;
+CREATE POLICY "Allow public read quizzes" ON public.quizzes FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public write quizzes" ON public.quizzes;
+CREATE POLICY "Allow public write quizzes" ON public.quizzes FOR ALL USING (true) WITH CHECK (true);
+
 -- ==============================================================================
 -- REALTIME SUBSCRIPTION
 -- เปิดระบบ Realtime ให้เมื่อมีผู้ใช้ล็อกอิน หน้า Admin จะอัปเดตทันที
@@ -162,6 +209,20 @@ BEGIN
     WHERE pubname = 'supabase_realtime' AND tablename = 'user_progress'
   ) THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.user_progress;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'lessons'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.lessons;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'quizzes'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.quizzes;
   END IF;
 END $$;
 

@@ -8,17 +8,18 @@ import {
   Send, Archive, Plus, CheckCircle2, ChevronRight, Target,
   Eye, ExternalLink, Layers, Film, Building2, User, Sparkles,
   X, Check, HelpCircle, FileText, Video, Info, Calendar,
-  ArrowLeftRight, ArrowRight
+  ArrowLeftRight, ArrowRight, RefreshCw
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { StructuralWarningDialog } from '@/components/shared/SharedDialogs';
 import { ImageUploadField } from '@/components/shared/FileUploadBox';
+import { dbUpsertLesson } from '@/lib/dbService';
 
 export default function LessonMetadataEditorPage() {
   const router = useRouter();
   const params = useParams();
   const lessonId = params.id as string;
-  const { lessons, setLessons } = useAppStore();
+  const { lessons, setLessons, isSupabaseLive } = useAppStore();
 
   // Course Information Constants matching the official syllabus
   const courseInfo = {
@@ -73,39 +74,49 @@ export default function LessonMetadataEditorPage() {
   }, [objectivesText]);
 
   // Save metadata handler
-  const handleSaveMetadata = () => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveMetadata = async () => {
+    setIsSaving(true);
     const objectivesArray = objectivesList;
 
-    const updated = lessons.map((l) => {
-      if (l.id === lesson.id) {
-        const updatedVersions = l.versions.map((v, idx) => {
-          if (idx === 0) {
-            return {
-              ...v,
-              learningObjectives: objectivesArray,
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return v;
-        });
+    const updatedTargetLesson = {
+      ...lesson,
+      title,
+      description,
+      introInfographicUrl: infographic,
+      coverImageUrl: infographic || lesson.coverImageUrl,
+      versions: lesson.versions.map((v, idx) => {
+        if (idx === 0) {
+          return {
+            ...v,
+            learningObjectives: objectivesArray,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return v;
+      }),
+      updatedAt: new Date().toISOString(),
+    };
 
-        return {
-          ...l,
-          title,
-          description,
-          introInfographicUrl: infographic,
-          coverImageUrl: infographic || l.coverImageUrl,
-          versions: updatedVersions,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return l;
-    });
+    const updated = lessons.map((l) => (l.id === lesson.id ? updatedTargetLesson : l));
 
     setLessons(updated);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('edtech_lessons', JSON.stringify(updated));
+      try {
+        localStorage.setItem('edtech_lessons', JSON.stringify(updated));
+      } catch (e) {}
     }
+
+    if (isSupabaseLive) {
+      try {
+        await dbUpsertLesson(updatedTargetLesson);
+      } catch (e) {
+        console.warn('[Supabase] Failed to upsert lesson metadata:', e);
+      }
+    }
+
+    setIsSaving(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3500);
   };
@@ -146,6 +157,19 @@ export default function LessonMetadataEditorPage() {
 
         {/* Global Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Database Status Indicator */}
+          {isSupabaseLive ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>ฐานข้อมูล Cloud (Live)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>หน่วยความจำเครื่อง</span>
+            </div>
+          )}
+
           <Link
             href={`/lessons/${lesson.code}/intro`}
             target="_blank"
@@ -158,11 +182,16 @@ export default function LessonMetadataEditorPage() {
           </Link>
 
           <button
+            disabled={isSaving}
             onClick={handleSaveMetadata}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
           >
-            <Save className="w-4 h-4" />
-            <span>บันทึกข้อมูลบทเรียน</span>
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกข้อมูลบทเรียน'}</span>
           </button>
         </div>
       </div>
