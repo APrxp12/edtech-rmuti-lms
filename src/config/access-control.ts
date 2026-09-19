@@ -21,16 +21,11 @@ export const defaultAccessControlConfig: AccessRuleConfig = {
     'kkc.rmuti.ac.th',
   ],
 
-  // รายชื่ออีเมลที่ได้รับอนุญาตพิเศษ (เช่น อาจารย์ หรือนักศึกษาภายนอกที่ใช้ @gmail.com)
+  // รายชื่ออีเมลที่ได้รับอนุญาตพิเศษ (ผู้พัฒนา และแอดมิน)
   emailWhitelist: [
-    { email: 'admin@rmuti.ac.th', role: 'admin', name: 'นายสมชาย ใจดี', note: 'ผู้ดูแลระบบหลัก (Admin)' },
-    { email: 'somchai@rmuti.ac.th', role: 'admin', name: 'นายสมชาย ใจดี', note: 'อาจารย์ผู้สอน' },
-    { email: 'teacher.edtech@gmail.com', role: 'admin', name: 'อาจารย์พิเศษ', note: 'อาจารย์ผู้รับผิดชอบรายวิชา' },
-    { email: 'anun.j@rmuti.ac.th', role: 'student', name: 'นายอนันต์ ใจดี', note: 'นักศึกษาตัวอย่าง' },
-    { email: 'student@rmuti.ac.th', role: 'student', name: 'สมชาย ใจดี', note: 'นักศึกษาทั่วไป' },
-    { email: 'partner@rmuti.ac.th', role: 'student', name: 'บัญชีภายนอกที่ได้รับอนุญาต', note: 'ความร่วมมือภายนอก' },
-    { email: 'special.student@gmail.com', role: 'student', name: 'ผู้เรียนโครงการพิเศษ', note: 'อนุมัติผ่าน Whitelist' },
-    { email: 'Bugzonvazan@gmail.com', role: 'admin', name: 'นายพีรพล น้อยโนนงิ้ว', note: 'ผู้พัฒนา' },
+    { email: 'bugzonvazan@gmail.com', role: 'admin', name: 'นายพีรพล น้อยโนนงิ้ว', note: 'ผู้พัฒนา (Developer)' },
+    { email: 'Bugzonvazan@gmail.com', role: 'admin', name: 'นายพีรพล น้อยโนนงิ้ว', note: 'ผู้พัฒนา (Developer)' },
+    { email: 'admin@rmuti.ac.th', role: 'admin', name: 'ผู้ดูแลระบบ', note: 'ผู้ดูแลระบบหลัก (Admin)' },
   ],
 
   // บัญชีที่ถูกระงับการใช้งาน
