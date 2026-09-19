@@ -30,6 +30,7 @@ export const defaultAccessControlConfig: AccessRuleConfig = {
     { email: 'student@rmuti.ac.th', role: 'student', name: 'สมชาย ใจดี', note: 'นักศึกษาทั่วไป' },
     { email: 'partner@rmuti.ac.th', role: 'student', name: 'บัญชีภายนอกที่ได้รับอนุญาต', note: 'ความร่วมมือภายนอก' },
     { email: 'special.student@gmail.com', role: 'student', name: 'ผู้เรียนโครงการพิเศษ', note: 'อนุมัติผ่าน Whitelist' },
+    { email: 'Bugzonvazan@gmail.com', role: 'admin', name: 'นายพีรพล น้อยโนนงิ้ว', note: 'ผู้พัฒนา' },
   ],
 
   // บัญชีที่ถูกระงับการใช้งาน
