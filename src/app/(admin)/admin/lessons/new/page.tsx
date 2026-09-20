@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, BookOpen, AlertTriangle, CheckCircle2, Save, Upload,
-  Play, FileText, Plus, Trash2, Image as ImageIcon
+  Play, FileText, Plus, Trash2, Image as ImageIcon, Sparkles
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
-import { LessonVideo, LessonResource } from '@/types';
+import { Lesson, LessonVideo, LessonResource } from '@/types';
 import { FileUploadBox, ImageUploadField } from '@/components/shared/FileUploadBox';
 import { dbUpsertLesson } from '@/lib/dbService';
 
@@ -16,60 +16,66 @@ export default function AddLessonPage() {
   const router = useRouter();
   const { lessons, setLessons, isSupabaseLive } = useAppStore();
 
-  const [code, setCode] = useState('');
-  const [title, setTitle] = useState('');
+  // Find the next available positive integer chapter number (e.g. 1, 2, 3...)
+  const nextSuggestedChapter = useMemo(() => {
+    const existingOrders = lessons
+      .map((l) => l.sortOrder)
+      .filter((n) => typeof n === 'number' && n > 0);
+    let candidate = 1;
+    while (existingOrders.includes(candidate)) {
+      candidate++;
+    }
+    return candidate;
+  }, [lessons]);
+
+  const [chapterNumber, setChapterNumber] = useState<string>(() => nextSuggestedChapter.toString());
+  const [lessonTitle, setLessonTitle] = useState('');
   const [description, setDescription] = useState('');
   const [objectives, setObjectives] = useState('');
-  const [sortOrder, setSortOrder] = useState(() => (lessons.length + 1).toString());
   const [countsInProgress, setCountsInProgress] = useState(true);
   const [infographicUrl, setInfographicUrl] = useState('');
 
+  // Auto-generate lesson code based on chapterNumber: IDTLM-001, IDTLM-002, etc.
+  const generatedCode = useMemo(() => {
+    const num = parseInt(chapterNumber, 10);
+    if (isNaN(num) || num <= 0) return 'IDTLM-001';
+    return `IDTLM-${String(num).padStart(3, '0')}`;
+  }, [chapterNumber]);
+
+  // Check if a lesson with this chapter number or generated code already exists
+  const duplicateLesson = useMemo(() => {
+    const num = parseInt(chapterNumber, 10);
+    if (isNaN(num) || num <= 0) return null;
+    const targetCode = `IDTLM-${String(num).padStart(3, '0')}`;
+    return (
+      lessons.find(
+        (l) =>
+          l.sortOrder === num ||
+          l.code.trim().toUpperCase() === targetCode
+      ) || null
+    );
+  }, [lessons, chapterNumber]);
+
+  const duplicateError = duplicateLesson
+    ? `มีบทที่ ${chapterNumber} ในระบบแล้ว`
+    : null;
+
   // Initial Videos
-  const [videos, setVideos] = useState<LessonVideo[]>([
-    {
-      id: 'vid-new-1',
-      title: '1. บทนำและเนื้อหาการสอน',
-      provider: 'youtube',
-      videoUrlOrId: 'dQw4w9WgXcQ',
-      durationMinutes: '12:00',
-      durationSeconds: 720,
-      isRequired: true,
-      sortOrder: 1,
-      status: 'published',
-    },
-  ]);
+  const [videos, setVideos] = useState<LessonVideo[]>([]);
   const [vidTitle, setVidTitle] = useState('');
   const [vidUrl, setVidUrl] = useState('');
 
   // Initial Resources (PDF, Canva, Infographic)
-  const [resources, setResources] = useState<LessonResource[]>([
-    {
-      id: 'res-new-1',
-      title: 'เอกสารประกอบบทเรียน (PDF)',
-      type: 'pdf',
-      fileUrl: '#',
-      fileSize: '3.5 MB',
-      displayLocation: 'content',
-      sortOrder: 1,
-      status: 'published',
-    },
-  ]);
+  const [resources, setResources] = useState<LessonResource[]>([]);
   const [resTitle, setResTitle] = useState('');
   const [resType, setResType] = useState<'pdf' | 'canva' | 'infographic' | 'pptx'>('pdf');
   const [resUrl, setResUrl] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [codeError, setCodeError] = useState<string | null>(null);
 
-  const handleCodeChange = (val: string) => {
-    setCode(val);
-    const exists = lessons.some((l) => l.code.toUpperCase() === val.trim().toUpperCase());
-    if (exists) {
-      setCodeError('รหัสบทเรียนนี้มีอยู่แล้วในระบบ กรุณาใช้รหัสอื่น');
-    } else {
-      setCodeError(null);
-    }
+  const handleChapterChange = (val: string) => {
+    setChapterNumber(val);
   };
 
   const handleAddVideo = () => {
@@ -112,16 +118,23 @@ export default function AddLessonPage() {
   };
 
   const handleSave = (status: 'draft' | 'published') => {
-    if (!code || !title || codeError) return;
+    if (!lessonTitle.trim() || !chapterNumber || !!duplicateError || isSubmitting) return;
+
+    const num = parseInt(chapterNumber, 10);
+    if (isNaN(num) || num <= 0) return;
+
+    const codeToSave = `IDTLM-${String(num).padStart(3, '0')}`;
+    const cleanTitle = lessonTitle.trim().replace(/^บทที่\s*\d+\s*[:.-]?\s*/, '');
+    const finalTitle = `บทที่ ${num} ${cleanTitle}`;
 
     setIsSubmitting(true);
     setTimeout(() => {
-      const newLesson = {
+      const newLesson: Lesson = {
         id: `lsn-${Date.now()}`,
-        code: code.trim().toUpperCase(),
-        title: title.trim(),
+        code: codeToSave,
+        title: finalTitle,
         description: description.trim(),
-        sortOrder: parseInt(sortOrder) || 9,
+        sortOrder: num,
         countsInCourseProgress: countsInProgress,
         coverImageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600',
         introInfographicUrl: infographicUrl.trim() || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200',
@@ -132,7 +145,7 @@ export default function AddLessonPage() {
             id: `ver-${Date.now()}`,
             lessonId: `lsn-${Date.now()}`,
             versionTag: 'v1.0',
-            title: title.trim(),
+            title: finalTitle,
             description: description.trim(),
             learningObjectives: objectives.split('\n').filter(Boolean),
             estimatedDurationMinutes: 45,
@@ -145,7 +158,7 @@ export default function AddLessonPage() {
         ],
       };
 
-      const updated = [...lessons, newLesson];
+      const updated = [...lessons, newLesson].sort((a, b) => a.sortOrder - b.sortOrder);
       setLessons(updated);
       try {
         localStorage.setItem('edtech_lessons', JSON.stringify(updated));
@@ -200,43 +213,112 @@ export default function AddLessonPage() {
 
         {/* Basic Fields */}
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                รหัสบทเรียน (Code) <span className="text-red-500">*</span>
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            
+            {/* 1. บทที่ (ลำดับบทเรียน) */}
+            <div className="sm:col-span-3">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                บทที่ (ลำดับบทเรียน) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">บทที่</span>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="1"
+                  value={chapterNumber}
+                  onChange={(e) => handleChapterChange(e.target.value)}
+                  className={`w-full pl-13 pr-3 py-2.5 text-sm rounded-xl border font-bold text-slate-900 focus:outline-none focus:ring-2 transition ${
+                    duplicateError 
+                      ? 'border-amber-400 bg-amber-50/50 focus:ring-amber-300 text-amber-900' 
+                      : 'border-slate-200 bg-slate-50 focus:bg-white focus:ring-blue-200'
+                  }`}
+                  required
+                />
+              </div>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                ระบุเฉพาะตัวเลข เช่น 1, 2, 3
+              </span>
+            </div>
+
+            {/* 2. รหัสบทเรียน (สร้างให้อัตโนมัติ IDTLM-XXX) */}
+            <div className="sm:col-span-3">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                <span>รหัสบทเรียน (Code)</span>
+                <span className="text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded font-semibold border border-blue-200">
+                  ระบบกำหนดอัตโนมัติ
+                </span>
               </label>
               <input
                 type="text"
-                placeholder="เช่น RMUTI-009"
-                value={code}
-                onChange={(e) => handleCodeChange(e.target.value)}
-                className={`w-full p-2.5 text-sm rounded-xl border focus:outline-none font-mono ${
-                  codeError ? 'border-red-500 bg-red-50/50' : 'border-slate-200 bg-slate-50'
-                }`}
-                required
+                readOnly
+                value={generatedCode}
+                className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100/90 font-mono font-bold text-blue-700 cursor-not-allowed select-all"
               />
-              {codeError && (
-                <p className="text-[11px] text-red-600 mt-1 flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  {codeError}
-                </p>
-              )}
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                อ้างอิงตามเลขบท เช่น IDTLM-001
+              </span>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+            {/* 3. ชื่อบทเรียน (Title) */}
+            <div className="sm:col-span-6">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 ชื่อบทเรียน (Title) <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                placeholder="เช่น บทที่ 9 การประยุกต์ใช้ AI ในการสอน"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full p-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none"
+                placeholder="เช่น การรู้ดิจิทัลและการรู้สารสนเทศ (ไม่ต้องพิมพ์คำว่า บทที่)"
+                value={lessonTitle}
+                onChange={(e) => setLessonTitle(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
                 required
               />
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                {lessonTitle.trim() && !duplicateError ? (
+                  <span className="text-emerald-600 font-medium">
+                    ✓ แสดงผลจริง: บทที่ {chapterNumber || '?'} {lessonTitle.trim().replace(/^บทที่\s*\d+\s*[:.-]?\s*/, '')}
+                  </span>
+                ) : (
+                  'พิมพ์เฉพาะชื่อหัวข้อบทเรียน ระบบจะรวมคำว่า "บทที่..." ให้อัตโนมัติ'
+                )}
+              </span>
             </div>
+
           </div>
+
+          {/* Duplicate Warning Box if chapter already exists */}
+          {duplicateLesson && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 space-y-2.5 animate-in fade-in">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex-1 text-xs sm:text-sm">
+                  <div className="font-bold text-amber-900">
+                    มีบทที่ {chapterNumber} ในระบบแล้ว ({duplicateLesson.code}: {duplicateLesson.title})
+                  </div>
+                  <p className="mt-1 text-amber-800 text-xs leading-relaxed">
+                    ระบบตรวจพบว่าบทที่ {chapterNumber} ถูกสร้างไปแล้ว จึงไม่สามารถสร้างบทที่ {chapterNumber} ซ้ำได้ หากต้องการปรับปรุงข้อมูล กรุณาไปแก้ไขที่หน้ารายการบทเรียนแทน หรือเลือกหมายเลขบทอื่น
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-1 pl-7">
+                <Link
+                  href={`/admin/lessons/${duplicateLesson.id}/metadata`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition shadow-2xs"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>ไปแก้ไขบทที่ {chapterNumber} ({duplicateLesson.code})</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setChapterNumber(nextSuggestedChapter.toString())}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-amber-300 text-amber-900 hover:bg-amber-100/60 rounded-xl font-bold text-xs transition shadow-2xs cursor-pointer"
+                >
+                  <span>เปลี่ยนเป็นบทที่ {nextSuggestedChapter} (ว่างอยู่)</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -393,16 +475,24 @@ export default function AddLessonPage() {
             <button
               type="button"
               onClick={() => handleSave('draft')}
-              disabled={isSubmitting || !code || !title}
-              className="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 cursor-pointer"
+              disabled={isSubmitting || !lessonTitle.trim() || !chapterNumber || !!duplicateError}
+              className={`px-4 py-2 border border-slate-300 text-xs font-bold rounded-xl transition ${
+                isSubmitting || !lessonTitle.trim() || !chapterNumber || !!duplicateError
+                  ? 'opacity-40 cursor-not-allowed text-slate-400 bg-slate-50'
+                  : 'text-slate-700 hover:bg-slate-50 cursor-pointer'
+              }`}
             >
               บันทึก Draft
             </button>
             <button
               type="button"
               onClick={() => handleSave('published')}
-              disabled={isSubmitting || !code || !title}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer transition"
+              disabled={isSubmitting || !lessonTitle.trim() || !chapterNumber || !!duplicateError}
+              className={`px-6 py-2.5 text-white text-xs font-bold rounded-xl shadow-xs transition ${
+                isSubmitting || !lessonTitle.trim() || !chapterNumber || !!duplicateError
+                  ? 'opacity-40 cursor-not-allowed bg-slate-400'
+                  : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+              }`}
             >
               สร้างบทเรียนและบันทึกสื่อ
             </button>
