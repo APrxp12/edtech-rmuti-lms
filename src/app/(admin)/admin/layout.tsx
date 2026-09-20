@@ -30,10 +30,10 @@ export default function AdminLayout({
   // While checking or if unauthorized, do not show admin content
   if (!isLoaded || !isAdmin) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-[#0B0F19] p-4">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs font-semibold text-slate-500">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             {!isLoaded ? 'กำลังตรวจสอบสิทธิ์การเข้าใช้งาน...' : 'ไม่มีสิทธิ์เข้าถึงระบบผู้ดูแล กำลังนำทาง...'}
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Navbar />
       <div className="flex-1 max-w-[1600px] w-full mx-auto flex pb-12 px-2 sm:px-4 lg:px-6">
         <AdminSidebar />

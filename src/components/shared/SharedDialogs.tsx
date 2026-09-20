@@ -168,12 +168,12 @@ export function EmptyStateCard({
   onAction?: () => void;
 }) {
   return (
-    <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 text-center my-4">
-      <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-400 mx-auto flex items-center justify-center mb-3">
+    <div className="p-8 sm:p-10 rounded-3xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 text-center my-4 transition-colors">
+      <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-500 dark:text-blue-400 mx-auto flex items-center justify-center mb-3">
         <HelpCircle className="w-8 h-8" />
       </div>
-      <h4 className="text-base font-bold text-slate-800">{title}</h4>
-      <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">{description}</p>
+      <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">{title}</h4>
+      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">{description}</p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
@@ -189,10 +189,10 @@ export function EmptyStateCard({
 // 7. Skeleton Loading Placeholder
 export function SkeletonCard() {
   return (
-    <div className="p-6 rounded-3xl bg-white border border-slate-200 animate-pulse space-y-3">
-      <div className="w-1/3 h-4 bg-slate-200 rounded-md"></div>
-      <div className="w-full h-8 bg-slate-100 rounded-md"></div>
-      <div className="w-2/3 h-4 bg-slate-100 rounded-md"></div>
+    <div className="p-6 rounded-3xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 animate-pulse space-y-3">
+      <div className="w-1/3 h-4 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+      <div className="w-full h-8 bg-slate-100 dark:bg-slate-800 rounded-md"></div>
+      <div className="w-2/3 h-4 bg-slate-100 dark:bg-slate-800 rounded-md"></div>
     </div>
   );
 }

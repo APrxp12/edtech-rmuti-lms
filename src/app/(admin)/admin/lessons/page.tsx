@@ -123,19 +123,19 @@ export default function AdminLessonsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-0.5 rounded-md border border-amber-200 dark:border-amber-900/50">
               Admin CMS Console
             </span>
             <span className="text-xs text-slate-400">•</span>
-            <span className="text-xs font-mono font-bold text-slate-600">
+            <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">
               {courseInfo.code}
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 tracking-tight">
-            <BookOpen className="w-6 h-6 text-blue-600" />
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 tracking-tight">
+            <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             <span>จัดการเนื้อหาบทเรียน (Lessons Management)</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             จัดการโครงสร้างรายวิชา วิดีโอบรรยาย เอกสารประกอบ และคลังข้อสอบ
           </p>
         </div>
@@ -143,12 +143,12 @@ export default function AdminLessonsPage() {
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           {/* Database Status Indicator */}
           {isSupabaseLive ? (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold shadow-2xs">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-semibold shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>ฐานข้อมูล Cloud (Live)</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-semibold shadow-2xs">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 text-xs font-semibold shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
               <span>หน่วยความจำเครื่อง</span>
             </div>
@@ -156,7 +156,7 @@ export default function AdminLessonsPage() {
 
           <button 
             onClick={handleRefresh}
-            className={`p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 flex items-center gap-1.5 shadow-2xs transition cursor-pointer ${
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-1.5 shadow-2xs transition cursor-pointer ${
               isRefreshing ? 'animate-spin' : ''
             }`}
             title="รีเฟรชรายการ"
@@ -167,7 +167,7 @@ export default function AdminLessonsPage() {
           
           <Link
             href="/admin/lessons/new"
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-200 transition cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-200 dark:shadow-none transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>เพิ่มบทเรียนใหม่</span>
@@ -177,73 +177,73 @@ export default function AdminLessonsPage() {
 
       {/* Toast Alert Feedback */}
       {toastMsg && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-xs transition-all animate-in fade-in slide-in-from-top-2">
+        <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 shadow-xs transition-all animate-in fade-in slide-in-from-top-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       {/* Official Course Syllabus Hero Banner (Soft Luminous Pastel Theme) */}
-      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-7 border border-blue-100/90 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 dark:from-slate-900 dark:via-blue-950/30 dark:to-slate-900 rounded-3xl p-6 sm:p-7 border border-blue-100/90 dark:border-slate-800 shadow-sm relative overflow-hidden">
         {/* Ambient soft pastel orbs */}
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 rounded-full blur-2xl pointer-events-none"></div>
-        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 dark:bg-amber-900/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="relative z-10 space-y-4">
           
           {/* Top Row: Meta Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold bg-white/95 text-blue-800 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
+              <span className="text-xs font-bold bg-white/95 dark:bg-slate-800/90 text-blue-800 dark:text-blue-300 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 dark:border-slate-700 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 <span>{courseInfo.curriculum}</span>
               </span>
-              <span className="text-xs sm:text-sm text-slate-600 font-medium">
+              <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">
                 • {courseInfo.semester}
               </span>
             </div>
-            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
+            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 dark:bg-slate-800/90 px-3.5 py-1 rounded-full border border-blue-200/80 dark:border-slate-700 text-blue-900 dark:text-blue-300 shadow-2xs">
               รหัสวิชา: {courseInfo.code}
             </span>
           </div>
 
           {/* Course Title - Matching exact size and line behavior */}
           <div className="space-y-1.5">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-bold tracking-tight text-slate-900 break-keep whitespace-normal xl:whitespace-nowrap">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-bold tracking-tight text-slate-900 dark:text-slate-100 break-keep whitespace-normal xl:whitespace-nowrap">
               {courseInfo.title}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2 font-medium">
+              <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
               <span>{courseInfo.department}</span>
             </p>
           </div>
 
           {/* Bottom Row: Instructor & Quick Stats */}
-          <div className="pt-3.5 border-t border-blue-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
-              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
+          <div className="pt-3.5 border-t border-blue-100/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
                 <User className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 font-medium block">อาจารย์ผู้รับผิดชอบรายวิชา</span>
-                <span className="text-sm sm:text-base font-bold text-slate-900">{courseInfo.instructor}</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">อาจารย์ผู้รับผิดชอบรายวิชา</span>
+                <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">{courseInfo.instructor}</span>
               </div>
             </div>
 
             {/* Live Media Highlights */}
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <div className="bg-white/95 px-3 py-1.5 rounded-xl border border-blue-200/80 shadow-2xs flex items-center gap-1.5">
-                <Video className="w-3.5 h-3.5 text-blue-600" />
-                <span className="font-semibold text-slate-700">{stats.totalVideos} คลิปวิดีโอ</span>
+              <div className="bg-white/95 dark:bg-slate-800/90 px-3 py-1.5 rounded-xl border border-blue-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-1.5">
+                <Video className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span className="font-semibold text-slate-700 dark:text-slate-300">{stats.totalVideos} คลิปวิดีโอ</span>
               </div>
-              <div className="bg-white/95 px-3 py-1.5 rounded-xl border border-indigo-200/80 shadow-2xs flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-indigo-600" />
-                <span className="font-semibold text-slate-700">{stats.totalResources} เอกสาร/สื่อ</span>
+              <div className="bg-white/95 dark:bg-slate-800/90 px-3 py-1.5 rounded-xl border border-indigo-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span className="font-semibold text-slate-700 dark:text-slate-300">{stats.totalResources} เอกสาร/สื่อ</span>
               </div>
-              <div className="bg-white/95 px-3 py-1.5 rounded-xl border border-emerald-200/80 shadow-2xs flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="font-semibold text-slate-700">{stats.totalQuizzes} ชุดข้อสอบ</span>
+              <div className="bg-white/95 dark:bg-slate-800/90 px-3 py-1.5 rounded-xl border border-emerald-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="font-semibold text-slate-700 dark:text-slate-300">{stats.totalQuizzes} ชุดข้อสอบ</span>
               </div>
             </div>
           </div>
@@ -255,61 +255,61 @@ export default function AdminLessonsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
         {/* Card 1: Total Lessons */}
-        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
-          <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+        <div className="p-4 sm:p-5 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
               {stats.total}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-0.5">บทเรียนทั้งหมดในวิชา</div>
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">บทเรียนทั้งหมดในวิชา</div>
           </div>
         </div>
 
         {/* Card 2: Published Lessons */}
-        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
-          <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+        <div className="p-4 sm:p-5 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold text-emerald-600 leading-tight">
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
               {stats.published}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-0.5">เผยแพร่ให้นักศึกษาแล้ว</div>
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">เผยแพร่ให้นักศึกษาแล้ว</div>
           </div>
         </div>
 
         {/* Card 3: Draft Lessons */}
-        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
-          <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0">
+        <div className="p-4 sm:p-5 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold shrink-0">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold text-amber-600 leading-tight">
+            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 leading-tight">
               {stats.draft}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-0.5">ฉบับร่าง (รอเผยแพร่)</div>
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">ฉบับร่าง (รอเผยแพร่)</div>
           </div>
         </div>
 
         {/* Card 4: Total Learning Media */}
-        <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
-          <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold shrink-0">
+        <div className="p-4 sm:p-5 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5 hover:shadow-sm transition">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">
             <Layers className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold text-indigo-600 leading-tight">
+            <div className="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 leading-tight">
               {stats.totalVideos + stats.totalResources}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-0.5">สื่อและคลิปรวมทั้งหมด</div>
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">สื่อและคลิปรวมทั้งหมด</div>
           </div>
         </div>
 
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+      <div className="p-4 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
         
         {/* Search Input */}
         <div className="relative w-full sm:w-80">
@@ -318,13 +318,13 @@ export default function AdminLessonsPage() {
             placeholder="ค้นหาชื่อบทเรียน, รหัสบทเรียน (RMUTI-001)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+            className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white dark:focus:bg-slate-800 transition"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
               title="ล้างคำค้น"
             >
               <X className="w-3.5 h-3.5" />
@@ -334,13 +334,13 @@ export default function AdminLessonsPage() {
 
         {/* Status Filter Tabs & Counters */}
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <button
               onClick={() => setStatusFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 statusFilter === 'all'
-                  ? 'bg-white text-blue-700 shadow-2xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-2xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               ทั้งหมด ({stats.total})
@@ -349,8 +349,8 @@ export default function AdminLessonsPage() {
               onClick={() => setStatusFilter('published')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 statusFilter === 'published'
-                  ? 'bg-white text-emerald-700 shadow-2xs font-bold'
-                  : 'text-slate-600 hover:text-emerald-700'
+                  ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-2xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300'
               }`}
             >
               เผยแพร่แล้ว ({stats.published})
@@ -359,15 +359,15 @@ export default function AdminLessonsPage() {
               onClick={() => setStatusFilter('draft')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 statusFilter === 'draft'
-                  ? 'bg-white text-amber-700 shadow-2xs font-bold'
-                  : 'text-slate-600 hover:text-amber-700'
+                  ? 'bg-white dark:bg-slate-700 text-amber-700 dark:text-amber-300 shadow-2xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-300'
               }`}
             >
               ฉบับร่าง ({stats.draft})
             </button>
           </div>
 
-          <span className="text-xs text-slate-400 font-medium pl-2 hidden md:inline">
+          <span className="text-xs text-slate-400 dark:text-slate-500 font-medium pl-2 hidden md:inline">
             แสดง {filtered.length} จาก {lessons.length} บทเรียน
           </span>
         </div>
@@ -375,9 +375,9 @@ export default function AdminLessonsPage() {
       </div>
 
       {/* Table: Lessons with Clean Compact Layout - No Horizontal Scroll */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+          <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="py-3.5 px-3.5 whitespace-nowrap w-24 sm:w-28">รหัสบทเรียน</th>
               <th className="py-3.5 px-3 min-w-0">ชื่อบทเรียน</th>
@@ -387,17 +387,17 @@ export default function AdminLessonsPage() {
               <th className="py-3.5 px-3 text-center whitespace-nowrap w-56 sm:w-64">การจัดการ</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-16 text-center text-slate-400">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                <td colSpan={6} className="py-16 text-center text-slate-400 dark:text-slate-500">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
                     <BookOpen className="w-6 h-6" />
                   </div>
-                  <p className="text-base font-bold text-slate-700">
+                  <p className="text-base font-bold text-slate-700 dark:text-slate-300">
                     {lessons.length === 0 ? 'ยังไม่มีบทเรียนในระบบ' : 'ไม่พบบทเรียนที่ตรงกับเงื่อนไข'}
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">
                     {lessons.length === 0 
                       ? 'ระบบพร้อมสำหรับการสร้างบทเรียนใหม่ สามารถคลิกปุ่มด้านล่างเพื่อเพิ่มบทเรียนแรกได้ทันที' 
                       : 'ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองสถานะเป็น ทั้งหมด'}
@@ -421,20 +421,20 @@ export default function AdminLessonsPage() {
                 const resourceCount = activeVer?.resources?.length || 0;
 
                 return (
-                  <tr key={l.id} className="hover:bg-blue-50/30 transition">
+                  <tr key={l.id} className="hover:bg-blue-50/30 dark:hover:bg-slate-800/50 transition">
                     
                     {/* Code */}
-                    <td className="py-3.5 px-3.5 font-mono font-bold text-blue-700 whitespace-nowrap">
+                    <td className="py-3.5 px-3.5 font-mono font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                       {l.code}
                     </td>
 
                     {/* Title only - NO preview image */}
                     <td className="py-3.5 px-3 min-w-0">
-                      <div className="font-bold text-slate-900 text-xs sm:text-sm leading-snug">
+                      <div className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm leading-snug">
                         {l.title.startsWith('บทที่') ? l.title : `บทที่ ${l.sortOrder} ${l.title}`}
                       </div>
                       {l.description && (
-                        <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 max-w-lg">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 max-w-lg">
                           {l.description}
                         </div>
                       )}
@@ -443,12 +443,12 @@ export default function AdminLessonsPage() {
                     {/* Status */}
                     <td className="py-3.5 px-2.5 whitespace-nowrap text-center">
                       {l.status === 'published' ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 sm:px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                           <span>เผยแพร่แล้ว</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-amber-200">
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 sm:px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                           <span>ฉบับร่าง</span>
                         </span>
@@ -457,14 +457,14 @@ export default function AdminLessonsPage() {
 
                     {/* Media Breakdown */}
                     <td className="py-3.5 px-2.5 whitespace-nowrap text-center hidden sm:table-cell">
-                      <div className="inline-flex items-center gap-2 text-slate-600 font-medium text-[11px]">
+                      <div className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium text-[11px]">
                         <span className="flex items-center gap-1" title="คลิปวิดีโอ">
-                          <Video className="w-3.5 h-3.5 text-blue-600" />
+                          <Video className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                           <span>{videoCount}</span>
                         </span>
-                        <span className="text-slate-300">•</span>
+                        <span className="text-slate-300 dark:text-slate-600">•</span>
                         <span className="flex items-center gap-1" title="เอกสาร/สื่อ">
-                          <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                          <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                           <span>{resourceCount}</span>
                         </span>
                       </div>
@@ -473,11 +473,11 @@ export default function AdminLessonsPage() {
                     {/* Version Tag */}
                     <td className="py-3.5 px-2.5 whitespace-nowrap text-center hidden lg:table-cell">
                       <div className="inline-flex items-center gap-1">
-                        <span className="font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 text-[11px]">
+                        <span className="font-mono text-blue-700 dark:text-blue-300 font-bold bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md border border-blue-100 dark:border-blue-900 text-[11px]">
                           {activeVer ? activeVer.versionTag : 'v1.0'}
                         </span>
                         {hasDraft && (
-                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
+                          <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-1.5 py-0.5 rounded-md border border-amber-200 dark:border-amber-900">
                             Draft
                           </span>
                         )}
@@ -491,30 +491,30 @@ export default function AdminLessonsPage() {
                         {/* Edit Metadata Button */}
                         <Link
                           href={`/admin/lessons/${l.id}/metadata`}
-                          className="px-2 py-1 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition flex items-center gap-1 border border-blue-200/80"
+                          className="px-2 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition flex items-center gap-1 border border-blue-200/80 dark:border-blue-800"
                           title="แก้ไขชื่อ คำอธิบาย ข้อมูลบทเรียน"
                         >
-                          <Edit className="w-3 h-3 text-blue-600" />
+                          <Edit className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                           <span>ข้อมูล</span>
                         </Link>
 
                         {/* Edit Videos & Resources Button */}
                         <Link
                           href={`/admin/lessons/${l.id}/content`}
-                          className="px-2 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition flex items-center gap-1 border border-indigo-200/80"
+                          className="px-2 py-1 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition flex items-center gap-1 border border-indigo-200/80 dark:border-indigo-800"
                           title="จัดการวิดีโอและสื่อประกอบ"
                         >
-                          <Video className="w-3 h-3 text-indigo-600" />
+                          <Video className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
                           <span>สื่อ</span>
                         </Link>
 
                         {/* Quizzes Button */}
                         <Link
                           href={`/admin/quizzes/${l.code}`}
-                          className="px-2 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition flex items-center gap-1 border border-emerald-200/80"
+                          className="px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-lg transition flex items-center gap-1 border border-emerald-200/80 dark:border-emerald-800"
                           title="จัดการแบบทดสอบ Pre/Post Test"
                         >
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           <span>ข้อสอบ</span>
                         </Link>
 
@@ -522,10 +522,10 @@ export default function AdminLessonsPage() {
                         <button
                           type="button"
                           onClick={() => handleDeleteLesson(l.id, l.code, l.title)}
-                          className="px-2 py-1 text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition flex items-center gap-1 border border-red-200/80 cursor-pointer"
+                          className="px-2 py-1 text-[11px] font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition flex items-center gap-1 border border-red-200/80 dark:border-red-800 cursor-pointer"
                           title="ลบบทเรียนนี้"
                         >
-                          <Trash2 className="w-3 h-3 text-red-600" />
+                          <Trash2 className="w-3 h-3 text-red-600 dark:text-red-400" />
                           <span>ลบ</span>
                         </button>
 
@@ -540,10 +540,10 @@ export default function AdminLessonsPage() {
       </div>
 
       {/* Bottom Action Footer */}
-      <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs text-slate-500 font-medium flex items-center gap-2">
-          <span>จัดการบทเรียนทั้งหมด <strong className="text-slate-800">{lessons.length}</strong> บท</span>
-          <span className="text-slate-300">•</span>
+      <div className="p-4 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
+          <span>จัดการบทเรียนทั้งหมด <strong className="text-slate-800 dark:text-slate-200">{lessons.length}</strong> บท</span>
+          <span className="text-slate-300 dark:text-slate-600">•</span>
           <span>ซิงค์ข้อมูลล่าสุดกับระบบคลาวด์เพื่อบันทึกการเปลี่ยนแปลงทั้งหมด</span>
         </div>
 
@@ -551,7 +551,7 @@ export default function AdminLessonsPage() {
           type="button"
           disabled={isSaving}
           onClick={handleManualSyncCloud}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 dark:shadow-none flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
           title="ซิงค์และบันทึกเนื้อหาบทเรียนและข้อสอบทั้งหมดขึ้น Cloud"
         >
           {isSaving ? (

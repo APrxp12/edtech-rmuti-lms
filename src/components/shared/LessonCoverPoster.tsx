@@ -158,17 +158,17 @@ export default function LessonCoverPoster({
 
 export function LessonCardSkeleton() {
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs animate-pulse flex flex-col justify-between">
-      <div className="h-44 bg-slate-200" />
+    <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs animate-pulse flex flex-col justify-between transition-colors">
+      <div className="h-44 bg-slate-200 dark:bg-slate-800" />
       <div className="p-5 space-y-4">
         <div className="space-y-2">
-          <div className="h-3 w-20 bg-slate-200 rounded" />
-          <div className="h-5 w-4/5 bg-slate-200 rounded" />
-          <div className="h-3.5 w-full bg-slate-100 rounded" />
+          <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-5 w-4/5 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-3.5 w-full bg-slate-100 dark:bg-slate-800 rounded" />
         </div>
-        <div className="pt-2 border-t border-slate-100 space-y-2">
-          <div className="h-2 w-full bg-slate-100 rounded-full" />
-          <div className="h-9 w-full bg-slate-100 rounded-xl" />
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full" />
+          <div className="h-9 w-full bg-slate-100 dark:bg-slate-800 rounded-xl" />
         </div>
       </div>
     </div>

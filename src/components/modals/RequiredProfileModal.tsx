@@ -192,15 +192,15 @@ export function RequiredProfileModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 dark:bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#111827] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative animate-in zoom-in-95 duration-200">
         
         {/* Close Button (เฉพาะเมื่อไม่ได้อยู่ในหน้าบทเรียน) */}
         {!isLessonPage && (
           <button
             type="button"
             onClick={handleDismiss}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer"
+            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition cursor-pointer"
             title="ปิดหน้าต่างนี้ชั่วคราว"
           >
             <X className="w-4 h-4" />
@@ -208,42 +208,42 @@ export function RequiredProfileModal() {
         )}
 
         {/* Modal Header */}
-        <div className="space-y-3 pb-5 border-b border-slate-100">
+        <div className="space-y-3 pb-5 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <span
               className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 ${
                 isForced || isLessonPage
-                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                  : 'bg-blue-100 text-blue-800 border border-blue-200'
+                  ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                  : 'bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
               }`}
             >
               {isForced || isLessonPage ? (
                 <>
-                  <Lock className="w-3 h-3 text-amber-600" />
+                  <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                   <span>บังคับกรอกข้อมูลก่อนเริ่มเรียน</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3 h-3 text-blue-600" />
+                  <Sparkles className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                   <span>ข้อมูลนักศึกษา (ครั้งแรก)</span>
                 </>
               )}
             </span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight">
             {isForced || isLessonPage
               ? 'กรุณาระบุข้อมูลนักศึกษาเพื่อเริ่มเรียน'
               : 'กรอกข้อมูลนักศึกษาเพื่อเริ่มต้นใช้งาน'}
           </h2>
 
           {forceReason ? (
-            <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5">
-              <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
+              <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
               <div className="font-medium leading-relaxed">{forceReason}</div>
             </div>
           ) : (
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               ยินดีต้อนรับสู่ระบบ EDTech กรุณาระบุชื่อ-นามสกุลจริง และรหัสนักศึกษา เพื่อใช้ในการบันทึกประวัติการเรียน การทำแบบทดสอบ และการออกผลคะแนน
             </p>
           )}
@@ -253,7 +253,7 @@ export function RequiredProfileModal() {
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           
           {/* Readonly Google Account Display */}
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <UserAvatar
                 src={currentUser.avatarUrl}
@@ -262,28 +262,28 @@ export function RequiredProfileModal() {
                 size="sm"
                 rounded="rounded-xl"
                 showGoogleBadge={true}
-                className="w-9 h-9 border border-blue-200 shrink-0"
+                className="w-9 h-9 border border-blue-200 dark:border-blue-800 shrink-0"
               />
               <div className="min-w-0">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">บัญชี Google ที่เข้าสู่ระบบ</div>
-                <div className="text-xs font-mono font-bold text-slate-800 truncate">{currentUser.email}</div>
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">บัญชี Google ที่เข้าสู่ระบบ</div>
+                <div className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 truncate">{currentUser.email}</div>
               </div>
             </div>
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800 shrink-0 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               <span>ยืนยันแล้ว</span>
             </span>
           </div>
 
           {/* Prefix Dropdown */}
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-1">
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
               คำนำหน้าชื่อ <span className="text-red-500">*</span>
             </label>
             <select
               value={titlePrefix}
               onChange={(e) => setTitlePrefix(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
             >
               <option value="นาย">นาย</option>
               <option value="นางสาว">นางสาว</option>
@@ -295,7 +295,7 @@ export function RequiredProfileModal() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* First Name Input */}
             <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                 ชื่อจริง (ภาษาไทย) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -305,28 +305,28 @@ export function RequiredProfileModal() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   autoFocus
-                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition ${
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 ${
                     isValidFirst
-                      ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
-                      : 'border-slate-200 focus:ring-blue-600 bg-white'
+                      ? 'border-emerald-300 dark:border-emerald-600 focus:ring-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20'
+                      : 'border-slate-200 dark:border-slate-700 focus:ring-blue-600 bg-white dark:bg-slate-800'
                   }`}
                   required
                 />
-                <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <User className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
               </div>
               {isValidFirst ? (
-                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-1">
+                <div className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
                   <CheckCircle2 className="w-3 h-3" />
                   <span>ระบุชื่อเรียบร้อย</span>
                 </div>
               ) : (
-                <p className="text-[10px] text-slate-400 mt-1">กรอกชื่อจริง (บังคับ)</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">กรอกชื่อจริง (บังคับ)</p>
               )}
             </div>
 
             {/* Last Name Input */}
             <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                 นามสกุล (ภาษาไทย) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -335,29 +335,29 @@ export function RequiredProfileModal() {
                   placeholder="เช่น ใจดี หรือ น้อยโนนงิ้ว"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition ${
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 ${
                     isValidLast
-                      ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
-                      : 'border-rose-300 focus:ring-rose-500 bg-rose-50/20'
+                      ? 'border-emerald-300 dark:border-emerald-600 focus:ring-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20'
+                      : 'border-rose-300 dark:border-rose-700 focus:ring-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
                   }`}
                   required
                 />
-                <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <User className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
               </div>
               {isValidLast ? (
-                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-1">
+                <div className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
                   <CheckCircle2 className="w-3 h-3" />
                   <span>ระบุนามสกุลเรียบร้อย</span>
                 </div>
               ) : (
-                <p className="text-[10px] text-rose-500 font-medium mt-1">กรุณาระบุนามสกุล (บังคับ)</p>
+                <p className="text-[10px] text-rose-500 dark:text-rose-400 font-medium mt-1">กรุณาระบุนามสกุล (บังคับ)</p>
               )}
             </div>
           </div>
 
           {/* Student ID Input */}
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-1">
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
               รหัสนักศึกษา <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -366,27 +366,27 @@ export function RequiredProfileModal() {
                 placeholder="เช่น 653321102001-1 หรือ 65123456789"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition ${
+                className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 ${
                   isValidStudentId
-                    ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
-                    : 'border-slate-200 focus:ring-blue-600 bg-white'
+                    ? 'border-emerald-300 dark:border-emerald-600 focus:ring-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20'
+                    : 'border-slate-200 dark:border-slate-700 focus:ring-blue-600 bg-white dark:bg-slate-800'
                 }`}
                 required
               />
-              <GraduationCap className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <GraduationCap className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
             </div>
             {isValidStudentId ? (
-              <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-1">
+              <div className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
                 <CheckCircle2 className="w-3 h-3" />
                 <span>รูปแบบรหัสนักศึกษาถูกต้อง</span>
               </div>
             ) : (
-              <p className="text-[10px] text-slate-400 mt-1">ตัวเลข 10-15 หลักตามบัตรนักศึกษา (บังคับ)</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">ตัวเลข 10-15 หลักตามบัตรนักศึกษา (บังคับ)</p>
             )}
           </div>
 
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
               <span>{errorMessage}</span>
             </div>
@@ -398,7 +398,7 @@ export function RequiredProfileModal() {
               <button
                 type="button"
                 onClick={() => router.push('/dashboard')}
-                className="w-full sm:w-auto py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>กลับแดชบอร์ด</span>
@@ -407,7 +407,7 @@ export function RequiredProfileModal() {
               <button
                 type="button"
                 onClick={handleDismiss}
-                className="w-full sm:w-auto py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
               >
                 <span>ดูภาพรวมก่อน</span>
               </button>
@@ -416,7 +416,7 @@ export function RequiredProfileModal() {
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-blue-200 transition cursor-pointer"
+              className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-blue-200 dark:shadow-none transition cursor-pointer"
             >
               {isSaving ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -429,7 +429,7 @@ export function RequiredProfileModal() {
             </button>
           </div>
 
-          <p className="text-[10px] text-center text-slate-400 pt-1">
+          <p className="text-[10px] text-center text-slate-400 dark:text-slate-500 pt-1">
             🔒 ข้อมูลของคุณปลอดภัยและใช้เพื่อการประเมินผลการเรียนรู้รายวิชาเท่านั้น
           </p>
 

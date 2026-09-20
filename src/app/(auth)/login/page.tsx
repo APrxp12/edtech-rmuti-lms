@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { siteBranding } from '@/config/site-branding';
 import { useAppStore } from '@/data/store';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 declare global {
   interface Window {
@@ -143,7 +144,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-blue-50/70 via-white to-slate-50">
+    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-blue-50/70 via-white to-slate-50 dark:from-slate-950 dark:via-[#0B0F19] dark:to-slate-950 text-slate-900 dark:text-slate-100">
       <Script 
         src="https://accounts.google.com/gsi/client" 
         strategy="afterInteractive" 
@@ -151,21 +152,22 @@ export default function LoginPage() {
       />
 
       {/* Top Navbar */}
-      <nav className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30">
+      <nav className="bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-3.5">
             <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md">
               <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
             </div>
             <div>
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                 {siteBranding.universityName}
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-base sm:text-xl font-black text-blue-900 tracking-tight">EDTech</span>
+                <span className="text-base sm:text-xl font-black text-blue-900 dark:text-blue-400 tracking-tight">EDTech</span>
               </div>
             </div>
           </div>
+          <ThemeToggle />
         </div>
       </nav>
 
@@ -175,19 +177,19 @@ export default function LoginPage() {
           
           {/* Left Column: Heading & Google Sign-in */}
           <div className="lg:col-span-7 flex flex-col items-center text-center space-y-4 sm:space-y-6 lg:space-y-8">
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-blue-100/80 border border-blue-200 text-blue-800 text-[11px] sm:text-sm font-bold shadow-xs">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-blue-100/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-[11px] sm:text-sm font-bold shadow-xs">
               <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
               ยินดีต้อนรับสู่ระบบการเรียนรู้ดิจิทัล
             </div>
 
             <div className="space-y-2 sm:space-y-3.5 max-w-2xl">
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-tight">
-                ยินดีต้อนรับสู่ <span className="text-blue-600">EDTech</span>
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                ยินดีต้อนรับสู่ <span className="text-blue-600 dark:text-blue-400">EDTech</span>
               </h1>
-              <p className="text-base sm:text-xl lg:text-2xl font-bold text-slate-800 leading-snug">
+              <p className="text-base sm:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-200 leading-snug">
                 {siteBranding.slogan}
               </p>
-              <p className="text-xs sm:text-sm lg:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm lg:text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
                 {siteBranding.subSlogan}
               </p>
             </div>
@@ -206,7 +208,7 @@ export default function LoginPage() {
                 <button
                   onClick={handleManualGoogleClick}
                   disabled={isLoading}
-                  className="w-full max-w-[320px] sm:max-w-[420px] flex items-center justify-center gap-3 py-3 sm:py-4 px-5 sm:px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-lg shadow-lg shadow-blue-200 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
+                  className="w-full max-w-[320px] sm:max-w-[420px] flex items-center justify-center gap-3 py-3 sm:py-4 px-5 sm:px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-lg shadow-lg shadow-blue-200 dark:shadow-none hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -224,16 +226,16 @@ export default function LoginPage() {
                 </button>
               )}
 
-              <p className="text-[11px] sm:text-xs text-slate-500 text-center font-medium">
-                สำหรับบัญชี Google <span className="font-bold text-blue-700">@rmuti.ac.th</span> และบัญชีที่ได้รับอนุญาต
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 text-center font-medium">
+                สำหรับบัญชี Google <span className="font-bold text-blue-700 dark:text-blue-400">@rmuti.ac.th</span> และบัญชีที่ได้รับอนุญาต
               </p>
 
               {errorMessage && (
-                <div className="w-full max-w-[380px] p-3 sm:p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5 sm:gap-3 text-left animate-in fade-in duration-200">
+                <div className="w-full max-w-[380px] p-3 sm:p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 sm:gap-3 text-left animate-in fade-in duration-200">
                   <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-0.5 text-red-500" />
                   <div className="space-y-0.5">
                     <span className="font-bold text-xs sm:text-sm">ปฏิเสธการเข้าถึง</span>
-                    <p className="text-[11px] sm:text-xs text-red-600 leading-relaxed">{errorMessage}</p>
+                    <p className="text-[11px] sm:text-xs text-red-600 dark:text-red-400 leading-relaxed">{errorMessage}</p>
                   </div>
                 </div>
               )}
@@ -243,17 +245,17 @@ export default function LoginPage() {
           {/* Right Column: Visual Mascot & Illustration */}
           <div className="lg:col-span-5 flex justify-center">
             <div className="relative w-full max-w-sm sm:max-w-md">
-              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-b from-blue-600/10 to-indigo-600/20 p-5 sm:p-8 lg:p-10 text-center border border-blue-100 shadow-md sm:shadow-2xl">
+              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-b from-blue-600/10 to-indigo-600/20 dark:from-blue-900/20 dark:to-indigo-900/30 p-5 sm:p-8 lg:p-10 text-center border border-blue-100 dark:border-blue-900/40 shadow-md sm:shadow-2xl">
                 <img
                   src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=700"
                   alt="Student illustration"
-                  className="w-36 h-36 sm:w-56 sm:h-56 lg:w-64 lg:h-64 object-cover rounded-2xl sm:rounded-3xl mx-auto shadow-md sm:shadow-lg border-2 sm:border-4 border-white"
+                  className="w-36 h-36 sm:w-56 sm:h-56 lg:w-64 lg:h-64 object-cover rounded-2xl sm:rounded-3xl mx-auto shadow-md sm:shadow-lg border-2 sm:border-4 border-white dark:border-slate-800"
                 />
                 <div className="mt-4 sm:mt-6 space-y-1">
-                  <div className="text-xs sm:text-base font-bold text-blue-950">
+                  <div className="text-xs sm:text-base font-bold text-blue-950 dark:text-blue-200">
                     “{siteBranding.motto}”
                   </div>
-                  <div className="text-[10px] sm:text-xs font-semibold text-blue-600 uppercase tracking-wider">
+                  <div className="text-[10px] sm:text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                     {siteBranding.subMotto}
                   </div>
                 </div>
@@ -264,35 +266,35 @@ export default function LoginPage() {
         </div>
 
         {/* Guidance Info Announcement Cards */}
-        <div className="mt-8 sm:mt-14 pt-6 sm:pt-10 border-t border-slate-200">
+        <div className="mt-8 sm:mt-14 pt-6 sm:pt-10 border-t border-slate-200 dark:border-slate-800">
           <div className="text-center mb-5 sm:mb-8 space-y-1">
-            <h3 className="text-sm sm:text-base font-bold text-slate-800">บัญชีที่สามารถเข้าสู่ระบบได้</h3>
-            <p className="text-[11px] sm:text-sm text-slate-500">กรุณาใช้บัญชี Google ของมหาวิทยาลัยหรือบัญชีที่ได้รับอนุญาตเท่านั้น</p>
+            <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200">บัญชีที่สามารถเข้าสู่ระบบได้</h3>
+            <p className="text-[11px] sm:text-sm text-slate-500 dark:text-slate-400">กรุณาใช้บัญชี Google ของมหาวิทยาลัยหรือบัญชีที่ได้รับอนุญาตเท่านั้น</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-6 max-w-3xl mx-auto">
             
             {/* Card 1: นักศึกษา */}
-            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3.5 sm:gap-4 select-none">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5 sm:gap-4 select-none">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                 <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-slate-800">นักศึกษา</div>
-                <div className="text-[11px] text-blue-600 font-mono truncate">เช่น 65123456789@rmuti.ac.th</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">บัญชีนักศึกษาของมหาวิทยาลัย</div>
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-100">นักศึกษา</div>
+                <div className="text-[11px] text-blue-600 dark:text-blue-400 font-mono truncate">เช่น 65123456789@rmuti.ac.th</div>
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">บัญชีนักศึกษาของมหาวิทยาลัย</div>
               </div>
             </div>
 
             {/* Card 2: อาจารย์และบุคลากร */}
-            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3.5 sm:gap-4 select-none">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5 sm:gap-4 select-none">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                 <User className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-slate-800">อาจารย์และบุคลากร</div>
-                <div className="text-[11px] text-indigo-600 font-mono truncate">เช่น somchai@rmuti.ac.th</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">บัญชีบุคลากรของมหาวิทยาลัย</div>
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-100">อาจารย์และบุคลากร</div>
+                <div className="text-[11px] text-indigo-600 dark:text-indigo-400 font-mono truncate">เช่น somchai@rmuti.ac.th</div>
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">บัญชีบุคลากรของมหาวิทยาลัย</div>
               </div>
             </div>
 
