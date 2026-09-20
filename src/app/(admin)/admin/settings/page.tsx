@@ -172,31 +172,6 @@ export default function AdminSettingsPage() {
               <span>หน่วยความจำเครื่อง</span>
             </div>
           )}
-
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={handleResetDefaults}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
-            title="คืนค่าการตั้งค่าทั้งหมดเป็นค่าเริ่มต้น"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>คืนค่าเริ่มต้น</span>
-          </button>
-
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={handleSave}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-blue-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
-          >
-            {isSaving ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}</span>
-          </button>
         </div>
       </div>
 
@@ -673,10 +648,15 @@ export default function AdminSettingsPage() {
 
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-blue-200 flex items-center gap-1.5 transition cursor-pointer"
+              disabled={isSaving}
+              className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
             >
-              <Save className="w-4 h-4" />
-              <span>บันทึกการตั้งค่าทั้งหมด</span>
+              {isSaving ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่าทั้งหมด'}</span>
             </button>
           </div>
         </div>

@@ -20,7 +20,7 @@ export default function AdminSidebar() {
   };
 
   const navItems = [
-    { href: '/dashboard', label: 'หน้าแรก (มุมมองผู้เรียน)', icon: ArrowLeft },
+    { href: '/dashboard', label: 'กลับสู่แดชบอร์ดหลัก', icon: ArrowLeft },
     { href: '/admin/lessons', label: 'จัดการบทเรียน', icon: BookOpen },
     { href: '/admin/users', label: 'จัดการผู้ใช้งาน', icon: Users },
     { href: '/admin/access-rules', label: 'กำหนดสิทธิ์การใช้งาน', icon: Shield },

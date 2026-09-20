@@ -374,30 +374,6 @@ export default function AdminQuizBuilderPage() {
               <span>หน่วยความจำเครื่อง</span>
             </div>
           )}
-
-          <Link
-            href={`/lessons/${lesson.code}/${activeQuizType === 'pre_test' ? 'pre-test' : 'post-test'}`}
-            target="_blank"
-            className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
-            title="เปิดดูในมุมมองผู้เรียนในแท็บใหม่"
-          >
-            <Eye className="w-3.5 h-3.5 text-slate-500" />
-            <span>มุมมองผู้เรียน ({activeQuizType === 'pre_test' ? 'Pre-test' : 'Post-test'})</span>
-            <ExternalLink className="w-3 h-3 text-slate-400" />
-          </Link>
-
-          <button
-            disabled={isSaving}
-            onClick={handleSaveAllQuiz}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
-          >
-            {isSaving ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกแบบทดสอบ'}</span>
-          </button>
         </div>
       </div>
 
@@ -834,6 +810,31 @@ export default function AdminQuizBuilderPage() {
           </div>
         )}
 
+      </div>
+
+      {/* Bottom Action Footer */}
+      <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => router.push('/admin/lessons')}
+          className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+        >
+          ← กลับไปหน้ารวมบทเรียน
+        </button>
+
+        <button
+          type="button"
+          disabled={isSaving}
+          onClick={handleSaveAllQuiz}
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+        >
+          {isSaving ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
+          <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกแบบทดสอบ'}</span>
+        </button>
       </div>
 
       {/* QUESTION MODAL (Add / Edit) */}

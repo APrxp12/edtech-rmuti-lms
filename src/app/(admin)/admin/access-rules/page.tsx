@@ -300,31 +300,6 @@ export default function AdminAccessRulesPage() {
             </div>
           )}
 
-          {/* ปุ่มบันทึกการตั้งค่า (Save Changes Button) */}
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={handleManualSave}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
-            title="บันทึกการเปลี่ยนแปลงทั้งหมดลงฐานข้อมูล"
-          >
-            {isSaving ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleResetDefaults}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-            title="ล้างกฎทั้งหมด"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>ล้างค่าทั้งหมด</span>
-          </button>
 
           <button
             type="button"
@@ -712,6 +687,34 @@ export default function AdminAccessRulesPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Bottom Action Footer */}
+      <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={handleResetDefaults}
+          className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+          title="ล้างกฎทั้งหมด"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>ล้างค่าทั้งหมด</span>
+        </button>
+
+        <button
+          type="button"
+          disabled={isSaving}
+          onClick={handleManualSave}
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-200 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-60"
+          title="บันทึกการเปลี่ยนแปลงทั้งหมดลงฐานข้อมูล"
+        >
+          {isSaving ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
+          <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}</span>
+        </button>
       </div>
 
       {/* ADD / EDIT RULE MODAL */}
