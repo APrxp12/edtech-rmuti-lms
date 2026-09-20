@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { EmptyStateCard } from '@/components/shared/SharedDialogs';
+import LessonCoverPoster, { LessonCardSkeleton } from '@/components/shared/LessonCoverPoster';
 import { Announcement } from '@/types';
 import { isProfileComplete } from '@/lib/profileValidation';
 
@@ -623,7 +624,13 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Lesson Cards Grid */}
-        {filteredLessons.length === 0 ? (
+        {!isLoaded ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <LessonCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredLessons.length === 0 ? (
           <EmptyStateCard
             title={lessons.length === 0 ? "ยังไม่มีบทเรียนในรายวิชานี้" : "ไม่พบบทเรียนที่ตรงกับเงื่อนไข"}
             description={lessons.length === 0 ? "ระบบพร้อมสำหรับเนื้อหาใหม่ เมื่ออาจารย์เพิ่มบทเรียนจะแสดงที่นี่ทันที" : (searchQuery ? `ไม่พบบทเรียนที่มีคำว่า "${searchQuery}" ลองค้นหาด้วยคำอื่น หรือกดล้างการค้นหา` : 'ยังไม่มีบทเรียนในสถานะนี้')}
@@ -657,31 +664,23 @@ export default function StudentDashboardPage() {
                 <div
                   key={lesson.id}
                   onClick={() => handleStartLesson(destinationUrl, lesson.title, isLocked)}
-                  className={`bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-blue-400 transition-all flex flex-col justify-between group ${
-                    isLocked ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
+                  className={`bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between group transition-all duration-300 ${
+                    isLocked
+                      ? 'cursor-not-allowed opacity-80'
+                      : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-400 active:translate-y-0 active:scale-[0.99]'
                   }`}
                 >
                   {/* Card Thumbnail / Header */}
-                  <div className="relative h-40 sm:h-44 bg-slate-100 overflow-hidden">
-                    {lesson.coverImageUrl ? (
-                      <img
-                        src={lesson.coverImageUrl}
-                        alt={lesson.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-300">
-                        <BookOpen className="w-10 h-10" />
-                      </div>
-                    )}
+                  <div className="relative h-40 sm:h-44 bg-slate-900 overflow-hidden">
+                    <LessonCoverPoster lesson={lesson} />
 
                     {/* Number Badge */}
-                    <div className="absolute top-3 left-3 w-8 h-8 rounded-xl bg-blue-600 text-white text-sm font-black flex items-center justify-center shadow-md">
+                    <div className="absolute top-3 left-3 w-8 h-8 rounded-xl bg-blue-600 text-white text-sm font-black flex items-center justify-center shadow-md z-20">
                       {lesson.sortOrder}
                     </div>
 
                     {/* Status Tag Pill (Enlarged to text-xs) */}
-                    <div className="absolute top-3 right-3">
+                    <div className="absolute top-3 right-3 z-20">
                       {isCompleted ? (
                         <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500 text-white shadow-xs">
                           เสร็จสิ้น

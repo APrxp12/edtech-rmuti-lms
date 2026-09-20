@@ -8,6 +8,7 @@ import {
   Award, HelpCircle, Download, ExternalLink, Sparkles, Lock, X, Maximize2, Target
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
+import LessonCoverPoster from '@/components/shared/LessonCoverPoster';
 
 export default function LessonIntroPage() {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function LessonIntroPage() {
 
   const isReviewMode = searchParams?.get('mode') === 'review' || progress.status === 'passed' || progress.isPreTestCompleted;
 
-  const infographicSrc = lesson.introInfographicUrl || lesson.coverImageUrl || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200";
+  const infographicSrc = lesson.introInfographicUrl || lesson.coverImageUrl || '';
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
@@ -116,11 +117,9 @@ export default function LessonIntroPage() {
 
           <div className="lg:col-span-4 flex justify-center">
             <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 text-center w-full">
-              <img
-                src={lesson.coverImageUrl || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400"}
-                alt="Lesson intro"
-                className="w-32 h-32 object-cover rounded-xl mx-auto shadow-xs border-2 border-white mb-2"
-              />
+              <div className="w-32 h-32 rounded-xl overflow-hidden mx-auto shadow-sm border-2 border-white mb-2">
+                <LessonCoverPoster lesson={lesson} compact={true} />
+              </div>
               <p className="text-xs font-bold text-blue-900">“สื่อการสอนที่ดี สร้างการเรียนรู้ที่ดีกว่า”</p>
               <p className="text-[10px] text-blue-600">มาเรียนรู้การสร้างสื่อออนไลน์ที่น่าสนใจกันเถอะ</p>
             </div>
@@ -130,43 +129,45 @@ export default function LessonIntroPage() {
       </div>
 
       {/* Infographic Overview Card with Lightbox Fullscreen click */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            <h2 className="text-base font-bold text-slate-900">Infographic สรุปภาพรวมเนื้อหาประจำบท</h2>
+      {infographicSrc && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h2 className="text-base font-bold text-slate-900">Infographic สรุปภาพรวมเนื้อหาประจำบท</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              className="text-xs font-semibold px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-full border border-amber-200 flex items-center gap-1.5 transition"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              คลิกดูภาพเต็มจอ
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(true)}
-            className="text-xs font-semibold px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-full border border-amber-200 flex items-center gap-1.5 transition"
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-            คลิกดูภาพเต็มจอ
-          </button>
-        </div>
 
-        {/* Big Infographic Display */}
-        <div 
-          onClick={() => setLightboxOpen(true)}
-          className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-inner cursor-pointer group relative"
-        >
-          <img
-            src={infographicSrc}
-            alt={`Infographic ${lesson.title}`}
-            className="w-full h-72 sm:h-[420px] object-cover group-hover:scale-[1.01] transition duration-300"
-          />
-          <div className="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-            <span className="px-4 py-2 bg-white/90 backdrop-blur-xs rounded-xl text-xs font-bold text-slate-900 shadow-lg flex items-center gap-2">
-              <Maximize2 className="w-4 h-4 text-blue-600" />
-              คลิกเพื่อดูภาพขยายเต็มจอ
-            </span>
+          {/* Big Infographic Display */}
+          <div 
+            onClick={() => setLightboxOpen(true)}
+            className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-inner cursor-pointer group relative"
+          >
+            <img
+              src={infographicSrc}
+              alt={`Infographic ${lesson.title}`}
+              className="w-full h-72 sm:h-[420px] object-cover group-hover:scale-[1.01] transition duration-300"
+            />
+            <div className="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span className="px-4 py-2 bg-white/90 backdrop-blur-xs rounded-xl text-xs font-bold text-slate-900 shadow-lg flex items-center gap-2">
+                <Maximize2 className="w-4 h-4 text-blue-600" />
+                คลิกเพื่อดูภาพขยายเต็มจอ
+              </span>
+            </div>
           </div>
+          <p className="text-xs text-slate-500 text-center font-medium">
+            💡 ศึกษา Infographic สรุปสาระสำคัญด้านบน เพื่อเตรียมความพร้อมในการทำแบบทดสอบหรือทบทวนบทเรียน
+          </p>
         </div>
-        <p className="text-xs text-slate-500 text-center font-medium">
-          💡 ศึกษา Infographic สรุปสาระสำคัญด้านบน เพื่อเตรียมความพร้อมในการทำแบบทดสอบหรือทบทวนบทเรียน
-        </p>
-      </div>
+      )}
 
       {/* Fullscreen Lightbox Modal */}
       {lightboxOpen && (
