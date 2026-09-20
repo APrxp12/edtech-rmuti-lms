@@ -635,8 +635,8 @@ export default function StudentDashboardPage() {
         {/* Lesson Cards Grid */}
         {filteredLessons.length === 0 ? (
           <EmptyStateCard
-            title="ไม่พบบทเรียนที่ตรงกับเงื่อนไข"
-            description={searchQuery ? `ไม่พบบทเรียนที่มีคำว่า "${searchQuery}" ลองค้นหาด้วยคำอื่น หรือกดล้างการค้นหา` : 'ยังไม่มีบทเรียนในสถานะนี้'}
+            title={lessons.length === 0 ? "ยังไม่มีบทเรียนในรายวิชานี้" : "ไม่พบบทเรียนที่ตรงกับเงื่อนไข"}
+            description={lessons.length === 0 ? "ระบบพร้อมสำหรับเนื้อหาใหม่ เมื่ออาจารย์เพิ่มบทเรียนจะแสดงที่นี่ทันที" : (searchQuery ? `ไม่พบบทเรียนที่มีคำว่า "${searchQuery}" ลองค้นหาด้วยคำอื่น หรือกดล้างการค้นหา` : 'ยังไม่มีบทเรียนในสถานะนี้')}
             actionLabel={searchQuery ? 'ล้างการค้นหา' : undefined}
             onAction={searchQuery ? () => setSearchQuery('') : undefined}
           />

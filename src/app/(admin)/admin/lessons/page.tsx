@@ -402,10 +402,27 @@ export default function AdminLessonsPage() {
           <tbody className="divide-y divide-slate-100">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-slate-400">
-                  <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-semibold text-slate-600">ไม่พบบทเรียนที่ตรงกับเงื่อนไข</p>
-                  <p className="text-xs text-slate-400 mt-0.5">ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองสถานะเป็น ทั้งหมด</p>
+                <td colSpan={6} className="py-16 text-center text-slate-400">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <p className="text-base font-bold text-slate-700">
+                    {lessons.length === 0 ? 'ยังไม่มีบทเรียนในระบบ' : 'ไม่พบบทเรียนที่ตรงกับเงื่อนไข'}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                    {lessons.length === 0 
+                      ? 'ระบบพร้อมสำหรับการสร้างบทเรียนใหม่ สามารถคลิกปุ่มด้านล่างเพื่อเพิ่มบทเรียนแรกได้ทันที' 
+                      : 'ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองสถานะเป็น ทั้งหมด'}
+                  </p>
+                  {lessons.length === 0 && (
+                    <Link
+                      href="/admin/lessons/new"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 mt-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-xs"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>สร้างบทเรียนแรก</span>
+                    </Link>
+                  )}
                 </td>
               </tr>
             ) : (

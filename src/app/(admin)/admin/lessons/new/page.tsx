@@ -20,7 +20,7 @@ export default function AddLessonPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [objectives, setObjectives] = useState('');
-  const [sortOrder, setSortOrder] = useState('9');
+  const [sortOrder, setSortOrder] = useState(() => (lessons.length + 1).toString());
   const [countsInProgress, setCountsInProgress] = useState(true);
   const [infographicUrl, setInfographicUrl] = useState('');
 

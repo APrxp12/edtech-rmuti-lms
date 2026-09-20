@@ -429,7 +429,20 @@ export default function MyProgressPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {lessons.map((lesson) => {
+              {lessons.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-16 text-center text-slate-400">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                      <BookOpen className="w-6 h-6" />
+                    </div>
+                    <p className="text-base font-bold text-slate-700">ยังไม่มีบทเรียนในระบบ</p>
+                    <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                      เมื่ออาจารย์ผู้สอนเพิ่มเนื้อหาบทเรียน ตารางความก้าวหน้าจะแสดงที่นี่โดยอัตโนมัติ
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                lessons.map((lesson) => {
                 const progress = progressMap[lesson.code] || {
                   progressPercent: 0,
                   status: 'not_started',
@@ -595,7 +608,7 @@ export default function MyProgressPage() {
 
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>
@@ -610,7 +623,18 @@ export default function MyProgressPage() {
           </span>
         </div>
 
-        {lessons.map((lesson) => {
+        {lessons.length === 0 ? (
+          <div className="bg-white rounded-3xl p-8 border border-slate-200 text-center text-slate-400 shadow-xs">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <p className="text-base font-bold text-slate-700">ยังไม่มีบทเรียนในระบบ</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+              เมื่ออาจารย์ผู้สอนเพิ่มเนื้อหาบทเรียน รายการจะแสดงที่นี่โดยอัตโนมัติ
+            </p>
+          </div>
+        ) : (
+          lessons.map((lesson) => {
           const progress = progressMap[lesson.code] || {
             progressPercent: 0,
             status: 'not_started',
@@ -726,7 +750,7 @@ export default function MyProgressPage() {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
 
     </div>

@@ -459,8 +459,8 @@ export default function MyLessonsPage() {
       {/* Content: Grid or List View */}
       {filteredLessons.length === 0 ? (
         <EmptyStateCard
-          title="ไม่พบบทเรียนที่ตรงกับเงื่อนไข"
-          description={searchQuery ? `ไม่พบบทเรียนที่มีคำว่า "${searchQuery}" กรุณาลองค้นหาด้วยคำอื่น หรือกดล้างการค้นหา` : 'ยังไม่มีบทเรียนในสถานะที่เลือก'}
+          title={lessons.length === 0 ? "ยังไม่มีบทเรียนในรายวิชานี้" : "ไม่พบบทเรียนที่ตรงกับเงื่อนไข"}
+          description={lessons.length === 0 ? "ระบบพร้อมสำหรับเนื้อหาใหม่ เมื่ออาจารย์ผู้สอนเพิ่มบทเรียนจะแสดงที่นี่โดยอัตโนมัติ" : (searchQuery ? `ไม่พบบทเรียนที่มีคำว่า "${searchQuery}" กรุณาลองค้นหาด้วยคำอื่น หรือกดล้างการค้นหา` : 'ยังไม่มีบทเรียนในสถานะที่เลือก')}
           actionLabel={searchQuery ? 'ล้างคำค้นหา' : undefined}
           onAction={searchQuery ? () => setSearchQuery('') : undefined}
         />

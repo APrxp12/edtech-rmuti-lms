@@ -19,11 +19,6 @@ import {
   initialCurrentUser,
   emptyGuestUser,
   initialAdminUser,
-  initialLessons,
-  initialQuizzes,
-  initialAnnouncements,
-  initialAccessRules,
-  mockUsersList,
 } from './mock-data';
 import { initialSystemSettings, SystemSettings } from '../config/system-settings';
 import { defaultAccessControlConfig } from '../config/access-control';
@@ -58,11 +53,11 @@ const STORAGE_KEYS = {
 
 export function useAppStore() {
   const [currentUser, setCurrentUser] = useState<UserProfile>(initialCurrentUser);
-  const [usersList, setUsersList] = useState<UserProfile[]>(mockUsersList);
-  const [lessons, setLessons] = useState<Lesson[]>(initialLessons);
-  const [quizzes, setQuizzes] = useState<Quiz[]>(initialQuizzes);
-  const [announcements, setAnnouncements] = useState<Announcement[]>(initialAnnouncements);
-  const [accessRules, setAccessRules] = useState<AccessRule[]>(initialAccessRules);
+  const [usersList, setUsersList] = useState<UserProfile[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [accessRules, setAccessRules] = useState<AccessRule[]>([]);
   const [settings, setSettings] = useState<SystemSettings>(initialSystemSettings);
   const [progressMap, setProgressMap] = useState<Record<string, UserLessonProgress>>({});
   const [isLoaded, setIsLoaded] = useState(false);
@@ -92,27 +87,78 @@ export function useAppStore() {
 
       const savedUsersList = localStorage.getItem(STORAGE_KEYS.USERS_LIST);
       if (savedUsersList) {
-        const parsedList: UserProfile[] = JSON.parse(savedUsersList);
-        const cleanedList = parsedList.map((u) => {
-          if (u.avatarUrl && u.avatarUrl.includes('images.unsplash.com') && u.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
-            return { ...u, avatarUrl: '' };
-          }
-          return u;
-        });
-        setUsersList(cleanedList);
+        try {
+          const parsedList: UserProfile[] = JSON.parse(savedUsersList);
+          const cleanedList = parsedList.map((u) => {
+            if (u.avatarUrl && u.avatarUrl.includes('images.unsplash.com') && u.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
+              return { ...u, avatarUrl: '' };
+            }
+            return u;
+          });
+          setUsersList(cleanedList);
+        } catch (e) {
+          setUsersList([]);
+        }
       }
 
+      // ตรวจสอบและล้างข้อมูล Mock เดิมออกจาก LocalStorage เพื่อรอรับข้อมูลจริงจาก Cloud
       const savedLessons = localStorage.getItem(STORAGE_KEYS.LESSONS);
-      if (savedLessons) setLessons(JSON.parse(savedLessons));
+      if (savedLessons) {
+        try {
+          const parsed = JSON.parse(savedLessons);
+          const isMock = Array.isArray(parsed) && parsed.some((l) => l.id === 'lsn-001' && l.code === 'RMUTI-001');
+          if (isMock) {
+            localStorage.removeItem(STORAGE_KEYS.LESSONS);
+            setLessons([]);
+          } else if (Array.isArray(parsed)) {
+            setLessons(parsed);
+          }
+        } catch (e) {
+          setLessons([]);
+        }
+      }
 
       const savedQuizzes = localStorage.getItem(STORAGE_KEYS.QUIZZES);
-      if (savedQuizzes) setQuizzes(JSON.parse(savedQuizzes));
+      if (savedQuizzes) {
+        try {
+          const parsed = JSON.parse(savedQuizzes);
+          const isMock = Array.isArray(parsed) && parsed.some((q) => q.id === 'quiz-pre-001');
+          if (isMock) {
+            localStorage.removeItem(STORAGE_KEYS.QUIZZES);
+            setQuizzes([]);
+          } else if (Array.isArray(parsed)) {
+            setQuizzes(parsed);
+          }
+        } catch (e) {
+          setQuizzes([]);
+        }
+      }
 
       const savedAnnouncements = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENTS);
-      if (savedAnnouncements) setAnnouncements(JSON.parse(savedAnnouncements));
+      if (savedAnnouncements) {
+        try {
+          const parsed = JSON.parse(savedAnnouncements);
+          const isMock = Array.isArray(parsed) && parsed.some((a) => a.id === 'ann-1' && a.title?.includes('ยินดีต้อนรับ'));
+          if (isMock) {
+            localStorage.removeItem(STORAGE_KEYS.ANNOUNCEMENTS);
+          } else if (Array.isArray(parsed)) {
+            setAnnouncements(parsed);
+          }
+        } catch (e) {}
+      }
 
       const savedRules = localStorage.getItem(STORAGE_KEYS.ACCESS_RULES);
-      if (savedRules) setAccessRules(JSON.parse(savedRules));
+      if (savedRules) {
+        try {
+          const parsed = JSON.parse(savedRules);
+          const isMock = Array.isArray(parsed) && parsed.some((r) => r.id === 'rule-1' && r.value === 'student@rmuti.ac.th');
+          if (isMock) {
+            localStorage.removeItem(STORAGE_KEYS.ACCESS_RULES);
+          } else if (Array.isArray(parsed)) {
+            setAccessRules(parsed);
+          }
+        } catch (e) {}
+      }
 
       const savedSettings = localStorage.getItem(STORAGE_KEYS.SYSTEM_SETTINGS);
       if (savedSettings) setSettings(JSON.parse(savedSettings));
@@ -188,14 +234,14 @@ export function useAppStore() {
           } catch (e) {}
         }
 
-        if (cloudLessons !== null && Array.isArray(cloudLessons) && cloudLessons.length > 0) {
+        if (cloudLessons !== null && Array.isArray(cloudLessons)) {
           setLessons(cloudLessons);
           try {
             localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(cloudLessons));
           } catch (e) {}
         }
 
-        if (cloudQuizzes !== null && Array.isArray(cloudQuizzes) && cloudQuizzes.length > 0) {
+        if (cloudQuizzes !== null && Array.isArray(cloudQuizzes)) {
           setQuizzes(cloudQuizzes);
           try {
             localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(cloudQuizzes));
@@ -250,13 +296,13 @@ export function useAppStore() {
           localStorage.setItem(STORAGE_KEYS.SYSTEM_SETTINGS, JSON.stringify(cloudSettings));
         } catch (e) {}
       }
-      if (cloudLessons !== null && Array.isArray(cloudLessons) && cloudLessons.length > 0) {
+      if (cloudLessons !== null && Array.isArray(cloudLessons)) {
         setLessons(cloudLessons);
         try {
           localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(cloudLessons));
         } catch (e) {}
       }
-      if (cloudQuizzes !== null && Array.isArray(cloudQuizzes) && cloudQuizzes.length > 0) {
+      if (cloudQuizzes !== null && Array.isArray(cloudQuizzes)) {
         setQuizzes(cloudQuizzes);
         try {
           localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(cloudQuizzes));

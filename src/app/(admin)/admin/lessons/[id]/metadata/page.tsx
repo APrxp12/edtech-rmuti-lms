@@ -33,7 +33,7 @@ export default function LessonMetadataEditorPage() {
 
   // Find target lesson supporting both id (e.g. lsn-001) and code (e.g. RMUTI-001) for all lessons
   const lesson = useMemo(() => {
-    return lessons.find((l) => l.id === lessonId || l.code === lessonId) || lessons[0];
+    return lessons.find((l) => l.id === lessonId || l.code === lessonId);
   }, [lessons, lessonId]);
 
   const publishedVer = lesson?.versions?.[0] || {
@@ -45,9 +45,9 @@ export default function LessonMetadataEditorPage() {
     updatedAt: new Date().toISOString(),
   };
 
-  const [title, setTitle] = useState(lesson.title);
-  const [description, setDescription] = useState(lesson.description);
-  const [infographic, setInfographic] = useState(lesson.introInfographicUrl || lesson.coverImageUrl || '');
+  const [title, setTitle] = useState(() => lesson?.title || '');
+  const [description, setDescription] = useState(() => lesson?.description || '');
+  const [infographic, setInfographic] = useState(() => lesson?.introInfographicUrl || lesson?.coverImageUrl || '');
   const [objectivesText, setObjectivesText] = useState(() => {
     return (publishedVer?.learningObjectives || []).join('\n');
   });
@@ -77,6 +77,7 @@ export default function LessonMetadataEditorPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveMetadata = async () => {
+    if (!lesson) return;
     setIsSaving(true);
     const objectivesArray = objectivesList;
 
@@ -124,6 +125,27 @@ export default function LessonMetadataEditorPage() {
   const handlePublish = () => {
     setShowStructuralWarning(true);
   };
+
+  if (!lesson) {
+    return (
+      <div className="max-w-xl mx-auto py-20 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-800">ไม่พบบทเรียน</h2>
+        <p className="text-sm text-slate-500">
+          ไม่พบบทเรียนรหัส &ldquo;{lessonId}&rdquo; ในระบบ อาจเนื่องจากยังไม่ได้สร้างบทเรียน หรือบทเรียนถูกลบไปแล้ว
+        </p>
+        <Link
+          href="/admin/lessons"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>กลับไปยังหน้ารายการบทเรียน</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 px-2 sm:px-4">

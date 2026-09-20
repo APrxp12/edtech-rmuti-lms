@@ -47,7 +47,7 @@ export default function AdminQuizBuilderPage() {
       if (byQuizLesson) return byQuizLesson;
     }
 
-    return lessons[0];
+    return undefined;
   }, [lessons, quizParamId, quizzes]);
 
   // Tab switcher state: 'pre_test' or 'post_test'
@@ -56,6 +56,7 @@ export default function AdminQuizBuilderPage() {
 
   // Find or create quiz definition for this lesson and current active type
   const targetQuiz = useMemo(() => {
+    if (!lesson) return null;
     const existing = quizzes.find((q) => q.lessonId === lesson.id && q.type === activeQuizType);
     if (existing) return existing;
 
@@ -81,7 +82,7 @@ export default function AdminQuizBuilderPage() {
           shuffleOptions: false,
           showExplanation: !isPre,
           status: 'published' as const,
-          learnerCount: 420,
+          learnerCount: 0,
           updatedAt: new Date().toISOString(),
           questions: [],
         },
@@ -89,7 +90,7 @@ export default function AdminQuizBuilderPage() {
     };
   }, [quizzes, lesson, activeQuizType]);
 
-  const activeVer = targetQuiz.versions[0];
+  const activeVer = targetQuiz?.versions?.[0];
 
   // Form states for Quiz Settings
   const [passScore, setPassScore] = useState<number>(activeVer?.passScorePercent ?? (activeQuizType === 'pre_test' ? 0 : 60));
@@ -116,8 +117,8 @@ export default function AdminQuizBuilderPage() {
   }, [activeQuizType, targetQuiz?.id]);
 
   // Question counts for tab badges
-  const preTestQuiz = quizzes.find((q) => q.lessonId === lesson.id && q.type === 'pre_test');
-  const postTestQuiz = quizzes.find((q) => q.lessonId === lesson.id && q.type === 'post_test');
+  const preTestQuiz = lesson ? quizzes.find((q) => q.lessonId === lesson.id && q.type === 'pre_test') : undefined;
+  const postTestQuiz = lesson ? quizzes.find((q) => q.lessonId === lesson.id && q.type === 'post_test') : undefined;
   const preTestCount = preTestQuiz?.versions[0]?.questions?.length || (activeQuizType === 'pre_test' ? questions.length : 0);
   const postTestCount = postTestQuiz?.versions[0]?.questions?.length || (activeQuizType === 'post_test' ? questions.length : 0);
 
@@ -239,15 +240,22 @@ export default function AdminQuizBuilderPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveAllQuiz = async () => {
+    if (!lesson) return;
     setIsSaving(true);
+    const versionId = activeVer?.id || `qv-${activeQuizType === 'pre_test' ? 'pre' : 'post'}-${lesson.id}-v1`;
+    const quizId = targetQuiz?.id || `quiz-${activeQuizType === 'pre_test' ? 'pre' : 'post'}-${lesson.code.toLowerCase()}`;
     const updatedQuizVersion: QuizVersion = {
-      ...activeVer,
+      id: versionId,
+      quizId: quizId,
+      versionTag: activeVer?.versionTag || 'v1.0',
       passScorePercent: Number(passScore),
       maxAttempts: Number(maxAttempts),
       scorePolicy,
       shuffleQuestions,
       shuffleOptions,
       showExplanation,
+      status: 'published',
+      learnerCount: activeVer?.learnerCount ?? 0,
       questions,
       updatedAt: new Date().toISOString(),
     };
@@ -300,6 +308,27 @@ export default function AdminQuizBuilderPage() {
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3500);
   };
+
+  if (!lesson) {
+    return (
+      <div className="max-w-xl mx-auto py-20 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-800">ไม่พบบทเรียนที่ต้องการจัดการข้อสอบ</h2>
+        <p className="text-sm text-slate-500">
+          ไม่พบบทเรียนรหัส &ldquo;{quizParamId}&rdquo; ในระบบ อาจเนื่องจากยังไม่ได้สร้างบทเรียน หรือบทเรียนถูกลบไปแล้ว
+        </p>
+        <Link
+          href="/admin/lessons"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>กลับไปยังหน้ารายการบทเรียน</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 px-2 sm:px-4">
