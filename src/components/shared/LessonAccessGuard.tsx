@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Lock, User, ArrowLeft, ShieldAlert, BookOpen } from 'lucide-react';
 import { useAppStore } from '@/data/store';
+import { isProfileComplete } from '@/lib/profileValidation';
 
 export function LessonAccessGuard({ children }: { children: React.ReactNode }) {
   const { currentUser, isLoaded } = useAppStore();
@@ -21,18 +22,7 @@ export function LessonAccessGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const hasValidName = Boolean(
-    currentUser.fullName &&
-    currentUser.fullName.trim().length >= 3 &&
-    !currentUser.fullName.includes('@')
-  );
-  const hasValidStudentId = Boolean(
-    currentUser.studentId &&
-    currentUser.studentId.trim() !== '' &&
-    currentUser.studentId !== '-' &&
-    currentUser.studentId !== '65123456789'
-  );
-  const isProfileIncomplete = !currentUser.isProfileCompleted || !hasValidName || !hasValidStudentId;
+  const isProfileIncomplete = !isProfileComplete(currentUser);
 
   if (isProfileIncomplete) {
     return (

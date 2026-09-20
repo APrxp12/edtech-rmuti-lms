@@ -10,27 +10,17 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { EmptyStateCard } from '@/components/shared/SharedDialogs';
+import { isProfileComplete } from '@/lib/profileValidation';
 
 export default function MyLessonsPage() {
   const router = useRouter();
   const { currentUser, isLoaded, lessons, progressMap, settings } = useAppStore();
 
-  const hasValidName = Boolean(
-    currentUser.fullName &&
-    currentUser.fullName.trim().length >= 3 &&
-    !currentUser.fullName.includes('@')
-  );
-  const hasValidStudentId = Boolean(
-    currentUser.studentId &&
-    currentUser.studentId.trim() !== '' &&
-    currentUser.studentId !== '-' &&
-    currentUser.studentId !== '65123456789'
-  );
   const isProfileIncomplete = Boolean(
     isLoaded &&
     currentUser.email &&
     currentUser.role === 'student' &&
-    (!currentUser.isProfileCompleted || !hasValidName || !hasValidStudentId)
+    !isProfileComplete(currentUser)
   );
 
   const handleStartLesson = (destinationUrl: string, lessonTitle: string, isLocked?: boolean) => {

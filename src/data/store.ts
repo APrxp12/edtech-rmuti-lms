@@ -39,6 +39,12 @@ import {
   dbUpsertQuiz,
   dbSaveAllQuizzes,
 } from '../lib/dbService';
+import { 
+  parseFullName, 
+  isFullNameComplete, 
+  isStudentIdComplete, 
+  isProfileComplete 
+} from '../lib/profileValidation';
 
 const STORAGE_KEYS = {
   USER: 'edtech_current_user',
@@ -73,6 +79,17 @@ export function useAppStore() {
             if (parsedUser.avatarUrl && parsedUser.avatarUrl.includes('images.unsplash.com') && parsedUser.email?.toLowerCase() === 'bugzonvazan@gmail.com') {
               parsedUser.avatarUrl = '';
               localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+            }
+            // หากเป็นนักศึกษา และข้อมูลยังไม่ครบทุกช่อง (เช่น ใส่แค่ชื่อ ไม่มีนามสกุล หรือไม่มีรหัส)
+            // ให้ปรับ isProfileCompleted เป็น false เพื่อให้ป็อบอัพเด้งขึ้นมาให้กรอกใหม่
+            if (parsedUser.role === 'student') {
+              const complete = isProfileComplete(parsedUser);
+              if (parsedUser.isProfileCompleted !== complete) {
+                parsedUser.isProfileCompleted = complete;
+                try {
+                  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+                } catch (e) {}
+              }
             }
             setCurrentUser(parsedUser);
           } else {
@@ -451,18 +468,9 @@ export function useAppStore() {
       isProfileCompleted = true;
     } else {
       // สำหรับนักศึกษา:
-      // ต้องมีรหัสนักศึกษาจริง (ไม่ใช่ '-', ไม่ใช่ '65123456789') และมีชื่อจริง (ไม่ใช่ค่าว่าง หรือชื่ออีเมล)
-      const hasValidStudentId = Boolean(
-        existingUser?.studentId &&
-        existingUser.studentId.trim() !== '' &&
-        existingUser.studentId !== '-' &&
-        existingUser.studentId !== '65123456789'
-      );
-      const hasValidFullName = Boolean(
-        existingUser?.fullName &&
-        existingUser.fullName.trim() !== '' &&
-        !existingUser.fullName.includes('@')
-      );
+      // ต้องมีคำนำหน้า ชื่อ นามสกุลครบถ้วน (isFullNameComplete) และรหัสนักศึกษาถูกต้อง (isStudentIdComplete)
+      const hasValidStudentId = isStudentIdComplete(existingUser?.studentId);
+      const hasValidFullName = isFullNameComplete(existingUser?.fullName);
 
       if (hasValidStudentId && hasValidFullName && existingUser?.isProfileCompleted) {
         userFullName = existingUser.fullName.trim();
@@ -470,10 +478,11 @@ export function useAppStore() {
         userStudentId = existingUser.studentId.trim();
         isProfileCompleted = true;
       } else {
-        // บัญชีใหม่ หรือบัญชีที่ยังไม่กรอก: ให้เว้นว่างไว้ ไม่สุ่ม ไม่ใช้ชื่ออีเมล
-        userFullName = '';
-        userDisplayName = '';
-        userStudentId = '';
+        // บัญชีใหม่ หรือบัญชีที่ยังกรอกไม่ครบ (เช่น ใส่แค่ชื่อ ไม่มีนามสกุล หรือไม่มีรหัสนักศึกษา):
+        // ให้เก็บค่าเดิมไว้เพื่อให้ฟอร์ม modal สามารถ pre-populate ชื่อที่เคยใส่ไว้ แต่ isProfileCompleted ต้องเป็น false เพื่อให้ป็อบอัพเด้ง
+        userFullName = (existingUser?.fullName && !existingUser.fullName.includes('@')) ? existingUser.fullName.trim() : '';
+        userDisplayName = existingUser?.displayName?.trim() || userFullName;
+        userStudentId = (existingUser?.studentId && existingUser.studentId !== '-' && existingUser.studentId !== '65123456789') ? existingUser.studentId.trim() : '';
         isProfileCompleted = false;
       }
     }
@@ -568,12 +577,16 @@ export function useAppStore() {
     const cleanName = fullName.trim();
     const cleanStudentId = studentId.trim();
 
+    const { first, last } = parseFullName(cleanName);
+    const cleanDisplayName = `${first} ${last}`.trim() || cleanName;
+    const isComplete = isFullNameComplete(cleanName) && isStudentIdComplete(cleanStudentId);
+
     const updatedUser: UserProfile = {
       ...currentUser,
       fullName: cleanName,
-      displayName: cleanName,
+      displayName: cleanDisplayName,
       studentId: cleanStudentId,
-      isProfileCompleted: true,
+      isProfileCompleted: isComplete,
       lastLoginAt: new Date().toISOString(),
     };
 
@@ -618,7 +631,7 @@ export function useAppStore() {
 
     const isComplete = Boolean(
       currentUser.role === 'admin' ||
-      (cleanName && cleanStudentId && cleanStudentId !== '-' && cleanStudentId !== '65123456789')
+      (isFullNameComplete(cleanName) && isStudentIdComplete(cleanStudentId))
     );
 
     const updatedUser: UserProfile = {

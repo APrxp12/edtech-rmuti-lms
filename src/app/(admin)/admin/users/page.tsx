@@ -13,6 +13,7 @@ import { useAppStore } from '@/data/store';
 import { UserProfile, UserRole, UserStatus } from '@/types';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { dbUpdateUser, dbDeleteUser, dbUpsertUser, subscribeToUsersTable } from '@/lib/dbService';
+import { isFullNameComplete, isStudentIdComplete } from '@/lib/profileValidation';
 
 export default function AdminUsersPage() {
   const { usersList, setUsersList, isSupabaseLive, refreshFromCloud } = useAppStore();
@@ -164,7 +165,7 @@ export default function AdminUsersPage() {
         email: modalEmail.trim().toLowerCase(),
         role: modalRole,
         status: modalStatus,
-        isProfileCompleted: true,
+        isProfileCompleted: modalRole === 'admin' ? true : (isFullNameComplete(modalFullName) && isStudentIdComplete(modalStudentId)),
         firstLoginAt: existing?.firstLoginAt || new Date().toISOString(),
         lastLoginAt: existing?.lastLoginAt || new Date().toISOString(),
       };
@@ -183,7 +184,7 @@ export default function AdminUsersPage() {
         email: modalEmail.trim().toLowerCase(),
         role: modalRole,
         status: modalStatus,
-        isProfileCompleted: true,
+        isProfileCompleted: modalRole === 'admin' ? true : (isFullNameComplete(modalFullName) && isStudentIdComplete(modalStudentId)),
         firstLoginAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
         avatarUrl: '',

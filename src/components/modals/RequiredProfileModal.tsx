@@ -8,6 +8,12 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { 
+  parseFullName, 
+  isFullNameComplete, 
+  isStudentIdComplete, 
+  isProfileComplete 
+} from '@/lib/profileValidation';
 
 export function RequiredProfileModal() {
   const router = useRouter();
@@ -15,27 +21,18 @@ export function RequiredProfileModal() {
   const { currentUser, isLoaded, saveRequiredProfile } = useAppStore();
 
   const isStudent = currentUser.role === 'student';
-  const hasValidName = Boolean(
-    currentUser.fullName &&
-    currentUser.fullName.trim().length >= 3 &&
-    !currentUser.fullName.includes('@')
-  );
-  const hasValidStudentId = Boolean(
-    currentUser.studentId &&
-    currentUser.studentId.trim() !== '' &&
-    currentUser.studentId !== '-' &&
-    currentUser.studentId !== '65123456789'
-  );
-  const isProfileComplete = Boolean(
-    currentUser.isProfileCompleted && hasValidName && hasValidStudentId
+  const hasCompleteName = isFullNameComplete(currentUser.fullName);
+  const hasCompleteStudentId = isStudentIdComplete(currentUser.studentId);
+  const isProfileCompleteState = Boolean(
+    currentUser.isProfileCompleted && hasCompleteName && hasCompleteStudentId
   );
 
-  // บังคับกรอกเฉพาะเมื่อโหลดเสร็จแล้ว เป็นนักศึกษา และยังกรอกข้อมูลไม่ครบ
+  // บังคับกรอกเฉพาะเมื่อโหลดเสร็จแล้ว เป็นนักศึกษา และยังกรอกข้อมูลไม่ครบทุกช่อง
   const isIncomplete = Boolean(
     isLoaded &&
     currentUser.email &&
     isStudent &&
-    !isProfileComplete
+    !isProfileCompleteState
   );
 
   const isLessonPage = pathname?.includes('/lessons/');
@@ -45,7 +42,9 @@ export function RequiredProfileModal() {
   const [forceReason, setForceReason] = useState<string | null>(null);
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
 
-  const [fullName, setFullName] = useState('');
+  const [titlePrefix, setTitlePrefix] = useState('นาย');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -57,29 +56,30 @@ export function RequiredProfileModal() {
       return;
     }
 
-    // แอดมิน หรือนักศึกษาที่กรอกครบแล้ว -> ปิด Modal ทันที และไม่เด้งขึ้นมา
-    if (!isStudent || isProfileComplete) {
+    // แอดมิน หรือนักศึกษาที่กรอกครบทุกช่องแล้ว -> ปิด Modal ทันที และไม่เด้งขึ้นมา
+    if (!isStudent || isProfileCompleteState) {
       setIsOpen(false);
       setIsForced(false);
       setForceReason(null);
       return;
     }
 
-    // สำหรับนักศึกษาที่ยังกรอกไม่ครบ
+    // สำหรับนักศึกษาที่ยังกรอกไม่ครบ (รวมถึงคนที่เคยใส่แค่ชื่อ)
     if (isIncomplete) {
       setIsOpen(true);
       if (isLessonPage) {
         setIsForced(true);
-        setForceReason('กรุณาระบุชื่อ-นามสกุล และรหัสนักศึกษาก่อนเริ่มเข้าเรียน');
+        setForceReason('กรุณาระบุชื่อ นามสกุล และรหัสนักศึกษาก่อนเริ่มเข้าเรียน');
       }
     }
-  }, [isLoaded, currentUser.email, isStudent, isProfileComplete, isIncomplete, isLessonPage]);
+  }, [isLoaded, currentUser.email, isStudent, isProfileCompleteState, isIncomplete, isLessonPage]);
 
   // ซิงค์ค่าเริ่มต้นจาก currentUser
   useEffect(() => {
-    if (currentUser.fullName && !currentUser.fullName.includes('@')) {
-      setFullName(currentUser.fullName);
-    }
+    const parsed = parseFullName(currentUser.fullName || currentUser.displayName || '');
+    setTitlePrefix(parsed.prefix || 'นาย');
+    setFirstName(parsed.first || '');
+    setLastName(parsed.last || '');
     if (
       currentUser.studentId &&
       currentUser.studentId !== '-' &&
@@ -87,7 +87,7 @@ export function RequiredProfileModal() {
     ) {
       setStudentId(currentUser.studentId);
     }
-  }, [currentUser.fullName, currentUser.studentId]);
+  }, [currentUser.fullName, currentUser.displayName, currentUser.studentId]);
 
   // ดักฟังสัญญาณสั่งเปิด Modal จากภายนอก (เช่น เมื่อคลิกเริ่มเรียนแล้วโดนบล็อก หรือคลิกแก้ไขจาก Navbar)
   useEffect(() => {
@@ -101,8 +101,8 @@ export function RequiredProfileModal() {
         setForceReason(
           detail.message ||
             (detail.lessonTitle
-              ? `ไม่สามารถเข้าเรียน "${detail.lessonTitle}" ได้: คุณต้องระบุชื่อและรหัสนักศึกษาก่อน`
-              : 'กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษาก่อนเริ่มเข้าเรียน')
+              ? `ไม่สามารถเข้าเรียน "${detail.lessonTitle}" ได้: คุณต้องระบุชื่อ นามสกุล และรหัสนักศึกษาก่อน`
+              : 'กรุณากรอกชื่อ นามสกุล และรหัสนักศึกษาก่อนเริ่มเข้าเรียน')
         );
         if (detail.destinationUrl) {
           setPendingDestination(detail.destinationUrl);
@@ -134,18 +134,31 @@ export function RequiredProfileModal() {
   if (currentUser.role === 'admin') return null;
   if (!isOpen) return null;
 
-  const isValidName = fullName.trim().length >= 3;
-  const isValidStudentId = /^[0-9A-Za-z-]{10,15}$/.test(studentId.trim());
+  const cleanedFirst = firstName.replace(/^(นาย|นางสาว|นาง|ด\.ช\.|ด\.ญ\.)\s*/i, '').trim();
+  const cleanedLast = lastName.trim();
+  const cleanedStudentId = studentId.trim();
+
+  const isValidFirst = cleanedFirst.length >= 2;
+  const isValidLast = cleanedLast.length >= 2;
+  const isValidStudentId = isStudentIdComplete(cleanedStudentId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isValidName) {
-      setErrorMessage('กรุณากรอกชื่อ - นามสกุลจริงให้ครบถ้วน (อย่างน้อย 3 ตัวอักษร)');
+    if (!titlePrefix) {
+      setErrorMessage('กรุณาเลือกคำนำหน้าชื่อ');
+      return;
+    }
+    if (!isValidFirst) {
+      setErrorMessage('กรุณากรอกชื่อจริงให้ครบถ้วน (อย่างน้อย 2 ตัวอักษร)');
+      return;
+    }
+    if (!isValidLast) {
+      setErrorMessage('กรุณากรอกนามสกุลให้ครบถ้วน (อย่างน้อย 2 ตัวอักษร)');
       return;
     }
     if (!isValidStudentId) {
-      setErrorMessage('กรุณากรอกรหัสนักศึกษาให้ถูกต้อง (ตัวเลข 10-14 หลัก)');
+      setErrorMessage('กรุณากรอกรหัสนักศึกษาให้ถูกต้อง (ตัวเลข 10-15 หลัก เช่น 653321102001-1)');
       return;
     }
 
@@ -153,7 +166,8 @@ export function RequiredProfileModal() {
     setErrorMessage(null);
 
     try {
-      await saveRequiredProfile(fullName.trim(), studentId.trim());
+      const fullOfficialName = `${titlePrefix}${cleanedFirst} ${cleanedLast}`.trim();
+      await saveRequiredProfile(fullOfficialName, cleanedStudentId);
       setIsSaving(false);
       setIsOpen(false);
 
@@ -261,34 +275,84 @@ export function RequiredProfileModal() {
             </span>
           </div>
 
-          {/* Full Name Input */}
+          {/* Prefix Dropdown */}
           <div>
             <label className="block text-xs font-bold text-slate-800 mb-1">
-              ชื่อ - นามสกุลจริง (ภาษาไทย) <span className="text-red-500">*</span>
+              คำนำหน้าชื่อ <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="เช่น นายสมชาย ใจดี หรือ สมหญิง รักเรียน"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                autoFocus
-                className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition ${
-                  isValidName
-                    ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
-                    : 'border-slate-200 focus:ring-blue-600 bg-white'
-                }`}
-              />
-              <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-            </div>
-            {isValidName ? (
-              <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-1">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>ระบุชื่อ-นามสกุลเรียบร้อย</span>
+            <select
+              value={titlePrefix}
+              onChange={(e) => setTitlePrefix(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+            >
+              <option value="นาย">นาย</option>
+              <option value="นางสาว">นางสาว</option>
+              <option value="นาง">นาง</option>
+            </select>
+          </div>
+
+          {/* First Name & Last Name in 2 columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* First Name Input */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 mb-1">
+                ชื่อจริง (ภาษาไทย) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="เช่น สมชาย หรือ พีรพล"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  autoFocus
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition ${
+                    isValidFirst
+                      ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
+                      : 'border-slate-200 focus:ring-blue-600 bg-white'
+                  }`}
+                  required
+                />
+                <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
-            ) : (
-              <p className="text-[10px] text-slate-400 mt-1">กรอกชื่อและนามสกุลจริงตามทะเบียนนักศึกษา</p>
-            )}
+              {isValidFirst ? (
+                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>ระบุชื่อเรียบร้อย</span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-slate-400 mt-1">กรอกชื่อจริง (บังคับ)</p>
+              )}
+            </div>
+
+            {/* Last Name Input */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 mb-1">
+                นามสกุล (ภาษาไทย) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="เช่น ใจดี หรือ น้อยโนนงิ้ว"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition ${
+                    isValidLast
+                      ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
+                      : 'border-rose-300 focus:ring-rose-500 bg-rose-50/20'
+                  }`}
+                  required
+                />
+                <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              </div>
+              {isValidLast ? (
+                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>ระบุนามสกุลเรียบร้อย</span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-rose-500 font-medium mt-1">กรุณาระบุนามสกุล (บังคับ)</p>
+              )}
+            </div>
           </div>
 
           {/* Student ID Input */}
@@ -307,6 +371,7 @@ export function RequiredProfileModal() {
                     ? 'border-emerald-300 focus:ring-emerald-500 bg-emerald-50/20'
                     : 'border-slate-200 focus:ring-blue-600 bg-white'
                 }`}
+                required
               />
               <GraduationCap className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             </div>
@@ -316,7 +381,7 @@ export function RequiredProfileModal() {
                 <span>รูปแบบรหัสนักศึกษาถูกต้อง</span>
               </div>
             ) : (
-              <p className="text-[10px] text-slate-400 mt-1">ตัวเลข 10-14 หลักตามบัตรนักศึกษา</p>
+              <p className="text-[10px] text-slate-400 mt-1">ตัวเลข 10-15 หลักตามบัตรนักศึกษา (บังคับ)</p>
             )}
           </div>
 

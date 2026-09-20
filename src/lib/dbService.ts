@@ -1,6 +1,7 @@
 import { getSupabase, isSupabaseConfigured } from './supabaseClient';
 import { UserProfile, Announcement, AccessRule, UserLessonProgress, Lesson, Quiz } from '@/types';
 import { SystemSettings } from '@/config/system-settings';
+import { isFullNameComplete, isStudentIdComplete } from './profileValidation';
 
 /**
  * ฐานข้อมูลกลาง - Data Access Layer (DAL)
@@ -30,17 +31,8 @@ export async function dbFetchUsers(): Promise<UserProfile[] | null> {
 
     return data.map((row: any) => {
       const isAdmin = row.role === 'admin';
-      const hasValidStudentId = Boolean(
-        row.student_id &&
-        row.student_id !== '-' &&
-        row.student_id !== '65123456789' &&
-        row.student_id.trim() !== ''
-      );
-      const hasValidName = Boolean(
-        row.full_name &&
-        row.full_name.trim() !== '' &&
-        !row.full_name.includes('@')
-      );
+      const hasValidStudentId = isStudentIdComplete(row.student_id);
+      const hasValidName = isFullNameComplete(row.full_name);
 
       return {
         id: row.id,

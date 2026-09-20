@@ -11,40 +11,22 @@ import {
 } from 'lucide-react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useAppStore } from '@/data/store';
+import { parseFullName, isStudentIdComplete } from '@/lib/profileValidation';
 
 export default function StudentProfilePage() {
   const router = useRouter();
   const { currentUser, lessons, progressMap, settings, updateUserProfile, logout } = useAppStore();
-
-  // Helper to parse Thai name with prefix
-  const parseFullName = (raw: string) => {
-    let prefix = 'นาย';
-    let clean = (raw || '').trim();
-
-    if (clean.startsWith('นางสาว')) {
-      prefix = 'นางสาว';
-      clean = clean.slice(6).trim();
-    } else if (clean.startsWith('นาง')) {
-      prefix = 'นาง';
-      clean = clean.slice(3).trim();
-    } else if (clean.startsWith('นาย')) {
-      prefix = 'นาย';
-      clean = clean.slice(3).trim();
-    }
-
-    const parts = clean.split(/\s+/);
-    const first = parts[0] || '';
-    const last = parts.slice(1).join(' ') || '';
-
-    return { prefix, first, last };
-  };
 
   // Form State
   const initialParsed = parseFullName(currentUser.fullName || currentUser.displayName || '');
   const [titlePrefix, setTitlePrefix] = useState(initialParsed.prefix);
   const [firstName, setFirstName] = useState(initialParsed.first);
   const [lastName, setLastName] = useState(initialParsed.last);
-  const [studentId, setStudentId] = useState(currentUser.studentId || '');
+  const [studentId, setStudentId] = useState(
+    currentUser.studentId && currentUser.studentId !== '-' && currentUser.studentId !== '65123456789'
+      ? currentUser.studentId
+      : ''
+  );
   const [isSaved, setIsSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -54,7 +36,11 @@ export default function StudentProfilePage() {
     setTitlePrefix(parsed.prefix);
     setFirstName(parsed.first);
     setLastName(parsed.last);
-    setStudentId(currentUser.studentId || '');
+    setStudentId(
+      currentUser.studentId && currentUser.studentId !== '-' && currentUser.studentId !== '65123456789'
+        ? currentUser.studentId
+        : ''
+    );
   }, [currentUser]);
 
   // Compute course statistics
@@ -70,21 +56,37 @@ export default function StudentProfilePage() {
     setErrorMessage(null);
 
     // Sanitize any accidentally typed title prefix in firstName
-    const cleanedFirst = firstName.replace(/^(นาย|นางสาว|นาง)\s*/i, '').trim();
+    const cleanedFirst = firstName.replace(/^(นาย|นางสาว|นาง|ด\.ช\.|ด\.ญ\.)\s*/i, '').trim();
     const cleanedLast = lastName.trim();
+    const cleanedStudentId = studentId.trim();
 
-    if (!cleanedFirst) {
-      setErrorMessage('กรุณาระบุชื่อ');
+    if (!titlePrefix) {
+      setErrorMessage('กรุณาเลือกคำนำหน้าชื่อ');
       return;
     }
 
-    const fullOfficialName = `${titlePrefix}${cleanedFirst}${cleanedLast ? ' ' + cleanedLast : ''}`.trim();
-    const cleanDisplayName = `${cleanedFirst}${cleanedLast ? ' ' + cleanedLast : ''}`.trim();
+    if (!cleanedFirst || cleanedFirst.length < 2) {
+      setErrorMessage('กรุณากรอกชื่อจริงให้ถูกต้อง (อย่างน้อย 2 ตัวอักษร)');
+      return;
+    }
+
+    if (!cleanedLast || cleanedLast.length < 2) {
+      setErrorMessage('กรุณากรอกนามสกุลให้ครบถ้วน (อย่างน้อย 2 ตัวอักษร)');
+      return;
+    }
+
+    if (!cleanedStudentId || !isStudentIdComplete(cleanedStudentId)) {
+      setErrorMessage('กรุณากรอกรหัสนักศึกษาให้ถูกต้อง (ตัวเลข 10-15 หลัก เช่น 653321102001-1)');
+      return;
+    }
+
+    const fullOfficialName = `${titlePrefix}${cleanedFirst} ${cleanedLast}`.trim();
+    const cleanDisplayName = `${cleanedFirst} ${cleanedLast}`.trim();
 
     updateUserProfile({
       fullName: fullOfficialName,
       displayName: cleanDisplayName,
-      studentId: studentId.trim(),
+      studentId: cleanedStudentId,
     });
 
     setIsSaved(true);
@@ -270,34 +272,36 @@ export default function StudentProfilePage() {
               {/* Last Name */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  นามสกุล
+                  นามสกุล <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="เช่น น้อยโนนงิ้ว"
+                  placeholder="เช่น น้อยโนนงิ้ว หรือ ใจดี"
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+                  required
                 />
                 <p className="text-[11px] text-slate-400 mt-1">
-                  ชื่อนี้จะแสดงในบัตรประจำตัวนักศึกษา และคำทักทายในหน้าแรก
+                  กรุณากรอกนามสกุลจริงตามทะเบียนนักศึกษา (บังคับทุกช่อง)
                 </p>
               </div>
 
               {/* Student ID */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  รหัสนักศึกษา
+                  รหัสนักศึกษา <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={studentId}
                   onChange={(e) => setStudentId(e.target.value)}
-                  placeholder="00000000000-0"
+                  placeholder="เช่น 653321102001-1 หรือ 65123456789"
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white font-mono transition"
+                  required
                 />
                 <p className="text-[11px] text-slate-400 mt-1">
-                  เช่น 00000000000-0
+                  ตัวเลข 10-15 หลักตามบัตรประจำตัวนักศึกษา (เช่น 653321102001-1)
                 </p>
               </div>
 
