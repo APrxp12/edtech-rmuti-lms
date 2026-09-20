@@ -6,12 +6,12 @@ import {
   BookOpen, Plus, RefreshCw, Search, Filter, Eye, Edit, Video,
   FileText, CheckCircle2, Clock, Archive, Sparkles, Building2, 
   User, HelpCircle, ArrowLeft, ArrowRight, X, ExternalLink, Layers,
-  BarChart3, Shield, Save
+  BarChart3, Shield, Save, Trash2
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 
 export default function AdminLessonsPage() {
-  const { lessons, quizzes, isSupabaseLive, refreshFromCloud, saveAllLessons, saveAllQuizzes } = useAppStore();
+  const { lessons, quizzes, isSupabaseLive, refreshFromCloud, saveAllLessons, saveAllQuizzes, deleteLesson } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -100,6 +100,19 @@ export default function AdminLessonsPage() {
     } finally {
       setIsSaving(false);
       setTimeout(() => setToastMsg(null), 3500);
+    }
+  };
+
+  const handleDeleteLesson = async (id: string, code: string, title: string) => {
+    if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบบทเรียน "${title}" (${code})?\n\nการกระทำนี้จะลบบทเรียนออกจากระบบทั้งในเครื่องและบน Cloud ฐานข้อมูลกลาง`)) {
+      try {
+        await deleteLesson(id);
+        setToastMsg(`ลบบทเรียน ${code} สำเร็จแล้ว`);
+        setTimeout(() => setToastMsg(null), 3000);
+      } catch (err) {
+        setToastMsg('เกิดข้อผิดพลาดในการลบบทเรียน');
+        setTimeout(() => setToastMsg(null), 3000);
+      }
     }
   };
 
@@ -504,6 +517,17 @@ export default function AdminLessonsPage() {
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                           <span>ข้อสอบ</span>
                         </Link>
+
+                        {/* Delete Lesson Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLesson(l.id, l.code, l.title)}
+                          className="px-2 py-1 text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition flex items-center gap-1 border border-red-200/80 cursor-pointer"
+                          title="ลบบทเรียนนี้"
+                        >
+                          <Trash2 className="w-3 h-3 text-red-600" />
+                          <span>ลบ</span>
+                        </button>
 
                       </div>
                     </td>

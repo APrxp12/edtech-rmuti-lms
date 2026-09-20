@@ -9,23 +9,78 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
+import { QuizAttempt } from '@/types';
 
 export default function PostTestPage() {
   const router = useRouter();
   const params = useParams();
   const lessonCode = (params.lessonCode as string) || 'RMUTI-003';
-  const { lessons, quizzes, progressMap, settings } = useAppStore();
+  const { currentUser, lessons, quizzes, progressMap, settings, saveUserLessonProgress } = useAppStore();
 
-  const lesson = lessons.find((l) => l.code === lessonCode) || lessons[2];
-  const quiz = quizzes.find((q) => q.type === 'post_test' && q.lessonId === lesson.id) || quizzes[1];
-  const questions = quiz.versions[0].questions;
+  const lesson = lessons.find((l) => l.code === lessonCode);
+  const quiz = lesson
+    ? quizzes.find((q) => q.type === 'post_test' && (q.lessonId === lesson.id || q.lessonId === lesson.code))
+    : undefined;
+  const questions = quiz?.versions?.[0]?.questions || [];
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
-  const [attemptCount, setAttemptCount] = useState(1);
-  const [maxAttempts] = useState(3);
   const [showWarning, setShowWarning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!lesson) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">ไม่พบบทเรียน "{lessonCode}" ในระบบ</h1>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          บทเรียนนี้อาจยังไม่ได้ถูกสร้าง หรือถูกลบออกจากระบบแล้ว กรุณาตรวจสอบรหัสบทเรียนหรือกลับสู่หน้ารายการบทเรียน
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับสู่หน้ารายการบทเรียน</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
+        <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">บทเรียนนี้ยังไม่มีแบบทดสอบหลังเรียน (Post-test)</h1>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          ผู้ดูแลระบบยังไม่ได้กำหนดข้อสอบหลังเรียนสำหรับบทเรียนนี้ คุณสามารถกลับไปทบทวนเนื้อหาหรือกลับสู่หน้าหลักได้
+        </p>
+        <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href={`/lessons/${lesson.code}/learn`}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
+          >
+            กลับสู่ห้องเรียนวิดีโอ
+          </Link>
+          <Link
+            href="/dashboard"
+            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
+          >
+            กลับสู่แดชบอร์ดหลัก
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const passScorePercent = quiz?.versions?.[0]?.passScorePercent ?? 60;
+  const maxAttempts = quiz?.versions?.[0]?.maxAttempts ?? 3;
 
   const currentQ = questions[currentIdx] || questions[0];
   const isSelected = !!selectedAnswers[currentQ.id];
@@ -66,7 +121,7 @@ export default function PostTestPage() {
     setTimeout(() => {
       setIsSubmitting(false);
 
-      // คำนวณคะแนนฝั่ง Server (Simulated)
+      // คำนวณคะแนนตามที่นักศึกษาตอบจริง
       let correctCount = 0;
       questions.forEach((q) => {
         const correctOpt = q.options.find((o) => o.isCorrect);
@@ -75,13 +130,65 @@ export default function PostTestPage() {
         }
       });
 
-      const scorePercent = Math.round((correctCount / questions.length) * 100);
-      const isPassed = scorePercent >= 60;
+      const totalQ = questions.length || 1;
+      const scorePercent = Math.round((correctCount / totalQ) * 100);
+      const isPassed = scorePercent >= passScorePercent;
+
+      const existing = progressMap[lesson.code] || {
+        userId: currentUser.id || 'usr-student',
+        lessonId: lesson.code,
+        assignedVersionId: 'v1',
+        status: 'in_progress',
+        progressPercent: 80,
+        isPreTestCompleted: true,
+        isPostTestUnlocked: true,
+        postTestAttempts: [],
+        preTestAttempts: [],
+        watchedVideos: {},
+        lastAccessedAt: new Date().toISOString(),
+      };
+
+      const newAttempt: QuizAttempt = {
+        id: `att-${Date.now()}`,
+        quizId: quiz?.id || `quiz-post-${lesson.code}`,
+        quizVersionId: quiz?.versions?.[0]?.id || 'v1',
+        quizType: 'post_test',
+        attemptNumber: (existing.postTestAttempts?.length || 0) + 1,
+        scoreObtained: correctCount,
+        maxScore: totalQ,
+        scorePercent,
+        isPassed,
+        isCountedInFinal: true,
+        submittedAt: new Date().toISOString(),
+        answers: questions.map((q) => ({
+          questionId: q.id,
+          selectedOptionId: selectedAnswers[q.id] || '',
+          isCorrect: Boolean(q.options?.find((o) => o.isCorrect && o.id === selectedAnswers[q.id])),
+          pointsAwarded: q.options?.find((o) => o.isCorrect && o.id === selectedAnswers[q.id]) ? q.points || 1 : 0,
+        })),
+      };
+
+      const allAttempts = [...(existing.postTestAttempts || []), newAttempt];
+      const bestScore = Math.max(...allAttempts.map((a) => a.scorePercent), scorePercent);
+      const finalPassed = isPassed || bestScore >= passScorePercent;
+
+      const updated = {
+        ...existing,
+        bestPostTestScorePercent: bestScore,
+        postTestAttempts: allAttempts,
+        status: finalPassed ? ('passed' as const) : ('completed_not_passed' as const),
+        progressPercent: finalPassed ? 100 : Math.max(existing.progressPercent, 90),
+        lastAccessedAt: new Date().toISOString(),
+      };
+
+      saveUserLessonProgress(lesson.code, updated);
 
       // Navigate to Result Page (Page 12 or 13)
       router.push(`/lessons/${lesson.code}/result?score=${scorePercent}&passed=${isPassed ? '1' : '0'}`);
     }, 700);
   };
+
+  const currentAttemptNumber = (progressMap[lesson.code]?.postTestAttempts?.length || 0) + 1;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -117,8 +224,8 @@ export default function PostTestPage() {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-black text-slate-800">ครั้งที่ {attemptCount} จาก {maxAttempts}</div>
-            <p className="text-[10px] text-slate-500">คุณยังมีสิทธิ์ทำแบบทดสอบอีก {maxAttempts - attemptCount} ครั้ง</p>
+            <div className="text-xs font-black text-slate-800">ครั้งที่ {currentAttemptNumber} จาก {maxAttempts}</div>
+            <p className="text-[10px] text-slate-500">คุณยังมีสิทธิ์ทำแบบทดสอบอีก {Math.max(0, maxAttempts - currentAttemptNumber)} ครั้ง</p>
           </div>
         </div>
 
@@ -128,8 +235,8 @@ export default function PostTestPage() {
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-black text-slate-800">เกณฑ์ผ่าน 60%</div>
-            <p className="text-[10px] text-slate-500">ต้องได้คะแนนอย่างน้อย 60% จึงจะถือว่าผ่าน</p>
+            <div className="text-xs font-black text-slate-800">เกณฑ์ผ่าน {passScorePercent}%</div>
+            <p className="text-[10px] text-slate-500">ต้องได้คะแนนอย่างน้อย {passScorePercent}% จึงจะถือว่าผ่าน</p>
           </div>
         </div>
 

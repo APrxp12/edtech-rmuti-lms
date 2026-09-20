@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { 
   ArrowLeft, Play, CheckCircle2, Lock, FileText, Download, 
-  ExternalLink, AlertTriangle, RefreshCw, Award, CheckSquare
+  ExternalLink, AlertTriangle, RefreshCw, Award, CheckSquare, BookOpen
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
 import { LessonVideo, LessonResource } from '@/types';
@@ -15,132 +15,56 @@ export default function LearningVideoPage() {
   const rawLessonCode = (params?.lessonCode as string) || 'RMUTI-003';
   const { lessons, progressMap, updateVideoProgress, settings } = useAppStore();
 
-  const lesson = lessons.find((l) => l.code === rawLessonCode) || lessons[2] || lessons[0];
-  const activeVersion = lesson?.versions?.[0];
+  const lesson = lessons.find((l) => l.code === rawLessonCode);
 
-  // Default fallback videos in case a lesson doesn't have videos configured yet
-  const fallbackVideos: LessonVideo[] = [
-    {
-      id: 'vid-default-1',
-      title: '1. แนะนำการสร้างสื่อการสอนออนไลน์',
-      provider: 'youtube',
-      videoUrlOrId: 'dQw4w9WgXcQ',
-      durationMinutes: '12:35',
-      durationSeconds: 755,
-      isRequired: true,
-      sortOrder: 1,
-      status: 'published',
-    },
-    {
-      id: 'vid-default-2',
-      title: '2. เครื่องมือ Canva สำหรับครู',
-      provider: 'youtube',
-      videoUrlOrId: 'M7lc1UVf-VE',
-      durationMinutes: '10:20',
-      durationSeconds: 620,
-      isRequired: true,
-      sortOrder: 2,
-      status: 'published',
-    },
-    {
-      id: 'vid-default-3',
-      title: '3. การออกแบบสไลด์ที่น่าสนใจ',
-      provider: 'youtube',
-      videoUrlOrId: 'L_LUpnjgPso',
-      durationMinutes: '15:10',
-      durationSeconds: 910,
-      isRequired: true,
-      sortOrder: 3,
-      status: 'published',
-    },
-    {
-      id: 'vid-default-4',
-      title: '4. การสร้างแบบทดสอบออนไลน์',
-      provider: 'youtube',
-      videoUrlOrId: 'dQw4w9WgXcQ',
-      durationMinutes: '11:45',
-      durationSeconds: 705,
-      isRequired: true,
-      sortOrder: 4,
-      status: 'published',
-    },
-    {
-      id: 'vid-default-5',
-      title: '5. เทคนิคการสื่อสารผ่านวิดีโอ',
-      provider: 'youtube',
-      videoUrlOrId: 'M7lc1UVf-VE',
-      durationMinutes: '13:20',
-      durationSeconds: 800,
-      isRequired: false, // Optional
-      sortOrder: 5,
-      status: 'published',
-    },
-  ];
+  if (!lesson) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
+          <BookOpen className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">ไม่พบบทเรียน "{rawLessonCode}" ในระบบ</h1>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          บทเรียนนี้อาจยังไม่ได้ถูกสร้าง หรือถูกลบออกจากระบบแล้ว กรุณาตรวจสอบรหัสบทเรียนหรือกลับสู่หน้ารายการบทเรียน
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับสู่หน้ารายการบทเรียน</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  const videos: LessonVideo[] = (activeVersion?.videos && activeVersion.videos.length > 0)
-    ? activeVersion.videos
-    : fallbackVideos;
+  const activeVersion = lesson.versions?.[0];
+  const videos: LessonVideo[] = activeVersion?.videos || [];
+  const resources: LessonResource[] = activeVersion?.resources || [];
 
-  const [activeVideoId, setActiveVideoId] = useState<string>(videos[0]?.id || fallbackVideos[0].id);
+  const [activeVideoId, setActiveVideoId] = useState<string>(videos[0]?.id || '');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
 
-  const progress = progressMap[lesson?.code || 'RMUTI-003'] || {
-    progressPercent: 60,
+  const progress = progressMap[lesson.code] || {
+    userId: '',
+    lessonId: lesson.code,
+    assignedVersionId: 'v1',
+    progressPercent: 0,
     status: 'in_progress',
+    isPreTestCompleted: false,
     isPostTestUnlocked: false,
     watchedVideos: {},
+    postTestAttempts: [],
+    lastAccessedAt: new Date().toISOString(),
   };
 
-  const activeVideo: LessonVideo = videos.find((v) => v.id === activeVideoId) || videos[0] || fallbackVideos[0];
-
-  // Fallback resources
-  const fallbackResources: LessonResource[] = [
-    {
-      id: 'res-default-1',
-      title: 'เอกสารประกอบบทเรียน (PDF)',
-      type: 'pdf',
-      fileUrl: '#',
-      fileSize: '4.8 MB',
-      displayLocation: 'both',
-      sortOrder: 1,
-      status: 'published',
-    },
-    {
-      id: 'res-default-2',
-      title: 'ไฟล์ตัวอย่างสไลด์ (Canva)',
-      type: 'canva',
-      fileUrl: 'https://canva.com',
-      displayLocation: 'content',
-      sortOrder: 2,
-      status: 'published',
-    },
-    {
-      id: 'res-default-3',
-      title: 'อินโฟกราฟิกสรุปขั้นตอน',
-      type: 'infographic',
-      fileUrl: '#',
-      displayLocation: 'both',
-      sortOrder: 3,
-      status: 'published',
-    },
-    {
-      id: 'res-default-4',
-      title: 'สไลด์นำเสนอ (PPTX)',
-      type: 'pptx',
-      fileUrl: '#',
-      fileSize: '12 MB',
-      displayLocation: 'content',
-      sortOrder: 4,
-      status: 'published',
-    },
-  ];
-
-  const resources = (activeVersion?.resources && activeVersion.resources.length > 0)
-    ? activeVersion.resources
-    : fallbackResources;
+  const activeVideo: LessonVideo | undefined = videos.find((v) => v.id === activeVideoId) || videos[0];
 
   // Helper to mark a video complete
   const handleMarkVideoComplete = (vidId: string) => {
+    if (!vidId) return;
     setSaveStatus('saving');
     setTimeout(() => {
       if (lesson?.code) {
@@ -150,7 +74,7 @@ export default function LearningVideoPage() {
     }, 400);
   };
 
-  const isPostTestUnlocked = progress.isPostTestUnlocked || progress.progressPercent >= 80;
+  const isPostTestUnlocked = progress.isPostTestUnlocked || progress.progressPercent >= 80 || (videos.length === 0 && progress.isPreTestCompleted);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -181,7 +105,9 @@ export default function LearningVideoPage() {
             </div>
             <div>
               <div className="text-[10px] text-slate-500">คะแนน Pre-test</div>
-              <div className="text-xs sm:text-sm font-black text-blue-900">8 / 10</div>
+              <div className="text-xs sm:text-sm font-black text-blue-900">
+                {progress.preTestScore ? `${progress.preTestScore.score} / ${progress.preTestScore.max || 10}` : 'ผ่านแล้ว'}
+              </div>
             </div>
           </div>
 
@@ -222,7 +148,20 @@ export default function LearningVideoPage() {
         </div>
       )}
 
-      {/* Main Video & Playlist Layout matching Page 9 */}
+      {/* Main Video & Playlist Layout */}
+      {videos.length === 0 ? (
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xs text-center space-y-4">
+          <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+            <Play className="w-8 h-8 ml-1" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base sm:text-lg font-bold text-slate-800">ยังไม่มีคลิปวิดีโอบรรยายสำหรับบทเรียนนี้</h3>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+              อาจารย์ผู้สอนกำลังจัดเตรียมสื่อและคลิปวิดีโอบรรยาย คุณสามารถศึกษาเอกสารประกอบด้านล่างได้
+            </p>
+          </div>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Video Player Column */}
@@ -230,7 +169,7 @@ export default function LearningVideoPage() {
           <div className="relative aspect-video bg-black rounded-3xl overflow-hidden shadow-xl border border-slate-200">
             {/* Embedded YouTube Player with IFrame */}
             <iframe
-              src={`https://www.youtube.com/embed/${activeVideo?.videoUrlOrId || 'dQw4w9WgXcQ'}?autoplay=0&enablejsapi=1`}
+              src={`https://www.youtube.com/embed/${activeVideo?.videoUrlOrId || ''}?autoplay=0&enablejsapi=1`}
               title={activeVideo?.title || 'วิดีโอการเรียนรู้'}
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -358,35 +297,40 @@ export default function LearningVideoPage() {
         </div>
 
       </div>
+      )}
 
       {/* Resources Grid matching Page 9 */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-800">เอกสารและแหล่งเรียนรู้ (ไม่นับ Progress)</h3>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          {resources.map((res) => (
-            <div key={res.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-2 flex flex-col justify-between">
-              <div>
-                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 mx-auto flex items-center justify-center font-bold text-[10px]">
-                  {res.type.toUpperCase()}
+        {resources.length === 0 ? (
+          <p className="text-xs text-slate-400 py-3 text-center">ยังไม่มีเอกสารหรือสื่อแนบในบทเรียนนี้</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            {resources.map((res) => (
+              <div key={res.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-2 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 mx-auto flex items-center justify-center font-bold text-[10px]">
+                    {res.type.toUpperCase()}
+                  </div>
+                  <div className="text-[11px] font-bold text-slate-800 line-clamp-1 mt-1">{res.title}</div>
+                  {res.fileSize && (
+                    <div className="text-[9px] text-slate-400 mt-0.5">{res.fileSize}</div>
+                  )}
                 </div>
-                <div className="text-[11px] font-bold text-slate-800 line-clamp-1 mt-1">{res.title}</div>
-                {res.fileSize && (
-                  <div className="text-[9px] text-slate-400 mt-0.5">{res.fileSize}</div>
-                )}
+                <a
+                  href={res.fileUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  download={res.type === 'pdf' ? res.title : undefined}
+                  className="w-full py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-blue-600 hover:bg-blue-50 cursor-pointer block text-center transition"
+                >
+                  เปิดดู / โหลด
+                </a>
               </div>
-              <a
-                href={res.fileUrl || '#'}
-                target="_blank"
-                rel="noreferrer"
-                download={res.type === 'pdf' ? res.title : undefined}
-                className="w-full py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-blue-600 hover:bg-blue-50 cursor-pointer block text-center transition"
-              >
-                เปิดดู / โหลด
-              </a>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Post-test Locked vs Unlocked Banner matching Page 9 & 10 */}
@@ -403,14 +347,14 @@ export default function LearningVideoPage() {
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <Link
-              href={`/lessons/${lesson?.code || 'RMUTI-003'}/result`}
+              href={`/lessons/${lesson.code}/result`}
               className="py-2.5 px-4 rounded-xl border border-blue-300 text-blue-800 bg-white text-xs font-bold hover:bg-blue-50"
             >
               ดูผลบทเรียน
             </Link>
 
             <Link
-              href={`/lessons/${lesson?.code || 'RMUTI-003'}/post-test`}
+              href={`/lessons/${lesson.code}/post-test`}
               className="flex-1 sm:flex-none py-2.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-200 flex items-center justify-center gap-1.5"
             >
               <Award className="w-4 h-4" />

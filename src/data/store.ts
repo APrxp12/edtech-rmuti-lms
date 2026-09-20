@@ -34,6 +34,7 @@ import {
   dbUpsertUserProgress,
   dbFetchLessons,
   dbUpsertLesson,
+  dbDeleteLesson,
   dbSaveAllLessons,
   dbFetchQuizzes,
   dbUpsertQuiz,
@@ -844,6 +845,22 @@ export function useAppStore() {
     return true;
   };
 
+  // ฟังก์ชันลบบทเรียนและซิงก์ Cloud
+  const deleteLesson = async (lessonId: string): Promise<boolean> => {
+    setLessons((prev) => {
+      const next = prev.filter((l) => l.id !== lessonId);
+      try {
+        localStorage.setItem(STORAGE_KEYS.LESSONS, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+
+    if (isSupabaseConfigured()) {
+      return await dbDeleteLesson(lessonId);
+    }
+    return true;
+  };
+
   return {
     isLoaded,
     currentUser,
@@ -871,6 +888,7 @@ export function useAppStore() {
     refreshFromCloud,
     saveUserLessonProgress,
     saveLesson,
+    deleteLesson,
     saveAllLessons,
     saveQuiz,
     saveAllQuizzes,

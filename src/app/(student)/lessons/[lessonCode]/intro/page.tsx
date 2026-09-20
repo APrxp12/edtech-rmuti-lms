@@ -18,8 +18,32 @@ export default function LessonIntroPage() {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const lesson = lessons.find((l) => l.code === lessonCode) || lessons[0];
-  const activeVersion = lesson?.versions?.[0] || {
+  const lesson = lessons.find((l) => l.code === lessonCode);
+
+  if (!lesson) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
+          <BookOpen className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">ไม่พบบทเรียน "{lessonCode}" ในระบบ</h1>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          บทเรียนนี้อาจยังไม่ได้ถูกสร้าง หรือถูกลบออกจากระบบแล้ว กรุณาตรวจสอบรหัสบทเรียนหรือกลับสู่หน้ารายการบทเรียน
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับสู่หน้ารายการบทเรียน</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const activeVersion = lesson.versions?.[0] || {
     description: 'รายละเอียดบทเรียน',
     learningObjectives: ['เรียนรู้เนื้อหาและทักษะประจำบทเรียน'],
     estimatedDurationMinutes: 30,
@@ -29,7 +53,7 @@ export default function LessonIntroPage() {
   const videos = activeVersion.videos || [];
   const resources = activeVersion.resources || [];
   const learningObjectives = activeVersion.learningObjectives || [];
-  const progress = (lesson && progressMap[lesson.code]) || { progressPercent: 0, status: 'not_started' };
+  const progress = progressMap[lesson.code] || { progressPercent: 0, status: 'not_started' };
 
   const isReviewMode = searchParams?.get('mode') === 'review' || progress.status === 'passed' || progress.isPreTestCompleted;
 

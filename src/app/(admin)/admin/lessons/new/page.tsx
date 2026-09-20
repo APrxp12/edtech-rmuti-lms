@@ -79,14 +79,14 @@ export default function AddLessonPage() {
   };
 
   const handleAddVideo = () => {
-    if (!vidTitle.trim()) return;
+    if (!vidTitle.trim() || !vidUrl.trim()) return;
     setVideos([
       ...videos,
       {
         id: `vid-${Date.now()}`,
         title: vidTitle.trim(),
         provider: 'youtube',
-        videoUrlOrId: vidUrl.trim() || 'dQw4w9WgXcQ',
+        videoUrlOrId: vidUrl.trim(),
         durationMinutes: '10:00',
         durationSeconds: 600,
         isRequired: true,

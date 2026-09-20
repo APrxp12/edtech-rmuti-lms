@@ -209,8 +209,8 @@ export default function AdminAccessRulesPage() {
 
   // Reset to default rules
   const handleResetDefaults = () => {
-    if (confirm('คุณต้องการรีเซ็ตกฎการเข้าถึงทั้งหมดเป็นค่าเริ่มต้นของระบบใช่หรือไม่?')) {
-      saveAndSyncRules(initialAccessRules, 'รีเซ็ตกฎสิทธิ์การเข้าถึงทั้งหมดเป็นค่าเริ่มต้นสำเร็จ');
+    if (confirm('คุณต้องการล้างกฎสิทธิ์การเข้าถึงทั้งหมด (ให้เป็นค่าว่าง) ใช่หรือไม่?')) {
+      saveAndSyncRules([], 'ล้างกฎสิทธิ์การเข้าถึงทั้งหมดเรียบร้อยแล้ว');
     }
   };
 

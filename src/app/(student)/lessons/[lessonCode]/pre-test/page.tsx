@@ -14,17 +14,92 @@ export default function PreTestPage() {
   const router = useRouter();
   const params = useParams();
   const lessonCode = (params.lessonCode as string) || 'RMUTI-003';
-  const { lessons, quizzes, progressMap } = useAppStore();
+  const { currentUser, lessons, quizzes, progressMap, saveUserLessonProgress } = useAppStore();
 
-  const lesson = lessons.find((l) => l.code === lessonCode) || lessons[2];
-  const quiz = quizzes.find((q) => q.type === 'pre_test' && q.lessonId === lesson.id) || quizzes[0];
-  const questions = quiz.versions[0].questions;
+  const lesson = lessons.find((l) => l.code === lessonCode);
+
+  const quiz = lesson 
+    ? quizzes.find((q) => q.type === 'pre_test' && (q.lessonId === lesson.id || q.lessonId === lesson.code))
+    : undefined;
+  const questions = quiz?.versions?.[0]?.questions || [];
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [showWarning, setShowWarning] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false); // Modal Page 8
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!lesson) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">ไม่พบบทเรียน "{lessonCode}" ในระบบ</h1>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          บทเรียนนี้อาจยังไม่ได้ถูกสร้าง หรือถูกลบออกจากระบบแล้ว กรุณาตรวจสอบรหัสบทเรียนหรือกลับสู่หน้ารายการบทเรียน
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับสู่หน้ารายการบทเรียน</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
+        <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">บทเรียนนี้ยังไม่มีแบบทดสอบก่อนเรียน (Pre-test)</h1>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          ผู้ดูแลระบบยังไม่ได้กำหนดข้อสอบก่อนเรียนสำหรับบทเรียนนี้ คุณสามารถเข้าสู่ห้องเรียนวิดีโอเพื่อศึกษาเนื้อหาได้ทันที
+        </p>
+        <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href={`/lessons/${lesson.code}/intro`}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
+          >
+            กลับหน้าแนะนำบทเรียน
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              const existing = progressMap[lesson.code] || {
+                userId: currentUser.id || 'usr-student',
+                lessonId: lesson.code,
+                assignedVersionId: 'v1',
+                status: 'in_progress',
+                progressPercent: 20,
+                isPreTestCompleted: true,
+                isPostTestUnlocked: false,
+                postTestAttempts: [],
+                preTestAttempts: [],
+                watchedVideos: {},
+                lastAccessedAt: new Date().toISOString(),
+              };
+              saveUserLessonProgress(lesson.code, {
+                ...existing,
+                isPreTestCompleted: true,
+                status: 'in_progress',
+              });
+              router.push(`/lessons/${lesson.code}/learn`);
+            }}
+            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+          >
+            เข้าสู่ห้องเรียนวิดีโอทันที →
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const currentQ = questions[currentIdx] || questions[0];
   const isSelected = !!selectedAnswers[currentQ.id];
@@ -65,9 +140,20 @@ export default function PreTestPage() {
       setIsSubmitting(false);
       setShowConfirmModal(false);
 
-      // Record pre-test completed in store
+      // ตรวจคะแนนตามคำตอบที่นักศึกษาเลือกจริง
+      let correctCount = 0;
+      questions.forEach((q) => {
+        const correctOpt = q.options?.find((o) => o.isCorrect);
+        if (correctOpt && selectedAnswers[q.id] === correctOpt.id) {
+          correctCount++;
+        }
+      });
+      const total = questions.length || 1;
+      const percent = Math.round((correctCount / total) * 100);
+
+      // Record pre-test completed in store & Supabase
       const existing = progressMap[lesson.code] || {
-        userId: 'usr-student-001',
+        userId: currentUser.id || 'usr-student',
         lessonId: lesson.code,
         assignedVersionId: 'v1',
         status: 'in_progress',
@@ -83,9 +169,12 @@ export default function PreTestPage() {
       const updated = {
         ...existing,
         isPreTestCompleted: true,
-        preTestScore: { score: 8, max: 10, percent: 80 },
+        preTestScore: { score: correctCount, max: total, percent },
         status: 'in_progress' as const,
+        lastAccessedAt: new Date().toISOString(),
       };
+
+      saveUserLessonProgress(lesson.code, updated);
 
       // Navigate straight into Learning Page (Page 9)
       router.push(`/lessons/${lesson.code}/learn`);
