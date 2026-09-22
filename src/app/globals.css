@@ -64,3 +64,20 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Google Identity Services (GSI) iframe Dark Mode transparent fix */
+.gsi-button-wrapper,
+.gsi-button-wrapper *,
+#googleBtnContainer,
+#googleBtnContainer * {
+  color-scheme: light !important;
+  background-color: transparent !important;
+}
+
+.gsi-button-wrapper iframe,
+#googleBtnContainer iframe {
+  border-radius: 9999px !important;
+  overflow: hidden !important;
+  background-color: transparent !important;
+  color-scheme: light !important;
+}

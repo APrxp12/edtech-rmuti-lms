@@ -10,6 +10,7 @@ import {
 import { siteBranding } from '@/config/site-branding';
 import { useAppStore } from '@/data/store';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 declare global {
   interface Window {
@@ -38,6 +39,7 @@ function parseJwt(token: string) {
 export default function LoginPage() {
   const router = useRouter();
   const { loginUser } = useAppStore();
+  const { resolvedTheme } = useTheme();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasGoogleClientId, setHasGoogleClientId] = useState(false);
@@ -80,6 +82,35 @@ export default function LoginPage() {
             locale: 'th',
             logo_alignment: 'left',
           });
+
+          // ป้องกันและลบกรอบสีขาวรอบปุ่ม Google ในโหมด Dark Mode
+          const fixIframeStyles = () => {
+            if (googleBtnContainerRef.current) {
+              const iframes = googleBtnContainerRef.current.querySelectorAll('iframe');
+              iframes.forEach((iframe) => {
+                iframe.style.backgroundColor = 'transparent';
+                iframe.style.colorScheme = 'light';
+                iframe.style.borderRadius = '9999px';
+                iframe.style.overflow = 'hidden';
+              });
+              const divs = googleBtnContainerRef.current.querySelectorAll('div');
+              divs.forEach((div) => {
+                div.style.backgroundColor = 'transparent';
+                div.style.colorScheme = 'light';
+              });
+            }
+          };
+
+          fixIframeStyles();
+          setTimeout(fixIframeStyles, 50);
+          setTimeout(fixIframeStyles, 200);
+          setTimeout(fixIframeStyles, 600);
+
+          const observer = new MutationObserver(() => {
+            fixIframeStyles();
+          });
+          observer.observe(googleBtnContainerRef.current, { childList: true, subtree: true });
+
           setHasGoogleClientId(true);
         }
       } catch (err) {
@@ -108,7 +139,7 @@ export default function LoginPage() {
       clearInterval(timer);
       window.removeEventListener('resize', handleResize);
     };
-  }, [googleClientId]);
+  }, [googleClientId, resolvedTheme]);
 
   // จัดการ Credential ตอบกลับจาก Google OAuth (JWT)
   const handleGoogleCredentialResponse = async (response: any) => {
@@ -199,9 +230,16 @@ export default function LoginPage() {
               
               {/* Google Native GSI Button Container */}
               <div 
-                ref={googleBtnContainerRef} 
-                className="flex justify-center w-full min-h-[46px] sm:min-h-[52px] py-1 transform scale-100 sm:scale-105 md:scale-110 origin-center transition"
-              />
+                className="gsi-button-wrapper flex justify-center items-center w-full max-w-[420px] rounded-full overflow-hidden transition"
+                style={{ colorScheme: 'light', backgroundColor: 'transparent' }}
+              >
+                <div 
+                  ref={googleBtnContainerRef} 
+                  id="googleBtnContainer"
+                  className="flex justify-center items-center w-full rounded-full overflow-hidden transition"
+                  style={{ colorScheme: 'light', backgroundColor: 'transparent' }}
+                />
+              </div>
 
               {/* Fallback button while GSI script initializes */}
               {!hasGoogleClientId && (
