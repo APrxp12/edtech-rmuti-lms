@@ -263,7 +263,7 @@ export default function StudentProfilePage() {
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="เช่น พีรพล"
+                  placeholder="เช่น ตั้งใจ"
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
                   required
                 />
@@ -278,7 +278,7 @@ export default function StudentProfilePage() {
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="เช่น น้อยโนนงิ้ว หรือ ใจดี"
+                  placeholder="เช่น ใจดี"
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
                   required
                 />
