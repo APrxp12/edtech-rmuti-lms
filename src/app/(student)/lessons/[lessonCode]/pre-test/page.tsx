@@ -32,11 +32,11 @@ export default function PreTestPage() {
   if (!lesson) {
     return (
       <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
-        <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
+        <div className="w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center">
           <HelpCircle className="w-8 h-8" />
         </div>
-        <h1 className="text-xl font-black text-slate-900">ไม่พบบทเรียน "{lessonCode}" ในระบบ</h1>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+        <h1 className="text-xl font-black text-slate-900 dark:text-white">ไม่พบบทเรียน "{lessonCode}" ในระบบ</h1>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
           บทเรียนนี้อาจยังไม่ได้ถูกสร้าง หรือถูกลบออกจากระบบแล้ว กรุณาตรวจสอบรหัสบทเรียนหรือกลับสู่หน้ารายการบทเรียน
         </p>
         <div className="pt-2">
@@ -54,18 +54,18 @@ export default function PreTestPage() {
 
   if (questions.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto py-16 text-center space-y-4 bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
-        <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+      <div className="max-w-2xl mx-auto py-16 text-center space-y-4 bg-white dark:bg-[#111827] rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-xs">
+        <div className="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 mx-auto flex items-center justify-center">
           <HelpCircle className="w-8 h-8" />
         </div>
-        <h1 className="text-xl font-black text-slate-900">บทเรียนนี้ยังไม่มีแบบทดสอบก่อนเรียน (Pre-test)</h1>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+        <h1 className="text-xl font-black text-slate-900 dark:text-white">บทเรียนนี้ยังไม่มีแบบทดสอบก่อนเรียน (Pre-test)</h1>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
           ผู้ดูแลระบบยังไม่ได้กำหนดข้อสอบก่อนเรียนสำหรับบทเรียนนี้ คุณสามารถเข้าสู่ห้องเรียนวิดีโอเพื่อศึกษาเนื้อหาได้ทันที
         </p>
         <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={`/lessons/${lesson.code}/intro`}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition"
           >
             กลับหน้าแนะนำบทเรียน
           </Link>
@@ -188,35 +188,35 @@ export default function PreTestPage() {
       <div className="flex items-center justify-between">
         <Link
           href={`/lessons/${lesson.code}/intro`}
-          className="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-blue-600 transition"
+          className="flex items-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
         >
           <ArrowLeft className="w-4 h-4" />
           กลับหน้ารายละเอียดบทเรียน
         </Link>
-        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+        <span className="text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">
           แบบทดสอบก่อนเรียน
         </span>
       </div>
 
       {/* Main Quiz Box matching Page 7 */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
         
         {/* Header & Stepper */}
         <div className="space-y-3">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             {lesson.title}
           </span>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
             แบบทดสอบก่อนเรียน (Pre-test)
           </h1>
 
           {/* Stepper Progress Bar */}
           <div className="space-y-1.5 pt-2">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span className="font-bold text-blue-700">ข้อที่ {currentIdx + 1} จาก {questions.length}</span>
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <span className="font-bold text-blue-700 dark:text-blue-400">ข้อที่ {currentIdx + 1} จาก {questions.length}</span>
               <span>{Math.round(((currentIdx + 1) / questions.length) * 100)}%</span>
             </div>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
               <div
                 className="bg-blue-600 h-full rounded-full transition-all duration-300"
                 style={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
@@ -226,8 +226,8 @@ export default function PreTestPage() {
         </div>
 
         {/* Question Text */}
-        <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
-          <h2 className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+        <div className="p-5 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+          <h2 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 leading-relaxed">
             {currentQ.questionText}
           </h2>
         </div>
@@ -243,14 +243,14 @@ export default function PreTestPage() {
                 onClick={() => handleSelectOption(opt.id)}
                 className={`w-full p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition flex items-center justify-between cursor-pointer ${
                   isChecked
-                    ? 'border-blue-600 bg-blue-50/60 text-blue-950 font-bold shadow-xs'
-                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                    ? 'border-blue-600 dark:border-blue-500 bg-blue-50/60 dark:bg-blue-950/50 text-blue-950 dark:text-blue-200 font-bold shadow-xs'
+                    : 'border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <span>{opt.optionText}</span>
                 <div
                   className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                    isChecked ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 bg-white'
+                    isChecked ? 'border-blue-600 dark:border-blue-500 bg-blue-600 dark:bg-blue-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
                   }`}
                 >
                   {isChecked && <div className="w-2 h-2 rounded-full bg-white"></div>}
@@ -262,25 +262,25 @@ export default function PreTestPage() {
 
         {/* Validation Warning Alert matching Page 7 */}
         {showWarning && (
-          <div className="p-4 rounded-2xl bg-orange-50 border border-orange-200 flex items-center gap-3 text-orange-800 text-xs">
+          <div className="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 flex items-center gap-3 text-orange-800 dark:text-orange-300 text-xs">
             <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0" />
             <div>
               <span className="font-bold">กรุณาเลือกคำตอบก่อนต่อ</span>
-              <p className="text-[11px] text-orange-700">คุณต้องเลือกคำตอบอย่างน้อย 1 ตัวเลือกเพื่อจะสามารถต่อไปได้</p>
+              <p className="text-[11px] text-orange-700 dark:text-orange-400">คุณต้องเลือกคำตอบอย่างน้อย 1 ตัวเลือกเพื่อจะสามารถต่อไปได้</p>
             </div>
           </div>
         )}
 
         {/* Navigation Buttons matching Page 7 */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handlePrev}
             disabled={currentIdx === 0}
             className={`px-5 py-2.5 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 ${
               currentIdx === 0
-                ? 'border-slate-200 text-slate-300 cursor-not-allowed'
-                : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -290,7 +290,7 @@ export default function PreTestPage() {
           <button
             type="button"
             onClick={handleNext}
-            className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-200 cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-200 dark:shadow-none cursor-pointer"
           >
             <span>{currentIdx === questions.length - 1 ? 'ส่งคำตอบ' : 'ส่งคำตอบ / ข้อถัดไป'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -302,25 +302,25 @@ export default function PreTestPage() {
       {/* Confirmation Modal matching Page 8 (Quiz Confirmation) */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center relative">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative">
             
             <button
               onClick={() => setShowConfirmModal(false)}
-              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Warning Icon */}
-            <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-500 mx-auto flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-500 dark:text-amber-400 mx-auto flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8" />
             </div>
 
             {/* Title & Body matching Page 8 */}
-            <h3 className="text-lg font-black text-slate-900">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">
               ยืนยันส่งคำตอบ?
             </h3>
-            <p className="text-xs text-slate-600 mt-2 leading-relaxed px-2">
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed px-2">
               เมื่อส่งคำตอบแล้ว คุณจะไม่สามารถแก้ไขคำตอบในการทำแบบทดสอบครั้งนี้ได้อีก โปรดตรวจสอบคำตอบให้เรียบร้อยก่อนส่ง
             </p>
 
@@ -330,7 +330,7 @@ export default function PreTestPage() {
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
                 disabled={isSubmitting}
-                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
+                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition"
               >
                 กลับไปตรวจคำตอบ
               </button>
@@ -339,7 +339,7 @@ export default function PreTestPage() {
                 type="button"
                 onClick={handleConfirmSubmit}
                 disabled={isSubmitting}
-                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-200 transition flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-200 dark:shadow-none transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isSubmitting ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

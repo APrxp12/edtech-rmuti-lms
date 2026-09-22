@@ -17,8 +17,8 @@ export function LoadingOverlay({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full mx-4 shadow-2xl border border-slate-100 flex flex-col items-center text-center space-y-4 animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 max-w-sm w-full mx-4 shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center space-y-4 animate-in zoom-in-95 duration-200">
         
         {/* Animated University Logo Icon with Glowing Ring */}
         <div className="relative">
@@ -31,7 +31,7 @@ export function LoadingOverlay({
 
         {/* Text Details */}
         <div className="space-y-1">
-          <h3 className="text-base font-bold text-slate-900 flex items-center justify-center gap-1.5">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center justify-center gap-1.5">
             <span>{message}</span>
             <span className="flex gap-0.5">
               <span className="inline-block w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"></span>
@@ -39,11 +39,11 @@ export function LoadingOverlay({
               <span className="inline-block w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce [animation-delay:0.4s]"></span>
             </span>
           </h3>
-          <p className="text-xs text-slate-500">{subMessage}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{subMessage}</p>
         </div>
 
         {/* Brand footer tag */}
-        <div className="pt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="pt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
           <Sparkles className="w-3 h-3 text-amber-500" />
           <span>EDTech • RMUTI Khon Kaen</span>
         </div>
@@ -55,7 +55,7 @@ export function LoadingOverlay({
 
 export function InlineLoadingSpinner({ text = 'กำลังโหลด...' }: { text?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 p-4 text-xs font-semibold text-slate-500">
+    <div className="flex items-center justify-center gap-2 p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
       <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
       <span>{text}</span>
     </div>

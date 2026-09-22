@@ -189,87 +189,87 @@ export default function FAQPage() {
     <div className="space-y-6 w-full max-w-[1500px] mx-auto pb-16">
       
       {/* Top Breadcrumb & Page Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition flex items-center justify-center shadow-2xs"
+            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center justify-center shadow-2xs"
             title="กลับหน้าหลัก"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               ศูนย์ช่วยเหลือและคำถามที่พบบ่อย (Help Center & FAQ)
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               คำแนะนำการใช้งานระบบ เกณฑ์การประเมินผล และการแก้ไขปัญหาเบื้องต้น
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-200 shadow-2xs font-mono">
+          <span className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-3.5 py-1.5 rounded-full border border-blue-200 dark:border-blue-800 shadow-2xs font-mono">
             {courseInfo.code}
           </span>
-          <span className="text-xs sm:text-sm font-semibold text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 shadow-2xs">
+          <span className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-3.5 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-800 shadow-2xs">
             {faqList.length} ข้อคำถาม
           </span>
         </div>
       </div>
 
       {/* Official Course & Help Hero Banner (Soft Luminous Pastel Theme - Matching my-lessons Sizing) */}
-      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 rounded-3xl p-6 sm:p-8 border border-blue-100/90 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-sky-50/60 dark:from-blue-950/40 dark:via-slate-900 dark:to-indigo-950/30 rounded-3xl p-6 sm:p-8 border border-blue-100/90 dark:border-blue-900/50 shadow-sm relative overflow-hidden">
         {/* Ambient soft pastel orbs */}
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 rounded-full blur-2xl pointer-events-none"></div>
-        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-200/30 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-44 h-44 bg-amber-200/25 dark:bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -left-10 -top-10 w-44 h-44 bg-indigo-200/20 dark:bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="relative z-10 space-y-5">
           
           {/* Top Row: Meta Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs sm:text-sm font-bold bg-white/95 text-blue-800 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 shadow-2xs">
+              <span className="text-xs sm:text-sm font-bold bg-white/95 dark:bg-slate-800 text-blue-800 dark:text-blue-300 px-3.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-200/80 dark:border-slate-700 shadow-2xs">
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>{courseInfo.curriculum}</span>
               </span>
-              <span className="text-xs sm:text-sm text-slate-600 font-medium">
+              <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">
                 • {courseInfo.semester}
               </span>
             </div>
-            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 px-3.5 py-1 rounded-full border border-blue-200/80 text-blue-900 shadow-2xs">
+            <span className="text-xs sm:text-sm font-mono font-bold bg-white/95 dark:bg-slate-800 px-3.5 py-1 rounded-full border border-blue-200/80 dark:border-slate-700 text-blue-900 dark:text-blue-300 shadow-2xs">
               ศูนย์ช่วยเหลือนักศึกษา
             </span>
           </div>
 
           {/* Course Title - Matching exact size and line behavior of my-lessons */}
           <div className="space-y-1.5">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[30px] font-bold tracking-tight text-slate-900 break-keep whitespace-normal xl:whitespace-nowrap">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[30px] font-bold tracking-tight text-slate-900 dark:text-white break-keep whitespace-normal xl:whitespace-nowrap">
               {courseInfo.title}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2 font-medium">
+              <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
               <span>{courseInfo.department}</span>
             </p>
           </div>
 
           {/* Bottom Row: Instructor & Fast Summary */}
-          <div className="pt-4 border-t border-blue-100/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
-              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
+          <div className="pt-4 border-t border-blue-100/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <div className="w-9 h-9 rounded-2xl bg-blue-100/70 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
                 <User className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 font-medium block">อาจารย์ผู้สอนประจำวิชา</span>
-                <span className="text-sm sm:text-base font-bold text-slate-900">{courseInfo.instructor}</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">อาจารย์ผู้สอนประจำวิชา</span>
+                <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">{courseInfo.instructor}</span>
               </div>
             </div>
 
             {/* Status Indicator */}
-            <div className="flex items-center gap-2 bg-white/95 px-3.5 py-2 rounded-2xl border border-blue-200/80 shadow-2xs text-xs">
+            <div className="flex items-center gap-2 bg-white/95 dark:bg-slate-800 px-3.5 py-2 rounded-2xl border border-blue-200/80 dark:border-slate-700 shadow-2xs text-xs">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="font-semibold text-slate-700">ระบบพร้อมให้บริการตลอด 24 ชม.</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">ระบบพร้อมให้บริการตลอด 24 ชม.</span>
             </div>
           </div>
 
@@ -286,13 +286,13 @@ export default function FAQPage() {
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-2 ${
                 selectedCategory === 'all'
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200 dark:shadow-none'
+                  : 'bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               <span>ทั้งหมด</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                selectedCategory === 'all' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'
+                selectedCategory === 'all' ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}>
                 {categoryStats.total}
               </span>
@@ -302,14 +302,14 @@ export default function FAQPage() {
               onClick={() => setSelectedCategory('course')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-2 ${
                 selectedCategory === 'course'
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-blue-50 hover:text-blue-700'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200 dark:shadow-none'
+                  : 'bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-700 dark:hover:text-blue-300'
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
               <span>การเข้าเรียนและบทเรียน</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                selectedCategory === 'course' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700'
+                selectedCategory === 'course' ? 'bg-blue-500 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
               }`}>
                 {categoryStats.course}
               </span>
@@ -319,14 +319,14 @@ export default function FAQPage() {
               onClick={() => setSelectedCategory('quiz')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-2 ${
                 selectedCategory === 'quiz'
-                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-indigo-50 hover:text-indigo-700'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none'
+                  : 'bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-700 dark:hover:text-indigo-300'
               }`}
             >
               <Award className="w-3.5 h-3.5" />
               <span>แบบทดสอบและคะแนน</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                selectedCategory === 'quiz' ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-700'
+                selectedCategory === 'quiz' ? 'bg-indigo-500 text-white' : 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
               }`}>
                 {categoryStats.quiz}
               </span>
@@ -336,14 +336,14 @@ export default function FAQPage() {
               onClick={() => setSelectedCategory('criteria')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-2 ${
                 selectedCategory === 'criteria'
-                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 hover:text-emerald-700'
+                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 dark:shadow-none'
+                  : 'bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>เกณฑ์การผ่านวิชา</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                selectedCategory === 'criteria' ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-700'
+                selectedCategory === 'criteria' ? 'bg-emerald-500 text-white' : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
               }`}>
                 {categoryStats.criteria}
               </span>
@@ -353,14 +353,14 @@ export default function FAQPage() {
               onClick={() => setSelectedCategory('technical')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-2 ${
                 selectedCategory === 'technical'
-                  ? 'bg-amber-600 text-white shadow-sm shadow-amber-200'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-amber-50 hover:text-amber-700'
+                  ? 'bg-amber-600 text-white shadow-sm shadow-amber-200 dark:shadow-none'
+                  : 'bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-700 dark:hover:text-amber-300'
               }`}
             >
               <Laptop className="w-3.5 h-3.5" />
               <span>ปัญหาเทคนิคและอุปกรณ์</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                selectedCategory === 'technical' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700'
+                selectedCategory === 'technical' ? 'bg-amber-500 text-white' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
               }`}>
                 {categoryStats.technical}
               </span>
@@ -374,13 +374,13 @@ export default function FAQPage() {
               placeholder="ค้นหาคำถาม, ปัญหาที่พบ..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-2xs transition"
+              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-2xs transition"
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
                 title="ล้างคำค้น"
               >
                 <X className="w-3.5 h-3.5" />
@@ -394,17 +394,17 @@ export default function FAQPage() {
       {/* Accordion Questions List */}
       <div className="space-y-3.5">
         {filteredFAQs.length === 0 ? (
-          <div className="bg-white rounded-3xl p-10 border border-slate-200 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl p-10 border border-slate-200 dark:border-slate-800 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
               <Search className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-800">ไม่พบคำถามที่ตรงกับคำค้นหา</h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
+            <h3 className="text-base font-bold text-slate-800 dark:text-white">ไม่พบคำถามที่ตรงกับคำค้นหา</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
               ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่นเพื่อดูคำถาม-คำตอบเพิ่มเติม หรือติดต่ออาจารย์ผู้สอนโดยตรงผ่านแบบฟอร์มด้านล่าง
             </p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-              className="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition cursor-pointer"
             >
               แสดงคำถามทั้งหมด
             </button>
@@ -417,10 +417,10 @@ export default function FAQPage() {
             return (
               <div
                 key={item.id}
-                className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                   isOpen
-                    ? 'border-blue-300 shadow-md ring-1 ring-blue-100'
-                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                    ? 'border-blue-400 dark:border-blue-600 shadow-md ring-1 ring-blue-100 dark:ring-blue-900/40 bg-white dark:bg-[#111827]'
+                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-[#111827] shadow-xs'
                 }`}
               >
                 {/* Accordion Header Button */}
@@ -432,24 +432,24 @@ export default function FAQPage() {
                     <div className={`w-8 h-8 rounded-xl shrink-0 flex items-center justify-center transition ${
                       isOpen
                         ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-blue-50 text-blue-600'
+                        : 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400'
                     }`}>
                       <HelpCircle className="w-4 h-4" />
                     </div>
                     <div className="space-y-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                        <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-blue-800">
                           {item.categoryLabel}
                         </span>
                       </div>
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
                         {item.question}
                       </h3>
                     </div>
                   </div>
 
-                  <div className={`p-1.5 rounded-full text-slate-400 hover:text-slate-600 transition shrink-0 transform ${
-                    isOpen ? 'rotate-180 text-blue-600' : ''
+                  <div className={`p-1.5 rounded-full text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition shrink-0 transform ${
+                    isOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''
                   }`}>
                     <ChevronDown className="w-5 h-5" />
                   </div>
@@ -457,16 +457,16 @@ export default function FAQPage() {
 
                 {/* Accordion Body */}
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-1 border-t border-slate-100 space-y-3 sm:ml-12">
-                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                  <div className="px-5 pb-5 pt-1 border-t border-slate-100 dark:border-slate-800 space-y-3 sm:ml-12">
+                    <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                       {item.answer}
                     </p>
 
                     {item.steps && (
-                      <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 space-y-2">
+                      <div className="bg-slate-50/80 dark:bg-slate-800/60 rounded-xl p-3.5 border border-slate-100 dark:border-slate-700/60 space-y-2">
                         {item.steps.map((step, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 shrink-0"></span>
+                          <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 mt-2 shrink-0"></span>
                             <span>{step}</span>
                           </div>
                         ))}
@@ -474,24 +474,24 @@ export default function FAQPage() {
                     )}
 
                     {item.tips && (
-                      <div className="flex items-start gap-2 text-xs text-amber-800 bg-amber-50/80 p-3 rounded-xl border border-amber-200/80">
-                        <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-300 bg-amber-50/80 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/80 dark:border-amber-800/60">
+                        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                         <span className="leading-relaxed">{item.tips}</span>
                       </div>
                     )}
 
                     {/* Helpful Feedback Interaction */}
-                    <div className="pt-2 flex items-center justify-between text-xs text-slate-500">
+                    <div className="pt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                       <span>คำตอบนี้มีประโยชน์สำหรับท่านหรือไม่?</span>
                       {isHelpful ? (
-                        <span className="flex items-center gap-1.5 text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg">
+                        <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-lg">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>ขอบคุณสำหรับความคิดเห็น</span>
                         </span>
                       ) : (
                         <button
                           onClick={() => handleHelpful(item.id)}
-                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-700 transition cursor-pointer"
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 transition cursor-pointer"
                         >
                           <ThumbsUp className="w-3.5 h-3.5" />
                           <span>มีประโยชน์</span>
@@ -507,40 +507,40 @@ export default function FAQPage() {
       </div>
 
       {/* Support & Contact Card */}
-      <div className="bg-gradient-to-br from-white to-blue-50/40 rounded-3xl p-6 sm:p-8 border border-blue-100 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-white to-blue-50/40 dark:from-[#111827] dark:to-blue-950/30 rounded-3xl p-6 sm:p-8 border border-blue-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-100/70 px-3 py-1 rounded-full">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-100/70 dark:bg-blue-950/60 px-3 py-1 rounded-full border border-blue-200/50 dark:border-blue-800/50">
               <MessageCircle className="w-3.5 h-3.5" />
               <span>ต้องการความช่วยเหลือเพิ่มเติม?</span>
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
               ติดต่ออาจารย์ผู้สอนประจำรายวิชา
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               หากท่านมีข้อสงสัยเกี่ยวกับเนื้อหาบทเรียน กิจกรรมการเรียนรู้ หรือพบปัญหาทางเทคนิค สามารถติดต่ออาจารย์ผู้สอนได้ตามรายละเอียดด้านล่าง:
             </p>
 
-            <div className="pt-2 space-y-1.5 text-xs sm:text-sm text-slate-600">
+            <div className="pt-2 space-y-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-blue-600 shrink-0" />
-                <span className="font-semibold text-slate-800">อาจารย์ผู้สอน:</span>
-                <span>{courseInfo.instructor}</span>
+                <User className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">อาจารย์ผู้สอน:</span>
+                <span className="text-slate-900 dark:text-slate-100">{courseInfo.instructor}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                <span className="font-semibold text-slate-800">อีเมลติดต่อ:</span>
-                <span className="font-mono text-blue-700">{courseInfo.email}</span>
+                <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">อีเมลติดต่อ:</span>
+                <span className="font-mono text-blue-700 dark:text-blue-400">{courseInfo.email}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span className="font-semibold text-slate-800">สถานที่ติดต่อ:</span>
-                <span>{courseInfo.office}</span>
+                <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">สถานที่ติดต่อ:</span>
+                <span className="text-slate-700 dark:text-slate-300">{courseInfo.office}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-600 shrink-0" />
-                <span className="font-semibold text-slate-800">ช่วงเวลาให้คำปรึกษา:</span>
-                <span>{courseInfo.officeHours}</span>
+                <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">ช่วงเวลาให้คำปรึกษา:</span>
+                <span className="text-slate-700 dark:text-slate-300">{courseInfo.officeHours}</span>
               </div>
             </div>
           </div>
@@ -555,7 +555,7 @@ export default function FAQPage() {
             </a>
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold shadow-2xs transition"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold shadow-2xs transition"
             >
               <span>กลับสู่หน้าหลัก Dashboard</span>
             </Link>
