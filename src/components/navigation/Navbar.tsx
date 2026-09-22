@@ -26,22 +26,24 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Course Badge */}
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Link href="/dashboard" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition shrink-0">
                 <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-base leading-tight truncate">
                     ระบบการสอนออนไลน์
                   </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300">
+                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 shrink-0">
                     EDTech
                   </span>
                 </div>
-                <span className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
-                  มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
+                <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 leading-tight truncate max-w-[150px] xs:max-w-[220px] sm:max-w-none">
+                  <span className="xs:hidden">มทร.อีสาน ขอนแก่น</span>
+                  <span className="hidden xs:inline sm:hidden">มทร.อีสาน วิทยาเขตขอนแก่น</span>
+                  <span className="hidden sm:inline">มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน</span>
                 </span>
               </div>
             </Link>
@@ -61,12 +63,12 @@ export default function Navbar() {
           </div>
 
           {/* Right Header Navigation Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             
             {/* Quick Link to Announcements (Dedicated Page) */}
             <Link
               href="/announcements"
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition border border-transparent hover:border-slate-200 dark:hover:border-slate-700 flex items-center gap-1.5 text-xs font-medium"
+              className="hidden sm:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition border border-transparent hover:border-slate-200 dark:hover:border-slate-700 items-center gap-1.5 text-xs font-medium"
               title="ดูประกาศและข่าวสารทั้งหมด"
             >
               <Megaphone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -76,7 +78,7 @@ export default function Navbar() {
             {/* Quick Link to FAQ (Dedicated Page) */}
             <Link
               href="/faq"
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition border border-transparent hover:border-slate-200 dark:hover:border-slate-700 flex items-center gap-1.5 text-xs font-medium"
+              className="hidden sm:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition border border-transparent hover:border-slate-200 dark:hover:border-slate-700 items-center gap-1.5 text-xs font-medium"
               title="คำถามที่พบบ่อย (FAQ)"
             >
               <HelpCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />

@@ -3,15 +3,20 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, CheckSquare, BarChart3, User } from 'lucide-react';
+import { Home, BookOpen, CheckSquare, BarChart3, User, Shield } from 'lucide-react';
+import { useAppStore } from '@/data/store';
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const { currentUser } = useAppStore();
+  const isAdmin = currentUser.role === 'admin';
 
   const navItems = [
     { href: '/dashboard', label: 'หน้าแรก', icon: Home },
     { href: '/my-lessons', label: 'บทเรียน', icon: BookOpen },
-    { href: '/lessons/RMUTI-003/pre-test', label: 'แบบทดสอบ', icon: CheckSquare },
+    isAdmin 
+      ? { href: '/admin/lessons', label: 'ระบบแอดมิน', icon: Shield }
+      : { href: '/lessons/RMUTI-003/pre-test', label: 'แบบทดสอบ', icon: CheckSquare },
     { href: '/my-progress', label: 'ความก้าวหน้า', icon: BarChart3 },
     { href: '/profile', label: 'โปรไฟล์', icon: User },
   ];
@@ -27,7 +32,9 @@ export default function MobileBottomNav() {
               key={item.label}
               href={item.href}
               className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition ${
-                isActive ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                isActive 
+                  ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />

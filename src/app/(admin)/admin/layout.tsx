@@ -4,6 +4,8 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/navigation/Navbar';
 import AdminSidebar from '@/components/navigation/AdminSidebar';
+import AdminMobileNav from '@/components/navigation/AdminMobileNav';
+import AdminMobileBottomNav from '@/components/navigation/AdminMobileBottomNav';
 import { useAppStore } from '@/data/store';
 
 export default function AdminLayout({
@@ -44,12 +46,14 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Navbar />
-      <div className="flex-1 max-w-[1600px] w-full mx-auto flex pb-12 px-2 sm:px-4 lg:px-6">
+      <AdminMobileNav />
+      <div className="flex-1 max-w-[1600px] w-full mx-auto flex pb-24 lg:pb-12 px-2 sm:px-4 lg:px-6">
         <AdminSidebar />
         <main className="flex-1 p-3 sm:p-5 lg:p-6 min-w-0">
           {children}
         </main>
       </div>
+      <AdminMobileBottomNav />
     </div>
   );
 }

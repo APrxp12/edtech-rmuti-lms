@@ -185,20 +185,24 @@ export default function LoginPage() {
       {/* Top Navbar */}
       <nav className="bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-3.5">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md shrink-0">
               <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
             </div>
-            <div>
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                {siteBranding.universityName}
+            <div className="min-w-0">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate max-w-[180px] xs:max-w-[280px] sm:max-w-none">
+                <span className="xs:hidden">มทร.อีสาน ขอนแก่น</span>
+                <span className="hidden xs:inline sm:hidden">มทร.อีสาน วิทยาเขตขอนแก่น</span>
+                <span className="hidden sm:inline">{siteBranding.universityName}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-base sm:text-xl font-black text-blue-900 dark:text-blue-400 tracking-tight">EDTech</span>
               </div>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="shrink-0">
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 

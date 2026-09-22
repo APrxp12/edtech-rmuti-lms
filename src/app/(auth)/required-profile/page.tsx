@@ -104,17 +104,21 @@ export default function RequiredProfilePage() {
       {/* Top Navbar */}
       <nav className="bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center text-white font-bold shadow-md shrink-0">
               <BookOpen className="w-5 h-5 text-amber-400" />
             </div>
-            <div>
-              <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">{siteBranding.universityName}</div>
-              <div className="text-lg font-black text-blue-900 dark:text-blue-400">EDTech</div>
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase truncate max-w-[170px] xs:max-w-[260px] sm:max-w-none">
+                <span className="xs:hidden">มทร.อีสาน ขอนแก่น</span>
+                <span className="hidden xs:inline sm:hidden">มทร.อีสาน วิทยาเขตขอนแก่น</span>
+                <span className="hidden sm:inline">{siteBranding.universityName}</span>
+              </div>
+              <div className="text-base sm:text-lg font-black text-blue-900 dark:text-blue-400">EDTech</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
               <User className="w-4 h-4 text-slate-400" />
               <span>นักเรียน ไอดี</span>
             </div>
