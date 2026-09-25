@@ -216,7 +216,7 @@ export default function RequiredProfilePage() {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="เช่น สมชาย หรือ พีรพล"
+                        placeholder="เช่น สมชาย"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 ${
@@ -246,7 +246,7 @@ export default function RequiredProfilePage() {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="เช่น ใจดี หรือ น้อยโนนงิ้ว"
+                        placeholder="เช่น ใจดี"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-medium border focus:outline-none focus:ring-2 transition text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 ${
