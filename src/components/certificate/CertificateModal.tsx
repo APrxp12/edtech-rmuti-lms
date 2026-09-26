@@ -214,12 +214,12 @@ export default function CertificateModal({
             {/* 1. Header Section: University, Faculty & Logos */}
             <div className="relative z-10 text-center">
               
-              {/* Emblem / Logo Row: 3 Slots (Major Logo slot, University Crest, Website Logo slot) */}
-              <div className="flex items-center justify-between max-w-xl mx-auto mb-2 sm:mb-3 px-4">
+              {/* Emblem / Logo Row: 2 Slots Only (Major Logo & Website Logo) */}
+              <div className="flex items-center justify-center gap-6 sm:gap-12 max-w-lg mx-auto mb-2 sm:mb-3 px-4">
                 
                 {/* SLOT 1: ตราสาขาวิชา (Major Emblem Slot) */}
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl border-2 border-dashed border-amber-600/40 bg-amber-50/60 flex flex-col items-center justify-center p-1 shadow-2xs group hover:border-amber-600 transition">
+                  <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl border-2 border-dashed border-amber-600/50 bg-amber-50/70 dark:bg-amber-950/20 flex flex-col items-center justify-center p-1.5 shadow-2xs group hover:border-amber-600 transition">
                     <img 
                       src="/major-logo.png" 
                       alt="ตราสาขาวิชา"
@@ -228,38 +228,23 @@ export default function CertificateModal({
                       onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                     <div className="text-center">
-                      <Award className="w-5 h-5 text-amber-700 mx-auto" />
-                      <span className="text-[7px] sm:text-[8px] font-bold text-amber-800 leading-tight block">
+                      <Award className="w-6 h-6 text-amber-700 mx-auto" />
+                      <span className="text-[8px] sm:text-[9px] font-bold text-amber-800 leading-tight block mt-0.5">
                         ตราสาขา
                       </span>
                     </div>
                   </div>
-                  <span className="text-[8px] text-slate-500 font-medium mt-0.5">ครุศาสตร์อุตสาหการ</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-600 font-semibold mt-1">
+                    สาขาวิชาครุศาสตร์อุตสาหการ
+                  </span>
                 </div>
 
-                {/* SLOT 2: ตรามหาวิทยาลัย (University Emblem) */}
-                <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#0F2A4A] to-[#1E3A8A] flex flex-col items-center justify-center text-white shadow-md shadow-blue-900/20 border-2 border-[#C5A059] p-1.5">
-                    <img 
-                      src="/university-logo.png" 
-                      alt="ตรามหาวิทยาลัย"
-                      className="w-full h-full object-contain hidden"
-                      onLoad={(e) => (e.currentTarget.className = "w-full h-full object-contain block")}
-                      onError={(e) => (e.currentTarget.style.display = "none")}
-                    />
-                    <div className="text-center">
-                      <Sparkles className="w-6 h-6 text-amber-400 mx-auto" />
-                      <span className="text-[8px] sm:text-[9px] font-black tracking-tight text-amber-300">
-                        มทร.อีสาน
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[8px] font-bold text-slate-700 mt-0.5">RMUTI KKC</span>
-                </div>
+                {/* Elegant Center Divider */}
+                <div className="w-px h-12 bg-gradient-to-b from-transparent via-[#C5A059] to-transparent" />
 
-                {/* SLOT 3: ตราเว็บไซต์ (EDTech Platform Logo Slot) */}
+                {/* SLOT 2: ตราเว็บไซต์ (EDTech Platform Logo Slot) */}
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl border-2 border-dashed border-blue-600/40 bg-blue-50/60 flex flex-col items-center justify-center p-1 shadow-2xs group hover:border-blue-600 transition">
+                  <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl border-2 border-dashed border-blue-600/50 bg-blue-50/70 dark:bg-blue-950/20 flex flex-col items-center justify-center p-1.5 shadow-2xs group hover:border-blue-600 transition">
                     <img 
                       src="/website-logo.png" 
                       alt="ตราเว็บไซต์"
@@ -268,14 +253,17 @@ export default function CertificateModal({
                       onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                     <div className="text-center">
-                      <FileText className="w-5 h-5 text-blue-700 mx-auto" />
-                      <span className="text-[7px] sm:text-[8px] font-bold text-blue-800 leading-tight block">
+                      <FileText className="w-6 h-6 text-blue-700 mx-auto" />
+                      <span className="text-[8px] sm:text-[9px] font-bold text-blue-800 leading-tight block mt-0.5">
                         ตราเว็บไซต์
                       </span>
                     </div>
                   </div>
-                  <span className="text-[8px] text-slate-500 font-medium mt-0.5">EDTech Platform</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-600 font-semibold mt-1">
+                    EDTech Platform
+                  </span>
                 </div>
+
               </div>
 
               {/* Institution Header Typography */}
