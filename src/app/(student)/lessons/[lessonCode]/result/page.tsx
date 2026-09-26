@@ -9,6 +9,7 @@ import {
   Printer, User, GraduationCap, Building2, Calendar
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
+import CertificateModal from '@/components/certificate/CertificateModal';
 
 function LessonResultContent() {
   const router = useRouter();
@@ -16,6 +17,7 @@ function LessonResultContent() {
   const searchParams = useSearchParams();
   const lessonCode = (params.lessonCode as string) || 'RMUTI-001';
   const { currentUser, lessons, quizzes, progressMap } = useAppStore();
+  const [isCertOpen, setIsCertOpen] = useState(false);
 
   const lesson = lessons.find((l) => l.code === lessonCode);
 
@@ -288,14 +290,14 @@ function LessonResultContent() {
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 print:hidden">
             <Link
               href={`/lessons/${lesson.code}/intro?mode=review`}
-              className="w-full sm:w-1/4 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition text-center"
+              className="w-full sm:flex-1 py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition text-center"
             >
               ทบทวนบทเรียน
             </Link>
 
             <Link
               href="/dashboard"
-              className="w-full sm:w-1/4 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition text-center shadow-md shadow-blue-200 dark:shadow-none"
+              className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition text-center shadow-md shadow-blue-200 dark:shadow-none"
             >
               กลับแดชบอร์ด
             </Link>
@@ -303,10 +305,19 @@ function LessonResultContent() {
             <button
               type="button"
               onClick={handlePrint}
-              className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-emerald-200 dark:shadow-none cursor-pointer"
+              className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-200 dark:shadow-none cursor-pointer"
             >
               <Printer className="w-4 h-4" />
-              <span>พิมพ์ใบรายงานผลการเรียน (Print Slip)</span>
+              <span>พิมพ์ใบผลการเรียน</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsCertOpen(true)}
+              className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer"
+            >
+              <Award className="w-4 h-4" />
+              <span>ใบเกียรติบัตร</span>
             </button>
           </div>
         </div>
@@ -386,6 +397,12 @@ function LessonResultContent() {
           </div>
         </div>
       )}
+
+      {/* Certificate Modal */}
+      <CertificateModal 
+        isOpen={isCertOpen} 
+        onClose={() => setIsCertOpen(false)} 
+      />
 
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   BarChart3, CheckCircle2, Award, Play, BookOpen, ArrowLeft, 
@@ -8,9 +8,11 @@ import {
   User, Calendar, GraduationCap, Target, Clock
 } from 'lucide-react';
 import { useAppStore } from '@/data/store';
+import CertificateModal from '@/components/certificate/CertificateModal';
 
 export default function MyProgressPage() {
   const { lessons, progressMap } = useAppStore();
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
 
   // Course Information Constants
   const courseInfo = {
@@ -394,6 +396,47 @@ export default function MyProgressPage() {
 
       </div>
 
+      {/* E-Certificate of Completion Banner Card */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-blue-600/10 to-indigo-600/10 dark:from-amber-950/40 dark:via-blue-950/30 dark:to-indigo-950/40 rounded-3xl p-5 sm:p-7 border border-amber-300/60 dark:border-amber-700/50 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+            <Award className="w-8 h-8" />
+          </div>
+          <div className="space-y-1 text-center md:text-left">
+            <div className="flex items-center gap-2 justify-center md:justify-start flex-wrap">
+              <span className="text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                ใบประกาศนียบัตรออนไลน์ (E-Certificate)
+              </span>
+              <span className={`text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full ${stats.percent === 100 ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
+                {stats.percent === 100 ? '✓ ปลดล็อกสิทธิ์แล้ว' : `ผ่านแล้ว ${stats.completed}/${stats.total} บทเรียน`}
+              </span>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              เกียรติบัตรรับรองการผ่านรายวิชา 30-401-001-204
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+              {stats.percent === 100 
+                ? 'ยินดีด้วย! คุณผ่านการประเมินผลสัมฤทธิ์ตามเกณฑ์มาตรฐานครบถ้วนแล้ว สามารถเปิดดูและสั่งพิมพ์/บันทึก PDF ได้ทันที'
+                : `ศึกษาเนื้อหาและทำแบบทดสอบหลังเรียน (Post-test) ให้ผ่านครบทั้ง ${stats.total} บทเรียน เพื่อปลดล็อกใบเกียรติบัตรอย่างเป็นทางการ`}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
+          <button
+            onClick={() => setIsCertModalOpen(true)}
+            className={`w-full md:w-auto px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md cursor-pointer ${
+              stats.percent === 100
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-amber-500/20'
+                : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            <Award className="w-4 h-4 text-amber-500" />
+            <span>{stats.percent === 100 ? 'เปิดดูและพิมพ์เกียรติบัตร' : 'ดูตัวอย่างเกียรติบัตร'}</span>
+          </button>
+        </div>
+      </div>
+
       {/* Lesson Progress Table */}
       <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hidden md:block">
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
@@ -752,6 +795,12 @@ export default function MyProgressPage() {
           );
         }))}
       </div>
+
+      {/* Certificate Modal */}
+      <CertificateModal 
+        isOpen={isCertModalOpen} 
+        onClose={() => setIsCertModalOpen(false)} 
+      />
 
     </div>
   );

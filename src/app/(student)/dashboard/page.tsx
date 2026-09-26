@@ -13,10 +13,12 @@ import { EmptyStateCard } from '@/components/shared/SharedDialogs';
 import LessonCoverPoster, { LessonCardSkeleton } from '@/components/shared/LessonCoverPoster';
 import { Announcement } from '@/types';
 import { isProfileComplete } from '@/lib/profileValidation';
+import CertificateModal from '@/components/certificate/CertificateModal';
 
 export default function StudentDashboardPage() {
   const router = useRouter();
   const { currentUser, isLoaded, lessons, announcements, progressMap } = useAppStore();
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
 
   const isProfileIncomplete = Boolean(
     isLoaded &&
@@ -351,6 +353,21 @@ export default function StudentDashboardPage() {
             <span>กำลังเรียน: <strong className="text-blue-600 dark:text-blue-400">{stats.inProgress}</strong></span>
             <span>ผ่านแล้ว: <strong className="text-emerald-600 dark:text-emerald-400">{stats.completed}</strong></span>
             <span>ยังไม่เริ่ม: <strong className="text-slate-600 dark:text-slate-400">{stats.notStarted}</strong></span>
+          </div>
+
+          <div className="pt-2 mt-1 border-t border-slate-100 dark:border-slate-800/80">
+            <button
+              type="button"
+              onClick={() => setIsCertModalOpen(true)}
+              className={`w-full py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                stats.percent === 100
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5 text-amber-500" />
+              <span>{stats.percent === 100 ? 'รับใบเกียรติบัตร (Certificate)' : 'ดูตัวอย่างเกียรติบัตร'}</span>
+            </button>
           </div>
         </div>
 
@@ -909,6 +926,12 @@ export default function StudentDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Certificate Modal */}
+      <CertificateModal 
+        isOpen={isCertModalOpen} 
+        onClose={() => setIsCertModalOpen(false)} 
+      />
 
     </div>
   );
